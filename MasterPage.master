@@ -1,0 +1,272 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPageSegatto" %>
+<%@ Register TagPrefix="Lightbox" TagName="Lightbox" Src="~/common/_lightbox.ascx" %>
+<%@ Register TagPrefix="Case" TagName="Novita" Src="~/common/CaseNovita.ascx" %>
+<%@ Register TagPrefix="Common" TagName="Tracking" Src="~/common/_tracking.ascx" %>
+
+<!DOCTYPE html>
+
+<html xmlns="https://www.w3.org/1999/xhtml">
+<head runat="server">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <link type="text/css" rel="stylesheet" href="css/main2.css" />
+    <link type="text/css" rel="stylesheet" href="font/fonts.css" />
+    <asp:ContentPlaceHolder id="head" runat="server">
+    </asp:ContentPlaceHolder>
+    <Lightbox:Lightbox runat="server" />
+<%--    <link rel="SHORTCUT ICON" href="favicon.ico" id="LinkFavIcon" type="image/x-icon" />--%>
+    
+    <Common:Tracking runat="server" />
+
+    <%--Gallery--%>
+    <%--<script type="text/javascript" src="/Gallery/Gallery.js"></script>--%>
+    <%--<link type="text/css" rel="stylesheet" href="/Gallery/Gallery.css" />--%>
+    <script type="text/javascript" src="/galleriascorrimento/GalleriaScorrimento.js"></script>
+
+    <%--CARATTERE LOGO--%>
+    <link href='https://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css' />
+</head>
+<body>
+        <form id="form1" runat="server">
+        <%--<div class="header">--%>
+            <div class="HeaderTop">
+                <div class="Container">
+                    <div class="HeaderDestro">
+                        <div style="float:left; color:white; margin-right:50px;">
+                            Tel. +39 0422 746046
+                        </div>
+                        <div style="float:right;">
+                            <a href="mailto:info@impresaedilesegatto.it" style="color:white;">info@impresaedilesegatto.it</a>
+                        </div>
+    <%--                    <div style="float:left; width:20px; position:relative;">
+                            <asp:HyperLink runat="server" ID="Italiano" NavigateUrl="~/" ImageUrl="~/immagini/IT.png" style="position:relative;"></asp:HyperLink>
+                            <asp:Image runat="server" ID="ImgItaliano" ImageUrl="~/immagini/lang_selected.png" style="position:absolute;top:18px;left:2px;" /> 
+                        </div>
+                        <div style="float:left; width:20px; position:relative;">
+                            <asp:HyperLink runat="server" ID="Inglese" NavigateUrl="~/en/" ImageUrl="~/immagini/en.png" style="position:relative;"></asp:HyperLink>
+                            <asp:Image ID="ImgInglese" runat="server" ImageUrl="~/immagini/lang_selected.png" style="position:absolute;top:18px;left:2px;" />
+                        </div>
+                        <div style="float:left; width:20px; position:relative;">
+                            <asp:HyperLink runat="server" ID="Tedesco" NavigateUrl="~/de/" ImageUrl="~/immagini/de.png" style="position:relative;"></asp:HyperLink>
+                            <asp:Image ID="ImgTedesco" runat="server" ImageUrl="~/immagini/lang_selected.png" style="position:absolute;top:18px;left:2px;" />
+                        </div>
+                        <div style="float:left; width:20px; position:relative;">
+                            <asp:HyperLink runat="server" ID="Francese" NavigateUrl="~/fr/" ImageUrl="~/immagini/fr.png" style="position:relative;"></asp:HyperLink>
+                            <asp:Image ID="ImgFrancese" runat="server" ImageUrl="~/immagini/lang_selected.png" style="position:absolute;top:18px;left:2px;" />
+                        </div>--%>
+                        <div style="clear:both"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="HeaderCentrale">
+                <div class="Container"> 
+                    <div style="height:10px"></div>
+                    <%--<asp:Image ID="Image1" runat="server" ImageUrl="~/segatto-costruzioni/logo.jpg" Height="65px" />--%>
+                    <div class="Logo" runat="server" id="pannellologo" style="text-align:left">
+                        <span style="font-size:28px; line-height:36px;">
+                            IMPRESA EDILE SEGATTO SRL
+                        </span>
+                        <%--<span style="font-size:28px;">
+                            COSTRUZIONI EDILI
+                        </span>
+                        <div style="border:solid 1px white; margin-top:4px; margin-bottom:4px; width:100%;"></div>
+                        <span style="font-size:19px;">
+                            SEGATTO RENZO & F.LLI SNC
+                        </span>
+                        <div class="dal1971">dal 1971</div>--%>
+                    </div>
+                    <div class="menuAlto">
+
+                        <asp:HyperLink ID="HyperLinkStoria" runat="server" NavigateUrl="~/Impresa-Edile-Chiarano.aspx" ToolTip="Impresa edile Chiarano (TREVISO): Segatto Costruzioni">Mission</asp:HyperLink>
+
+                        <asp:Image ID="Image21" runat="server" ImageUrl="~/segatto-costruzioni/lineasep.png"  />
+
+                        <asp:HyperLink ID="HyperLinkReferenze" runat="server" NavigateUrl="~/referenze-impresa-edile/cantine-e-ristoranti/referenze-cantine-e-ristoranti.aspx">Referenze</asp:HyperLink>
+
+                        <div style="clear:both"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="HeaderBottom">
+                <div class="Container">
+                    <ul class="menu">
+                    <li id="NavigaHome" runat="server">
+                        <asp:HyperLink runat="server" NavigateUrl="~/" ID="HomeLink" style="width:110px;" title="IMPRESA EDILE TREVISO" >Home</asp:HyperLink>
+		            </li>
+                    <li id="NavigaCase" runat="server">
+                        <asp:HyperLink runat="server" ID="HLCase" style="width:150px;" ToolTip="Case in vendita dal costruttore">Case in vendita <br /> dal costruttore</asp:HyperLink>
+		            </li>
+                    <li id="NavigaAppartamenti" runat="server">
+                        <asp:HyperLink runat="server" ID="HLAppartamenti" style="width:187px;" ToolTip="Appartamenti in vendita dal costruttore">Appartamenti in vendita <br /> dal costruttore</asp:HyperLink>
+		            </li>
+                    <li id="NavigaStratigrafie" runat="server">
+                        <asp:HyperLink runat="server" ID="HLStratigrafie" style="width:170px;" ToolTip="Stratigrafie muri, solai, tecniche costruttive" NavigateUrl="~/stratigrafie-e-tecniche-costruttive/Stratigrafie-Muri.aspx">Stratigrafie e <br /> tecniche costruttive</asp:HyperLink>
+		            </li>
+                    <li id="NavigaRistrutturazioni" runat="server">
+                        <asp:HyperLink runat="server" ID="HLRistrutturazioneerestauri" style="width:200px;" ToolTip="Ristrutturazioni e restauri" NavigateUrl="~/ristrutturazione-restauri/restauri/restauri.aspx">Ristrutturazione, restauri<br />e costruzioni al nuovo</asp:HyperLink>
+		            </li>
+                    <li id="NavigaCostruzioniIndustriali" runat="server">
+                        <asp:HyperLink runat="server" ID="HLCostruzioniindustriali" style="width:150px;" ToolTip="Costruzioni industriali" NavigateUrl="~/costruzioni-industriali/Costruzione-capannoni-industriali.aspx">Costruzioni industriali e per l'agricoltura</asp:HyperLink>
+		            </li>
+                    <li id="NavigaProgettazioneUfficioTecnico" runat="server">
+                        <asp:HyperLink runat="server" ID="HLProgettazioneufficio" style="width:160px;" NavigateUrl="~/progettazione-ufficio-tecnico/Progettazione-ed-ufficio-tecnico.aspx">Progettazione ed <br /> ufficio tecnico</asp:HyperLink>
+		            </li>
+                    <li id="NavigaContatti" runat="server">
+                        <asp:HyperLink runat="server" ID="HLContatti" NavigateUrl="~/Ristrutturare-casa-Treviso.aspx" Tooltip="Ristrutturare casa a Treviso" style="width:110px;">Contatti</asp:HyperLink>
+		            </li>
+                    <div style="clear:both"></div>
+                    </ul>
+                </div>
+            </div>
+
+            <asp:Panel runat="server" ID="PanelGalleria">
+                <%-- il seguente div serve solo ad ottenere la larghezza della finestra per la galleria --%>
+                <div id="slideshowResponsivo_larghezzaSchermo" style="width: 100%; height: 0px;"></div>
+                <div id="galleria" style="overflow:hidden; height:400px; position:relative;" onmouseover="mostraLenteGalleria()" onmouseout="nascondiLenteGalleria()">
+                    <div id="ContenutoDentroGalleria" style="position:relative; z-index:2000;"></div>
+
+                    <a href="#" style="position:relative; display:block;">
+                        <img alt="alt0" style="display:block; border:0px;" src="case/home/agriturismo-vignemorosina-cessalto.jpg" alt="Costruzione agriturismo LE VIGNE MOROSINA a Cessalto"/>
+                        <ins>
+                            <div style="width:auto; z-index:10; position:absolute; font-weight:bold; height:auto; padding:19px 12px 19px 12px; background-color:rgb(255, 255, 255); background-color:rgba(255, 255, 255,0.8); color:black; 
+                                    font-size:24px;">
+                                Costruzione Agriturismo
+                            </div>
+                            <div style="width:auto; z-index:11; position:absolute; font-weight:bold; height:auto; padding:13px 24px 13px 12px; background-color:rgb(97, 184, 94); background-color:rgba(97, 184, 94, 0.8); color:black; 
+                                    font-size:24px;">
+                                Le Vigne Morosina
+                            </div>
+                            <div style="width:auto; z-index:12; position:absolute; font-weight:bold; height:auto; padding:13px 12px 13px 12px; background-color:rgb(255, 255, 255);  background-color:rgba(255, 255, 255, 0.8); color:black; 
+                                    font-size:24px;">
+                                A Cessalto - Treviso
+                            </div>
+                        </ins>
+                    </a>
+
+                    <a href="#" style="position:relative; display:block;">
+                        <img alt="alt0" style="display:block; border:0px;" src="/case/home/attico-chiarano.jpg" alt="Attico in vendita a Chiarano | Attivo a Treviso" />
+                        <ins>
+                            <div style="width:auto; z-index:10; position:absolute; font-weight:bold; height:auto; padding:19px 12px 19px 12px; background-color:rgb(255, 255, 255); background-color:rgba(255, 255, 255,0.8); color:black; 
+                                    font-size:24px;">
+                                Attico Storico Ristrutturato
+                            </div>
+                            <div style="width:auto; z-index:11; position:absolute; font-weight:bold; height:auto; padding:13px 24px 13px 12px; background-color:rgb(97, 184, 94); background-color:rgba(97, 184, 94, 0.8); color:black; 
+                                    font-size:24px;">
+                                Finiture di pregio
+                            </div>
+                            <div style="width:auto; z-index:12; position:absolute; font-weight:bold; height:auto; padding:13px 12px 13px 12px; background-color:rgb(255, 255, 255);  background-color:rgba(255, 255, 255, 0.8); color:black; 
+                                    font-size:24px;">
+                                In Centro a Chiarano - Treviso
+                            </div>
+                        </ins>
+                    </a>
+                    <a href="#" style="position:relative; display:block;">
+                        <img alt="alt0" style="display:block; border:0px;" src="/case/home/restauro-oderzo.jpg" alt="Restauro ad Oderzo" />
+                        <ins>
+                            <div style="width:auto; z-index:10; position:absolute; font-weight:bold; height:auto; padding:19px 12px 19px 12px; background-color:rgb(255, 255, 255); background-color:rgba(255, 255, 255,0.8); color:black; 
+                                    font-size:24px;">
+                                Restauri costruzioni antiche
+                            </div>
+                            <div style="width:auto; z-index:11; position:absolute; font-weight:bold; height:auto; padding:13px 24px 13px 12px; background-color:rgb(97, 184, 94); background-color:rgba(97, 184, 94, 0.8); color:black; 
+                                    font-size:24px;">
+                                Tecnologie conservative all'avanguardia
+                            </div>
+                            <div style="width:auto; z-index:12; position:absolute; font-weight:bold; height:auto; padding:13px 12px 13px 12px; background-color:rgb(255, 255, 255);  background-color:rgba(255, 255, 255, 0.8); color:black; 
+                                    font-size:24px;">
+                                Palazzo in Centro Storico ad Oderzo, Treviso
+                            </div>
+                        </ins>
+                    </a>
+                    <a href="#" style="position:relative; display:block;">
+                        <img alt="alt0" style="display:block; border:0px;" src="/case/home/segatto-costruzioni.jpg" alt="Impresa edile Segatto costruzioni" />
+                        <ins>
+                            <div style="width:auto; z-index:10; position:absolute; font-weight:bold; height:auto; padding:19px 12px 19px 12px; background-color:rgb(255,255,255); background-color:rgba(255, 255, 255,0.8); color:black;
+                                    font-size:24px;">
+                               Abitazione Privata di Nuova Costruzione
+                            </div>
+                            <div style="width:auto; z-index:11; position:absolute; font-weight:bold; height:auto; padding:13px 24px 13px 12px; background-color:rgb(97,184,94); background-color:rgba(97, 184, 94, 0.8); color:black; 
+                                    font-size:24px;">
+                                ad Oderzo, Treviso
+                            </div>
+                            <div style="width:auto; z-index:12; position:absolute; font-weight:bold; height:auto; padding:13px 12px 13px 12px; background-color:rgb(255,255,255); background-color:rgba(255, 255, 255, 0.8); color:black; 
+                                    font-size:24px;">
+                                Immersa nel verde
+                            </div>
+                        </ins>
+                    </a>
+                </div>
+                <div id="oggettiGalleria" onmouseover="mostraLenteGalleria()"></div>
+                <script type="text/javascript">
+                    // fai partire l'animazione dello slideshow
+                    avviaAnimazioneGalleria();
+                </script>
+            </asp:Panel>
+            <div class="HeaderSub" id="HeaderSub" runat="server">
+                <div class="Container">
+                    <asp:Image ID="Image2" runat="server" ImageUrl="~/segatto-costruzioni/dettagli-costruzione.jpg" style="display:block; width:800px; margin:0px auto;" />
+                    
+                    <%--40 anni di esperienza--%>
+                    <div style="position:absolute; top:64px; left:270px; color:white; font-size:60px;">
+                        <asp:Label runat="server" ID="QuantiAnnidiEsperienza"></asp:Label>
+                    </div>
+                    <div style="position:absolute; top:155px; left:230px; color:white; font-size:20px">
+                        Anni di esperienza
+                    </div>
+
+                    <%--15 Unità abitative chiavi in mano--%>
+                    <div style="position:absolute; top:64px; left:591px; color:white; font-size:60px;">
+                        <asp:Label runat="server" ID="TotaleUnitaAbitativeinVendita"></asp:Label>
+                    </div>
+                    <div style="position:absolute; top:155px; left:532px; color:white; font-size:20px; text-align:center; width:190px;">
+                        Case in vendita dal costruttore
+                    </div>
+
+                    <%--72 mani che lavorano--%>
+                    <div style="position:absolute; top:64px; left:900px; color:white; font-size:60px;">
+                        40
+                    </div>
+                    <div style="position:absolute; top:155px; left:860px; color:white; font-size:20px">
+                        Mani che lavorano
+                    </div>
+                </div>
+            </div>
+        <div class="corpoSito">
+            <div class="DivInterno Container">
+                   <asp:Panel style="min-height:200px;" id="PannelloMain" runat="server">
+                        <asp:ContentPlaceHolder runat="server" ID="Corpo">
+                        </asp:ContentPlaceHolder>
+                    </asp:Panel>
+            </div>
+        </div>
+        <div class="HomeOfferteImmobiliari" id="DIVOfferte" runat="server">
+            <div style="height:15px"></div>
+            <div class="Container">
+                <div style="width:1180px; margin:0px auto; height:auto;">
+                    <Case:Novita runat="server" />
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="Container">
+                <div style="float:left; color:white; line-height:17px;">
+                    <div style="height:20px"></div>
+                    Impresa Edile Segatto SRL: <br />
+                    Via dell'Artigianato, 16 <br />
+                    Chiarano Treviso | P. IVA 00538590266<br />
+                    Tel. +39 0422 746046 | Fax +39 0422 806854 <br />
+                    <a href="mailto:info@impresaedilesegatto.it" style="color:white;">info@impresaedilesegatto.it</a><br /><br />
+                    Case in vendita dal costruttore, appartamenti in vendita dal costruttore | Ristrutturazioni a Treviso e provincia.
+                </div>
+                <div style="float:right; margin-top:10px;">
+                    <asp:Image runat="server" ImageUrl="~/segatto-costruzioni/Facebook.png" style="float:left; display:block; margin-right:17px;" Visible="false"  />
+                     <asp:HyperLink runat="server" NavigateUrl="https://www.linkedin.com/company/segatto-renzo-&-f-lli-s-n-c-"><asp:Image ID="Image1" runat="server" ImageUrl="~/case/linkedIN-40.png" style="float:left; display:block; margin-right:17px; width:32px;"  /></asp:HyperLink>
+                    
+                    <asp:HyperLink runat="server" NavigateUrl="~/Ristrutturare-casa-Treviso.aspx"><asp:Image runat="server" ImageUrl="~/segatto-costruzioni/GoogleMap.png" style="float:left; display:block;" /></asp:HyperLink>
+                    <div style="clear:both"></div>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

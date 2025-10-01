@@ -1,0 +1,464 @@
+﻿body {
+    padding:0px;
+    margin:0px;
+}
+body > form {
+    /*border:dotted 1px gray;*/
+    font-family: "Open Sans", sans-serif;
+    font-size:13px;
+}
+
+body > form > div > div {
+    margin: 0px auto;
+    width: 1580px; /* 1580px totali */
+}
+
+.iwebTABELLAWrapper { /* sovrascrivo la classe già presente su iweb-stylesheet */
+    padding:10px;
+}
+.iwebTABPADRE { /* sovrascrivo la classe già presente su iweb-stylesheet */
+    padding:10px;
+}
+.width915 {
+    width: 915px; /* 915px su 1580px totali */
+}
+.width1580 {
+    width: 1580px; /* 1580px su 1580px totali */
+}
+.width1560 {
+    /* la pagina è larga 1580px, togliendo 10 di padding sx e dx ho la larghezza per gli elementi larghi tutto lo schermo */
+    width: 1560px;
+}
+.width610 {
+    width: 610px; /* 610px su 1580px totali */
+}
+div.width730 {
+    width: 730px; /* 610px su 1580px totali */
+}
+.width800 {
+    width: 800px; /* 610px su 1580px totali */
+}
+
+input {
+    font-family: "Open Sans", sans-serif;
+    padding: 4px 10px;
+    border: 1px solid #e5e5e5;
+    transition: border-color ease-in-out 150ms, box-shadow ease-in-out 150ms;
+    -webkit-transition: border-color ease-in-out 150ms, box-shadow ease-in-out 150ms;
+}
+    input:focus {
+        outline: 0;
+        border-color:gray;
+    }
+    input[type=checkbox]:focus {
+        outline:gray solid 1px;
+    }
+    div[tabindex]:focus {
+        outline: 0;
+        border:solid 1px gray;
+    }
+.iwebFILTROTIPOCAMPO_data input[type=text] {
+    width: 70px;
+}
+.iwebFILTROTestoSemplice input[type=text] {
+    width: 100%;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+input[type=button]:hover {
+    /*background-color: lightgray;*/
+    cursor:pointer;
+}
+
+table th {
+    font-weight: 600;
+}
+
+/* 20px in più rispetto al textbox */
+select {
+    font-family: "Open Sans", sans-serif;
+    width:120px;
+    padding:3px 10px;
+    border: 1px solid #e5e5e5;
+    transition: border-color ease-in-out 150ms, box-shadow ease-in-out 150ms;
+    -webkit-transition: border-color ease-in-out 150ms, box-shadow ease-in-out 150ms;
+}
+    select:focus {
+        outline: 0;
+        border-color:gray;
+    }
+
+
+.l {
+    float:left;
+}
+.r {
+    float:right;
+}
+.b {
+    clear:both;
+}
+
+.ss {
+    text-decoration:line-through;
+}
+
+.glyphicon {
+    background-color:transparent;
+}
+/* i pulsanti devono avere la classe .btn
+    possono essere: btn-default, btn-primary, btn-success, btn-warning, btn-danger, btn-info */
+.btn {
+    display: inline-block; margin-bottom: 0; padding: 4px 10px; font-size: 13px;
+    font-weight: 400; line-height: 1.42857143; text-align: center; white-space: nowrap; vertical-align: middle;
+    -ms-touch-action: manipulation; touch-action: manipulation; cursor: pointer;
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+    background-image: none; border: 1px solid transparent; 
+    transition:background-color 200ms; -webkit-transition:background-color 200ms;
+}
+.btn:hover, .btn:focus, .btn.focus { color: #333333; text-decoration: none; }
+.btn:active, .btn.active { outline: 0; background-image: none; -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); }
+.btn.disabled, .btn[disabled], fieldset[disabled] .btn { pointer-events: none; cursor: not-allowed; -webkit-box-shadow: none; box-shadow: none; filter: alpha(opacity=65); opacity: .65;}
+.btn-default { color: #333; background-color: #fff; border-color: #ccc;   background-color: #E5E5E5; }
+.btn-default.disabled, .btn-default[disabled], fieldset[disabled] .btn-default, .btn-default.disabled:hover, .btn-default[disabled]:hover, fieldset[disabled] .btn-default:hover, .btn-default.disabled:focus, .btn-default[disabled]:focus, fieldset[disabled] .btn-default:focus, .btn-default.disabled.focus, .btn-default[disabled].focus, fieldset[disabled] .btn-default.focus, .btn-default.disabled:active, .btn-default[disabled]:active, fieldset[disabled] .btn-default:active, .btn-default.disabled.active, .btn-default[disabled].active, fieldset[disabled] .btn-default.active { background-color: #fff; border-color: #ccc; }
+.btn-default:hover, .btn-default:focus, .btn-default.focus, .btn-default:active, .btn-default.active, .open > .dropdown-toggle.btn-default { color: #333333; background-color: #e6e6e6; border-color: #adadad; }
+.btn-primary { color: #fff; background-color: #337ab7; border-color: #2e6da4; }
+.btn-primary.disabled, .btn-primary[disabled], fieldset[disabled] .btn-primary, .btn-primary.disabled:hover, .btn-primary[disabled]:hover, fieldset[disabled] .btn-primary:hover, .btn-primary.disabled:focus, .btn-primary[disabled]:focus, fieldset[disabled] .btn-primary:focus, .btn-primary.disabled.focus, .btn-primary[disabled].focus, fieldset[disabled] .btn-primary.focus, .btn-primary.disabled:active, .btn-primary[disabled]:active, fieldset[disabled] .btn-primary:active, .btn-primary.disabled.active, .btn-primary[disabled].active, fieldset[disabled] .btn-primary.active { background-color: #337ab7; border-color: #2e6da4; }
+.btn-primary:hover, .btn-primary:focus, .btn-primary.focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary { color: #ffffff; background-color: #286090; border-color: #204d74; }
+.btn-success { color: #fff; background-color: #5cb85c; border-color: #4cae4c; }
+.btn-success.disabled, .btn-success[disabled], fieldset[disabled] .btn-success, .btn-success.disabled:hover, .btn-success[disabled]:hover, fieldset[disabled] .btn-success:hover, .btn-success.disabled:focus, .btn-success[disabled]:focus, fieldset[disabled] .btn-success:focus, .btn-success.disabled.focus, .btn-success[disabled].focus, fieldset[disabled] .btn-success.focus, .btn-success.disabled:active, .btn-success[disabled]:active, fieldset[disabled] .btn-success:active, .btn-success.disabled.active, .btn-success[disabled].active, fieldset[disabled] .btn-success.active { background-color: #5cb85c; border-color: #4cae4c; }
+.btn-success:hover, .btn-success:focus, .btn-success.focus, .btn-success:active, .btn-success.active, .open > .dropdown-toggle.btn-success { color: #ffffff; background-color: #449d44; border-color: #398439; }
+.btn-warning { color: #fff; background-color: #f0ad4e; border-color: #eea236; }
+.btn-warning.disabled, .btn-warning[disabled], fieldset[disabled] .btn-warning, .btn-warning.disabled:hover, .btn-warning[disabled]:hover, fieldset[disabled] .btn-warning:hover, .btn-warning.disabled:focus, .btn-warning[disabled]:focus, fieldset[disabled] .btn-warning:focus, .btn-warning.disabled.focus, .btn-warning[disabled].focus, fieldset[disabled] .btn-warning.focus, .btn-warning.disabled:active, .btn-warning[disabled]:active, fieldset[disabled] .btn-warning:active, .btn-warning.disabled.active, .btn-warning[disabled].active, fieldset[disabled] .btn-warning.active { background-color: #f0ad4e; border-color: #eea236; }
+.btn-warning:hover, .btn-warning:focus, .btn-warning.focus, .btn-warning:active, .btn-warning.active, .open > .dropdown-toggle.btn-warning { color: #ffffff; background-color: #ec971f; border-color: #d58512; }
+.btn-danger { color: #fff; background-color: #d9534f; border-color: #d43f3a; }
+.btn-danger.disabled, .btn-danger[disabled], fieldset[disabled] .btn-danger, .btn-danger.disabled:hover, .btn-danger[disabled]:hover, fieldset[disabled] .btn-danger:hover, .btn-danger.disabled:focus, .btn-danger[disabled]:focus, fieldset[disabled] .btn-danger:focus, .btn-danger.disabled.focus, .btn-danger[disabled].focus, fieldset[disabled] .btn-danger.focus, .btn-danger.disabled:active, .btn-danger[disabled]:active, fieldset[disabled] .btn-danger:active, .btn-danger.disabled.active, .btn-danger[disabled].active, fieldset[disabled] .btn-danger.active { background-color: #d9534f; border-color: #d43f3a; }
+.btn-danger:hover, .btn-danger:focus, .btn-danger.focus, .btn-danger:active, .btn-danger.active, .open > .dropdown-toggle.btn-danger { color: #ffffff; background-color: #c9302c; border-color: #ac2925; }
+.btn-info {color: #fff; background-color: #5bc0de; border-color: #46b8da; }
+.btn-info.disabled, .btn-info[disabled], fieldset[disabled] .btn-info, .btn-info.disabled:hover, .btn-info[disabled]:hover, fieldset[disabled] .btn-info:hover, .btn-info.disabled:focus, .btn-info[disabled]:focus, fieldset[disabled] .btn-info:focus, .btn-info.disabled.focus, .btn-info[disabled].focus, fieldset[disabled] .btn-info.focus, .btn-info.disabled:active, .btn-info[disabled]:active, fieldset[disabled] .btn-info:active, .btn-info.disabled.active, .btn-info[disabled].active, fieldset[disabled] .btn-info.active { background-color: #5bc0de; border-color: #46b8da; }
+.btn-info:hover, .btn-info:focus, .btn-info.focus, .btn-info:active, .btn-info.active, .open > .dropdown-toggle.btn-info { color: #ffffff; background-color: #31b0d5; border-color: #269abc; }
+.btn-link, .btn-link:hover, .btn-link:focus, .btn-link:active { border-color: transparent; }
+.btn-link, .btn-link:active, .btn-link.active, .btn-link[disabled], fieldset[disabled] .btn-link { background-color: transparent; -webkit-box-shadow: none; box-shadow: none; }
+.btn-link { font-weight: 400; color: #337ab7; border-radius: 0; }
+.btn-lg, .btn-group-lg>.btn { padding: 10px 16px; font-size: 18px; line-height: 1.33; border-radius: 6px; }
+.btn-sm, .btn-group-sm>.btn { padding: 5px 10px; font-size: 13px; line-height: 1.5; border-radius: 3px; }
+.btn-xs, .btn-group-xs>.btn { padding: 1px 5px; font-size: 13px; line-height: 1.5; border-radius: 3px; }
+
+.errore {
+    color:red;
+}
+
+/* INIZIO CSS MENU */
+.contenitoreMenu_a_2livelli { /* il secondo div è il menu in alto */
+    margin: 0px auto;
+    width: auto;
+    background-color: rgb(43, 54, 67);
+}
+.contenitoreMenu_a_2livelli > div{ /* padre di ul.menu_a_2livelli  */
+    width: 1580px; /* 1580px totali */
+    margin:0 auto;
+    display:block;
+    background-color: rgb(43, 54, 67);
+    padding: 0px;
+}
+
+ul.menu_a_2livelli span.glyphicon { /* glyphicon più piccola per il menu */
+    font-size:10px;
+    padding:2px 0px 0px 5px;
+    background-color:transparent;
+    color: #788ea8;
+}
+ul.menu_a_2livelli span.glyphicon.glyphiconSottomenu { /* glyphicon a sinistra per i sottomenu */
+    padding:2px 5px 0px 0px;
+}
+
+ul.menu_a_2livelli  {
+    /*font-family: 'Open Sans', sans-serif;
+    font-size:14px;*/
+    list-style:none;
+    float: left;
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+}
+
+ul.menu_a_2livelli  li{
+    list-style:none;
+}
+ul.menu_a_2livelli > li { /* li del menu (livello 0) */
+    background-color: rgb(43, 54, 67);
+    float:left;
+    margin: 0;
+    padding: 0;
+}
+
+    div > ul.menu_a_2livelli  > li > ul li a:hover {
+        background-color: rgb(71, 89, 110);
+    }
+ul.menu_a_2livelli a {
+    display: block;
+    text-decoration: none;
+    color: rgb(198, 207, 218); /* colore di default NON hover */
+    transition:background-color 300ms;
+    -webkit-transition:background-color 300ms;
+}
+    ul.menu_a_2livelli a:hover{
+        /* background-color: rgb(163, 79, 98); colore hover background */
+        color: rgb(213, 220, 228); /* colore hover */
+        text-decoration: none;
+    }
+    ul.menu_a_2livelli li:hover a { /* serve per mantenere selezionato il menu padre anche quando non c'è l'hover specifico su di lui, ma su un suo elemento figlio */
+        background-color: rgb(63, 79, 98);
+        text-decoration: none;
+    }
+
+ul.menu_a_2livelli  > li > a { /* testo del livello 0 */
+    padding: 14px;
+}
+ul.menu_a_2livelli  > li > ul{ /* di default i menu sono nascosti */
+    display: none;
+}
+    ul.menu_a_2livelli  > li:hover ul{ /* all'hover su un menu questo diventa visibile e ottiene le seguenti proprietà */ /* li:hover ul -> non è un errore */
+        display: block;
+        position: absolute;
+        z-index:1;
+        width:130px;
+        padding: 0;
+    }
+    ul.menu_a_2livelli  ul > li > a { /* testo all'interno di ogni livello di sottomenu */
+        padding: 10px;
+        width: 175px;
+    }
+
+li.menu_a_3livelli {
+    position: relative;
+}
+ul.menu_a_2livelli li.menu_a_3livelli > ul  {
+    display:none;
+    top:0px;
+    left:195px; /* width + padding */
+}
+ul.menu_a_2livelli li.menu_a_3livelli:hover > ul {
+    display:block;
+}
+
+.menu_a_2livelli_Right {
+    float:right;
+    color: rgb(198, 207, 218); /* colore di default NON hover */
+    margin-right:10px;
+}
+.menu_a_2livelli_Right div {
+    margin:14px 0 0 0;
+}
+.menu_a_2livelli_Right div.loginName {
+    float:left;
+    margin:14px 10px 0 0;
+    cursor:default;
+}
+.menu_a_2livelli_Right .loginStatus {
+    float:left;
+}
+.menu_a_2livelli_Right a{
+    display:block;
+    color: rgb(198, 207, 218); /* colore di default NON hover */
+}
+
+/* FINE CSS MENU */
+
+.contenitorePaginaAspx {
+}
+
+.TitoloPagina {
+  padding: 0px;
+  font-size: 28px;
+  letter-spacing: -1px;
+  display: block;
+  color: #666;
+  margin: 10px 10px 0px 10px;
+  font-weight: 300;
+}
+
+.footersopra {
+    border-top: 1px solid rgb(43, 54, 67);
+}
+
+
+/* pagina computi/gestione-computo.aspx */
+.contenitorePaginaAspx_GestioneComputo .contenitoreFreccePosizione {
+    width:48px;
+}
+.contenitorePaginaAspx_GestioneComputo .tbVociColonnaCodice {
+    width:60px;
+}
+.contenitorePaginaAspx_GestioneComputo .tbVociColonnatitolo {
+    width:120px;
+}
+.contenitorePaginaAspx_GestioneComputo .tbVociColonnaDescrizione {
+    width:200px;
+}
+/*.contenitorePaginaAspx_GestioneComputo .tbMisureDescrizione {
+    width:200px;
+}*/
+
+
+/* pagina computi/gerarchia-computo.aspx */
+.contenitorePaginaAspx_GerarchiaComputo #rootDivGerarchia {
+    border:solid 2px black;
+    padding:3px 10px 0px 10px;
+    margin:10px;
+}
+.contenitorePaginaAspx_GerarchiaComputo .bloccoGerarchia {
+    border-left:solid 1px lightgrey;
+    padding:0px;
+    margin:10px 0px 10px 30px;
+}
+.contenitorePaginaAspx_GerarchiaComputo .bloccoGerarchia > div:first-child {
+    border:solid 1px transparent;
+    background-color:#EEEEEE;
+}
+.contenitorePaginaAspx_GerarchiaComputo .bloccoGerarchia > div:first-child:hover {
+    border:solid 1px #48b94d;
+}
+.contenitorePaginaAspx_GerarchiaComputo .bloccoGerarchia > div:first-child > .titoloBloccoGerarchia {
+    display:inline-block;
+    padding:10px;
+}
+.contenitorePaginaAspx_GerarchiaComputo .bloccoGerarchia > div:first-child > span.glyphicon {
+    cursor:pointer;
+}
+.contenitorePaginaAspx_GerarchiaComputo .bloccoGerarchia > div:first-child > span.glyphicon:hover {
+    color:#48b94d;
+}
+.contenitorePaginaAspx_GerarchiaComputo .bloccoGerarchia > div:first-child > span.glyphicon.disabled {
+    background-color:#EEEEEE;
+    color:lightgray;
+    cursor:default;
+}
+.contenitorePaginaAspx_GerarchiaComputo .idSuddivisioneGerarchia {
+    display:none;
+}
+.contenitorePaginaAspx_GerarchiaComputo span.spazio10 {
+    padding:5px;
+    display:inline-block;
+}
+.contenitorePaginaAspx_GerarchiaComputo #nomesuddivisione {
+    font-weight:bold;
+    height:18px;
+    padding-bottom:15px;
+    display:block;
+}
+
+.contenitorePaginaAspx_UnitaDiMisura .iwebTABELLAWrapper{
+    width:790px; /* metà pagina */
+}
+
+/* DDL più lunghi */
+.contenitorePaginaAspx_AnagraficaArticoli .popup select {
+    width:322px;
+}
+
+/* i codici devono essere univoci e sono gestiti in modo specifico */
+.contenitorePaginaAspx_AnagraficaClienti #popupTabellaCantieriInserimentoSpanCodiceErrato {
+    color:red;
+}
+.contenitorePaginaAspx_AnagraficaClienti #popupTabellaCantieriModificaSpanCodiceErrato { /* "Il codice esiste già" in rosso */
+    color:red;
+}
+.contenitorePaginaAspx_AnagraficaClienti #tabellaComputiCollegati {
+    width:610px;
+}
+.contenitorePaginaAspx_AnagraficaClienti #tabellaCantieriCollegati {
+    width:610px;
+}
+.contenitorePaginaAspx_AnagraficaClienti #messaggioErroreSeTabellaComputiCollegatiHaRighe {
+    color:red;
+}
+.contenitorePaginaAspx_AnagraficaClienti #messaggioErroreSeTabellaCantieriCollegatiHaRighe {
+    color:red;
+}
+
+/* pagina cantieri */
+.contenitorePaginaAspx_ElencoCantieri #popupTabellaCantieriModificaSpanCodiceErrato { /* "Il codice esiste già" in rosso */
+    color:red;
+}
+
+
+/* pagina gestione-bolle.aspx */
+.contenitorePaginaAspx_GestioneBolle .popup select {
+    width:322px;
+}
+.contenitorePaginaAspx_GestioneBolle .iwebTABELLAWrapper {
+    /*width:915px;*/
+    width:845px;
+}
+.contenitorePaginaAspx_GestioneBolle #elementoConITab {
+    /*width:620px;*/
+    width:690px;
+}
+/*
+.contenitorePaginaAspx_GestioneBolle .larghezzaComandi {
+    width:100px;
+    display:block;
+}*/
+.contenitorePaginaAspx_GestioneBolle #tabellaBolle thead input.largNumero {
+    width:50px; /* 4 cifre */
+    padding-left:0px;
+    padding-right:0px;
+}
+.contenitorePaginaAspx_GestioneBolle #tabellaBolle thead .largStato {
+    width:60px; /* 4 cifre */
+    padding-left:0px;
+    padding-right:0px;
+}
+.contenitorePaginaAspx_GestioneBolle #messaggioErroreSeTabellaCostiFattureCollegateHaRighe {
+    color:red;
+}
+
+.contenitorePaginaAspx_ControlloFattura #tabellaRigheAperte input[type=text] {
+    width:55px;
+}
+
+.contenitorePaginaAspx_GestioneRapportini .tabellaDaA td{
+    padding:0px 10px;
+}
+
+.contenitorePaginaAspx_GestioneRapportini .repeaterCellaPrimaRiga {
+    min-width:100px;
+    text-align:center;
+}
+.contenitorePaginaAspx_GestioneRapportini .repeaterCellaPrimaColonna {
+    text-align:right;
+}
+.contenitorePaginaAspx_GestioneRapportini .bottoneCarica {
+    margin: 2px 5px;
+}
+.contenitorePaginaAspx_GestioneRapportini .repeaterCella {
+    text-align:center;
+    vertical-align:bottom;
+}
+.contenitorePaginaAspx_GestioneRapportini .repeaterCellaPanelTotOre {
+    border-top: solid 1px black;
+    font-weight:bold;
+}
+
+.contenitorePaginaAspx_CaricaRapportino .tabellainserimento {
+    padding:20px 10px 10px 10px;
+}
+
+.contenitorePaginaAspx_StampaComputo .tabellaopzionistampa {
+    margin:10px;
+}
+
+.contenitorePaginaAspx_ReportCantiere table {
+    margin:10px;
+}
+
+.contenitorePaginaAspx_GestioneFatture table .commandHead {
+    min-width:150px; /* faccio in modo che controlla fattura non vada a capo */
+}
+
+.contenitorePaginaAspx_ControlloFattura #elementoConITab {
+    width:auto;
+    position:absolute;
+}
+

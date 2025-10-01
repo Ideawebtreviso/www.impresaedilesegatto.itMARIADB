@@ -1,0 +1,343 @@
+﻿.iwebTABELLAWrapper {
+    padding:10px;
+}
+.iwebTABPADRE {
+    padding:10px;
+}
+
+.iwebCliccabile {
+    cursor: pointer;
+}
+.iwebNascosto {
+    display:none;
+}
+
+.iwebFileUpload {
+    border: 1px solid #e5e5e5;
+    text-align:center;
+}
+.iwebFileUpload .iwebDivImmagineFileUpload {
+    font-size:0px;
+}
+.iwebFileUpload .iwebDivImmagineFileUpload > img {
+    max-height:100px;
+}
+input[type=file] {
+    border: none;
+    width: 72px;
+}
+
+
+div.iwebTABELLAAzioniPerSelezionati {
+    padding:5px 0;
+}
+div.iwebTABELLAAzioniPerSelezionati > span {
+    float:left;
+    line-height:28px;
+}
+div.iwebTABELLAAzioniPerSelezionati > select {
+    display:block;
+    float:left;
+    margin:0 6px;
+}
+div.iwebTABELLAAzioniPerSelezionati > input[button] {
+    display:block;
+    float:left;
+}
+
+table.iwebTABELLA, table.iwebDETTAGLIO {
+    border-collapse:collapse;
+    text-align:left;
+    width:inherit;
+}
+
+table.iwebTABELLA > thead > tr {
+    background-color:white;
+    vertical-align:top;
+    line-height:28px;
+}
+table.iwebTABELLA > thead > tr:first-child {
+    background-color:rgb(238, 238, 238);
+    line-height:16px;
+}
+table.iwebTABELLA th {
+    text-align:center;
+}
+table.iwebTABELLA .commandHead {
+}
+
+table.iwebTABELLA tbody > tr, table.iwebDETTAGLIO tbody > tr {
+    background-color: white;
+}
+table.iwebTABELLA tbody > tr:nth-child(odd), table.iwebDETTAGLIO tbody > tr:nth-child(odd) { /* css 3 */
+    background-color: rgb(249, 249, 249);
+}
+table.iwebTABELLA tbody > tr:hover {
+    background-color: rgb(238, 238, 238);
+}
+table.iwebTABELLA th, table.iwebTABELLA td, table.iwebDETTAGLIO th, table.iwebDETTAGLIO td {
+    border:solid 1px #dddddd;
+    padding:5px 10px 5px 10px;
+}
+
+table.iwebTABELLA > tbody > tr.iwebRigaSelezionata{
+    background-color: lightgray !important;
+}
+
+table.iwebTABELLA tfoot tr:first-child td {
+    background-color: rgb(238, 238, 238);
+    line-height: 16px;
+    vertical-align: top;
+    font-weight: 600;
+    border: solid 1px #dddddd;
+}
+
+table.iwebTABELLA > tfoot td {
+    /*background-color:rgb(238, 238, 238);*/
+    border-color:transparent;
+    line-height:25px;
+    width:auto; /*per IE8*/
+}
+table.iwebTABELLA div.iwebTABELLAFooterPaginazione > div {
+    float: left;
+    padding: 0 5px 0 5px;
+    text-align: center;
+}
+table.iwebTABELLA div.iwebTABELLAFooterPaginazione > div > span {
+    float: left;
+}
+table.iwebTABELLA div.iwebTABELLAFooterPaginazione input {
+    width:50px;
+    margin:0px;
+    text-align:center;
+}
+
+.iwebTABFIGLIO .iwebDETTAGLIO {
+    max-width:500px;
+}
+
+.glyphicon {
+    position:inherit;
+    background-color: rgb(229, 229, 229);
+    padding: 5px;
+}
+.glyphicon:hover {
+    background-color: lightgray;
+}
+
+/* TAB */
+div.iwebTABPADRE {
+    float:right;
+    width:620px;
+}
+div.iwebTABPADRE > div.headerTab > div.iwebTABFIGLIO { /* default */
+    float:left;
+    min-width:110px;
+    height:20px;
+    padding:5px;
+    cursor:pointer;
+    border-top-right-radius:10px;
+    border-top-left-radius:10px;
+        border:solid 1px #dddddd;
+    border-bottom:none;
+}
+div.iwebTABPADRE > div.headerTab > div.iwebTABFIGLIO.nonUsato {
+    background-color: transparent;
+    cursor:default;
+}
+div.iwebTABPADRE > div.headerTab > div.iwebTABFIGLIO.nonUsato:hover {
+    background-color: transparent;
+}
+div.iwebTABPADRE > div.headerTab > div.iwebTABFIGLIO:hover { /* tab hover */
+    background-color: rgb(238, 238, 238);
+}
+div.iwebTABPADRE > div.headerTab > .iwebINIZIOTAB{ /* prima del primo tab */
+}
+div.iwebTABPADRE > div.headerTab > div[class~=iwebINIZIOTAB] ~ div { /* dal primo tab al tab selezionato */
+    /*border-bottom:solid 1px #dddddd;*/
+}
+div.iwebTABPADRE > div.headerTab > div.iwebTABFIGLIO.selectedTab { /* il tab selezionato */
+    background-color: rgb(238, 238, 238);
+    cursor:default;
+}
+div.iwebTABPADRE > div.headerTab > div[class~=selectedTab] ~ div { /* dal tab selezionato all'ultimo tab */
+}
+div.iwebTABPADRE > div.headerTab > div.iwebFINETAB { /* dopo l'ultimo tab */
+    border:none !important;
+    clear:both;
+}
+
+div.iwebTABPADRE > div.corpoTab {
+    padding:10px;
+    background-color: rgb(238, 238, 238);
+    border:solid 1px #dddddd;
+    /*border-top:none;*/
+}
+div.iwebTABPADRE > div.corpoTab > .iwebTABFIGLIO {
+    display:none;
+}
+div.iwebTABPADRE > div.corpoTab > .iwebTABFIGLIO.selectedTab{
+    display:block;
+}
+.selectedTab {
+    position: relative;
+}
+
+.selectedTab .lineaSotto {
+    position:absolute;
+    top: 30px;
+    left: 0px;
+    border-top:1px solid rgb(238, 238, 238);
+    width:100%;
+    height:0px;
+}
+
+.iwebSQLSELECT, .iwebSQLUPDATE, .iwebSQLINSERT, .iwebSQLDELETE, .iwebSQLTOTAL {
+    display:none; /* cancellando questo "display:none" leggo le query in pagina */
+    color:lightgray;
+    position:absolute;
+    width:100px;
+    height:20px;
+    overflow:hidden;
+}
+    .iwebSQLSELECT:hover, .iwebSQLUPDATE:hover, .iwebSQLINSERT:hover, .iwebSQLDELETE:hover {
+        overflow:auto;
+        width:auto;
+        height:auto;
+    }
+
+.sqlParameter {
+    display:none;
+}
+
+.iwebFILTRO select[multiple] {
+    position: absolute;
+}
+.iwebFILTRO select[multiple]:focus{
+    height: 200px;
+}
+table.iwebTABELLA tr > th.contenitoreSelectMultiple { /* classe da assegnare al th che contiene una DDL a scelta multipla */
+    width:120px;
+    height:84px;
+    text-align:left;
+}
+.iwebSELECTSELECTED {
+    display:none;
+}
+
+.contenitoreIwebDDL { /* da mettere nell'elemento genitore di una select */
+    text-align:left;
+}
+
+select.iwebTIPOCAMPO_varchar {
+    width:322px;
+}
+input[type=text].iwebTIPOCAMPO_varchar {
+    width:300px;
+}
+input[type=text].iwebTIPOCAMPO_date {
+    text-align:center;
+    width:70px;
+    /*width:98px;*/
+}
+textarea.iwebTIPOCAMPO_memo {
+    width:300px;
+    height:45px;
+    padding:4px 10px;
+    border: 1px solid #e5e5e5;
+    margin: 0px;
+        /*margin: 0px 0px -4px 0px; todo: solo per chrome*/
+    transition: border-color ease-in-out 150ms, box-shadow ease-in-out 150ms;
+    -webkit-transition: border-color ease-in-out 150ms, box-shadow ease-in-out 150ms;
+}
+    textarea.iwebTIPOCAMPO_memo:focus {
+        outline: 0;
+        border-color:gray;
+    }
+
+.iwebCodice_tdPadre {
+    text-align:center;
+}
+.iwebCodice {
+}
+
+.iwebTitolo_tdPadre {
+    text-align:left;
+}
+.iwebTitolo {
+}
+
+.iwebDescrizione_tdPadre {
+    text-align:left;
+}
+.iwebDescrizione {
+    font-size:12px;
+    padding:0px;
+    line-height:10px;
+}
+
+.iwebValuta_tdPadre { /* viene aggiunto automaticamente */
+    text-align:right;
+}
+.iwebValuta {
+    width:60px;
+    display:inline-block;
+} /*.iwebValuta:after { content:' €'; }*/
+
+.iwebQuantita_tdPadre { /* viene aggiunto automaticamente */
+    text-align:right;
+}
+.iwebQuantita {
+    width:60px;
+    display:inline-block;
+}
+.iwebData_tdPadre { /* viene aggiunto automaticamente */
+    text-align:center;
+}
+.iwebData {
+}
+
+input[type=checkbox].iwebCheckbox {
+    display:block;
+    margin:0 auto;
+    width:20px;
+}
+
+/*  questo serve a farlo funzionare anche se si trova sull'header di una iwebTABELLA
+.iwebAUTOCOMPLETAMENTO {
+    line-height:initial;
+    font-weight:initial;
+    text-align:initial;
+}*/
+.iwebAUTOCOMPLETAMENTO {
+    display:inline-block;
+}
+
+.iwebAUTOCOMPLETAMENTO input{ /* immagine lente di sfondo all'input */
+    background-image: url('/gestionale/immagini/lente-18-c.png');
+    background-repeat: no-repeat;
+    background-position: 98%;
+}
+.iwebAUTOCOMPLETAMENTO input:hover { /* immagine lente di sfondo all'input */
+    background-image: url('/gestionale/immagini/lente-18-a.png');
+}
+.iwebAUTOCOMPLETAMENTO input:focus { /* immagine lente di sfondo all'input */
+    background-image: url('/gestionale/immagini/lente-18-d.png');
+}
+
+.iwebAUTOCOMPLETAMENTO .iwebAUTOCOMPLETAMENTO_risultato {
+    cursor:pointer;
+    padding:3px 5px;
+    background-color: white;
+}
+.iwebAUTOCOMPLETAMENTO .iwebAUTOCOMPLETAMENTO_risultato:hover {
+    background-color: rgb(238, 238, 238);
+}
+.iwebAUTOCOMPLETAMENTO .iwebAUTOCOMPLETAMENTO_risultatoSelezionato {
+    cursor:pointer;
+    padding:3px 5px;
+    background-color: rgb(238, 238, 238);
+}
+.iwebAUTOCOMPLETAMENTO .iwebAUTOCOMPLETAMENTO_risultatiRicerca {
+    position:absolute;
+}

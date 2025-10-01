@@ -1,0 +1,146 @@
+﻿<%@ Master  Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+
+<!DOCTYPE html>
+
+<html xmlns="https://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+
+    <%-- Popup --%>
+    <link rel="stylesheet" href="/gestionale/css/iweb-popup2.css" />
+    <script src="/gestionale/js/popup-02.js"></script>
+
+    <%-- Ajax --%>
+    <link rel="stylesheet" type="text/css" href="/gestionale/css/iweb-stylesheet-03.css" />
+    <script src="/gestionale/js/Costanti.js"></script>
+    <script src="/gestionale/js/iweb-ajax-09.js"></script>
+    <script src="/gestionale/js/iweb-ddl-03.js"></script>
+    <script src="/gestionale/js/iweb-tab-02.js"></script>
+    <script src="/gestionale/js/iweb-upload-02.js"></script>
+    <script src="/gestionale/js/iweb-ricerca-03.js"></script>
+
+    <%-- Stylesheet di default --%>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="/gestionale/css/Stylesheet-07.css" />
+    <link href="/gestionale/css/bootstrap/css/bootstrap.min.css" rel="stylesheet" /> <!-- Bootstrap font -->
+
+    <%-- funzioni generiche --%>
+    <script src="/gestionale/js/funz-generiche-04.js"></script>
+    <script src="/gestionale/js/scw.js"></script> <%--<script type="text/javascript" language="javascript" src="../liveclock.js"></script>--%>
+
+    <%-- gestionale2 --%>
+    <asp:Literal ID="LiteralExtraStyle" runat="server"></asp:Literal>
+
+    <asp:ContentPlaceHolder id="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+
+<body onload="pageload()">
+    <form id="form1" runat="server">
+        <span class="iwebNascosto" id="percorsoUploadImmaginiGestionale"><asp:Literal ID="LiteralPercorsoUploadImmaginiGestionale" runat="server"></asp:Literal></span>
+        <span class="iwebNascosto" id="percorsoUploadPDFGestionale"><asp:Literal ID="LiteralPercorsoUploadPDFGestionale" runat="server"></asp:Literal></span>
+        <div class="contenitoreMenu_a_2livelli">
+            <div>
+                <ul class="menu_a_2livelli">
+                    <li><a href="#">Anagrafiche<span class="glyphicon glyphicon-chevron-down"></span></a>
+                        <ul>
+                            <li><asp:HyperLink ID="anagrafica_clienti" runat="server" NavigateUrl="~/gestionale/anagrafica/anagrafica-clienti/anagrafica-clienti.aspx"><%--<span class="glyphicon glyphicon-user glyphiconSottomenu"></span>--%>Anagrafica clienti</asp:HyperLink></li>
+                            <li><asp:HyperLink ID="anagrafica_fornitori" runat="server" NavigateUrl="~/gestionale/anagrafica/anagrafica-fornitori/anagrafica-fornitori.aspx"><%--<span class="glyphicon glyphicon-star glyphiconSottomenu"></span>--%>Anagrafica fornitori</asp:HyperLink></li>
+                            <li><asp:HyperLink ID="anagrafica_articoli" runat="server" NavigateUrl="~/gestionale/anagrafica/anagrafica-articoli/anagrafica-articoli.aspx">Anagrafica articoli</asp:HyperLink></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Computi<span class="glyphicon glyphicon-chevron-down"></span></a>
+                        <ul>
+                            <li><asp:HyperLink ID="computi_elenco" runat="server" NavigateUrl="~/gestionale/computi/elenco-computi/elenco-computi.aspx">Elenco computi</asp:HyperLink></li>
+                            <%--<li><asp:HyperLink ID="computi_nuovo" runat="server" NavigateUrl="~/gestionale/computi/nuovo-computo-da-precedenti/nuovo-computo-da-precedenti.aspx">Nuovo computo da precedenti</asp:HyperLink></li>--%>
+                        </ul>
+                    </li>
+                    <li><a href="#">Costi<span class="glyphicon glyphicon-chevron-down"></span></a>
+                        <ul>
+                            <li><asp:HyperLink ID="costi_elencocantieri" runat="server" NavigateUrl="~/gestionale/costi/elenco-cantieri/elenco-cantieri.aspx">Cantieri</asp:HyperLink></li>
+                            <li><asp:HyperLink ID="costi_gestionebolle" runat="server" NavigateUrl="~/gestionale/costi/gestione-bolle/gestione-bolle.aspx">Bolle / Fatt. accompagnatorie</asp:HyperLink></li>
+                            <li><asp:HyperLink ID="costi_gestionefatture" runat="server" NavigateUrl="~/gestionale/costi/gestione-fatture/gestione-fatture.aspx">Fatture non accompagnatorie</asp:HyperLink></li>
+                            <li><asp:HyperLink ID="costi_bolleaperte" runat="server" NavigateUrl="~/gestionale/costi/bolle-aperte/bolle-aperte.aspx">Bolle aperte</asp:HyperLink></li>
+                            <li><asp:HyperLink ID="costi_report_articoli" runat="server" NavigateUrl="~/gestionale/costi/report-articoli/report-articoli.aspx">Report articoli</asp:HyperLink></li>
+                            <li><asp:HyperLink ID="costi_gestionerapportini" runat="server" NavigateUrl="~/gestionale/costi/gestione-rapportini/gestione-rapportini.aspx">Rapportini</asp:HyperLink></li>
+                            <%--<li class="menu_a_3livelli"><a href="#">Report<span class="glyphicon glyphicon-chevron-right r"></span></a>
+                                <ul>
+                                    <li><asp:HyperLink ID="costi_report_bollesucantiere" runat="server" NavigateUrl="~/gestionale/costi/report/bolle-su-cantiere.aspx">Report bolle su cantiere</asp:HyperLink></li>
+                                    <li><asp:HyperLink ID="costi_report_categoriesucantiere" runat="server" NavigateUrl="~/gestionale/costi/report/categorie-su-cantiere.aspx">Report categorie su cantiere</asp:HyperLink></li>
+                                    <li><asp:HyperLink ID="costi_report_perdatacosti" runat="server" NavigateUrl="~/gestionale/costi/report/per-data-costi.aspx">Report per data costi</asp:HyperLink></li>
+                                    <li><asp:HyperLink ID="costi_report_perdataarticoli" runat="server" NavigateUrl="~/gestionale/costi/report/per-data-articoli.aspx">Report per data articoli</asp:HyperLink></li>
+                                </ul>
+                            </li>--%>
+                        </ul>
+                    </li>
+                    <li><a href="#">Configurazioni<span class="glyphicon glyphicon-chevron-down"></span></a>
+                        <ul>
+                            <li><asp:HyperLink ID="configurazioni_unitadimisura" runat="server" NavigateUrl="~/gestionale/configurazioni/unita-di-misura/unita-di-misura.aspx">Unita di misura</asp:HyperLink></li>
+                            <%--<li><asp:HyperLink ID="configurazioni_condizionidistampa" runat="server" NavigateUrl="~/gestionale/configurazioni/condizioni-di-stampa/condizioni-di-stampa.aspx">Condizioni di stampa</asp:HyperLink></li>--%>
+                            <%--<li><asp:HyperLink ID="configurazioni_categorieprodotti" runat="server" NavigateUrl="~/gestionale/configurazioni/categorie-prodotti/categorie-prodotti.aspx">Categorie prodotti</asp:HyperLink></li>--%>
+                            <%--<li><asp:HyperLink ID="configurazioni_utenti" runat="server" NavigateUrl="~/gestionale/configurazioni/utenti/utenti.aspx">Utenti</asp:HyperLink></li>--%>
+                        </ul>
+                    </li>
+
+                    <li runat="server" id="sviluppo"><a href="#">Sviluppo<span class="glyphicon glyphicon-chevron-down"></span></a>
+                        <ul>
+                            <li>
+                                <asp:HyperLink ID="SVILUPPO_APPUNTI" runat="server" NavigateUrl="~/gestionale/sviluppo/paginaAPPUNTI.aspx">Appunti</asp:HyperLink></li>
+                            <li>
+                                <asp:HyperLink ID="SVILUPPO_TODO" runat="server" NavigateUrl="~/gestionale/sviluppo/paginaTODO.aspx">To do</asp:HyperLink></li>
+                            <li>
+                                <asp:HyperLink ID="SVILUPPO_REGOLE" runat="server" NavigateUrl="~/gestionale/sviluppo/paginaREGOLE.aspx">Regole</asp:HyperLink></li>
+                            <li>
+                                <asp:HyperLink ID="SVILUPPO_DB" runat="server" NavigateUrl="~/gestionale/sviluppo/db.aspx">DB</asp:HyperLink></li>
+                        </ul>
+                    </li>
+
+                </ul>
+
+                <%-- LOGOUT --%>
+                <div class="menu_a_2livelli_Right">
+                    <div class="loginName">
+                        <asp:LoginName runat="server"/>
+                    </div>
+                    <div class="loginStatus">
+                        <asp:LoginStatus ID="LoginStatus1" runat="server" LogoutText="LOG OUT" OnLoggingOut="LoginStatus1_LoggingOut" />
+                    </div>
+
+                </div>
+
+                <div class="b"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="b"></div>
+            <div class="corpo">
+                <div runat="server" id="contenitorePaginaAspx">
+                    <asp:ContentPlaceHolder id="ContentPlaceHolder" runat="server">
+                    </asp:ContentPlaceHolder>
+                </div>
+                <div class="b"></div>
+
+                <div id="divLoadingAjax" class="popup popupType2" style="display:none">
+                    <div>
+                        <br /><br />caricamento in corso...
+                    </div>
+                </div>
+            </div>
+
+            <div class="footersopra">
+                Copyright © <%= DateTime.Now.Year %> Ideaweb - Tutti i diritti riservati<br />
+
+                <%--<div style="position:fixed;">
+                <input class="iwebCAMPO_datadiconsegna iwebTIPOCAMPO_date" placeholder="data non funziona"
+                    type="text" 
+                    onfocus="scwLanguage='it'; scwShow(this, event);" 
+                    onclick="scwLanguage='it'; scwShow(this, event);" 
+                    maxlength="10" />
+                </div>--%>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

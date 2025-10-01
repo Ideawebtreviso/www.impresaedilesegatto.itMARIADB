@@ -1,0 +1,20 @@
+﻿
+form > div.contenitoreMenu_a_2livelli  {
+    background-color: rgb(198, 207, 218);
+    color: rgb(43, 54, 67);
+}
+
+form > div.contenitoreMenu_a_2livelli * {
+    background-color: rgb(198, 207, 218);
+    color: rgb(43, 54, 67) ;
+}
+
+form > div.contenitoreMenu_a_2livelli > div > ul > li > ul > li > a {
+    background-color: rgb(43, 54, 67);
+    color: rgb(198, 207, 218);
+}
+
+form > div.contenitoreMenu_a_2livelli > div > ul > li:hover > a {
+    background-color: rgb(43, 54, 67);
+    color: rgb(198, 207, 218);
+}
