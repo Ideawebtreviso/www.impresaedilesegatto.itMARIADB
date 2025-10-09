@@ -150,6 +150,7 @@ public class DatiComputo
         }
         reader.Close();
 
+        connection.Close();
     }
     /*private DatiComputo(int id, string codice, string titolo, string descrizione, DateTime dataConsegna, 
                         string stato, string tipo, string condizioniprimapagina, string condizioniultimapagina, 
@@ -284,8 +285,9 @@ public class Suddivisione
             }
         }
 
-        return nodoRoot;
+        connection.Close();
 
+        return nodoRoot;
     }
     private static void elaboraalbero(List<Suddivisione> nodiTutti, Suddivisione nodoRoot)
     {

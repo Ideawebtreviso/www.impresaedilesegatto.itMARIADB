@@ -290,6 +290,7 @@ namespace ASPNET.IdeaWeb.Cms
             // Esegue il comando
             myConnection.Open();
             OleDbDataReader result = myCmd.ExecuteReader(CommandBehavior.CloseConnection);
+            myConnection.Close();
 
             // Return the datareader 
             return result;
@@ -421,6 +422,7 @@ namespace ASPNET.IdeaWeb.Cms
             }
 
             dr.Close();
+            myConnection.Close();
 
             // Return the String array of roles
             return (String[])userRoles.ToArray(typeof(String));
@@ -460,6 +462,7 @@ namespace ASPNET.IdeaWeb.Cms
             }
 
             dr.Close();
+            myConnection.Close();
 
             // Return the String array of roles
             return (String[])userRoles.ToArray(typeof(String));

@@ -457,6 +457,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
             }
             reader.Close();
 
+            connection2.Close();
             connection.Close();
 
         } catch (Exception ex) {
@@ -1765,6 +1766,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
             // aggiorna jsonString
             jsonString = JsonConvert.SerializeObject(tabella);
 
+            connection.Close();
         }
         catch (Exception ex)
         {
@@ -1988,6 +1990,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
         command.Parameters.AddWithValue("@idcomputopdfnuovo", idcomputopdfnuovo);
 
         command.ExecuteNonQuery();
+        connection.Close();
     }
 
 
@@ -2040,11 +2043,11 @@ public class WebServiceComputi : System.Web.Services.WebService {
                 command.Parameters.AddWithValue("@id", id);
                 command.ExecuteNonQuery();
 
-                connection.Close();
-
                 jsonString = "[{\"risultato\":" + 0 + "}]";
             }
             jsonString = "[{\"risultato\":" + elTrovati.ToString() + "}]";
+
+            connection.Close();
         }
         catch (Exception ex)
         {
