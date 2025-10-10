@@ -607,4 +607,17 @@ public class WebService : System.Web.Services.WebService
         return nomeFile;
     }
 
+    [WebMethod]
+    public string chiamataPeriodicaAggiornamentoDatiPagina()
+    {
+        FormsIdentity fi = (FormsIdentity)Context.User.Identity;
+        FormsAuthenticationTicket ticket = fi.Ticket;
+        string idAnagraficaUtenteLoggato = Utility.getProprietaDaTicketAutenticazione(ticket, "IDAnagrafica");
+        Dictionary<string, object> risultato = new Dictionary<string, object>();
+
+        risultato.Add("test", idAnagraficaUtenteLoggato);
+
+        return JsonConvert.SerializeObject(risultato);
+    }
+
 }

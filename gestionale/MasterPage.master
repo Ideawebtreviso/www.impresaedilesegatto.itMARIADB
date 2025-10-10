@@ -36,7 +36,7 @@
     </asp:ContentPlaceHolder>
 </head>
 
-<body onload="pageload()">
+<body onload="masterpageload(); pageload()">
     <form id="form1" runat="server">
         <span class="iwebNascosto" id="percorsoUploadImmaginiGestionale"><asp:Literal ID="LiteralPercorsoUploadImmaginiGestionale" runat="server"></asp:Literal></span>
         <span class="iwebNascosto" id="percorsoUploadPDFGestionale"><asp:Literal ID="LiteralPercorsoUploadPDFGestionale" runat="server"></asp:Literal></span>
@@ -142,5 +142,125 @@
             </div>
         </div>
     </form>
+    <script>
+        function masterpageload() {
+            chiamataPeriodicaAggiornamentoDatiPagina(true);
+        }
+
+        // creaDataDaAdesso(aggiungiGiorni, aggiungiMesi, aggiungiAnni) es: dataIeri = creaDataDaAdesso(-1); dataMeseScorso = creaDataDaAdesso(0, -1);
+        function creaDataDaAdesso(aggiungiGiorni, aggiungiMesi, aggiungiAnni) {
+            var d = new Date();
+            d.setDate(d.getDate() + (aggiungiGiorni == null ? 0 : aggiungiGiorni));
+            d.setMonth(d.getMonth() + (aggiungiMesi == null ? 0 : aggiungiMesi));
+            d.setFullYear(d.getFullYear() + (aggiungiAnni == null ? 0 : aggiungiAnni));
+            return d;
+        }
+        // usato sia come chiamata per mantenere attiva la sessione, che come chiamata per la messaggistica (campanello alert)
+        function chiamataPeriodicaAggiornamentoDatiPagina(questaELaPrimaVoltaCheChiamoQuestoMetodoInQuestaPagina) {
+            let aggiornaDatiPaginaOgnisecondi = 30;
+            let oggettochesincronizzaleschede = localStorage.getItem("oggettochesincronizzaleschede_chiamataPeriodicaAggiornamentoDatiPagina");
+
+            // sto mostrando la pagina per la prima volta
+            // se non ho mai aperto le notifiche prima d'ora
+            // oppure ho controllato le notifiche più di 2 minuti fa da una qualunque scheda, chiamata ajax
+            if (
+                questaELaPrimaVoltaCheChiamoQuestoMetodoInQuestaPagina == true ||
+                oggettochesincronizzaleschede == null ||
+                creaDataDaAdesso() - new Date(oggettochesincronizzaleschede) > aggiornaDatiPaginaOgnisecondi * 1000
+            ) {
+                localStorage.setItem("oggettochesincronizzaleschede_chiamataPeriodicaAggiornamentoDatiPagina", creaDataDaAdesso());
+
+                let xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+
+
+                    if (false)
+
+
+                    if (xmlhttp.readyState == 4 && xmlhttp.status != 200) { verificaXmlHttpErrato(xmlhttp); } else if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+                        let versionericevutadachiamataperiodica = getXmlhttpItem(xmlhttp, 'versionericevutadachiamataperiodica');
+                        let versione = iwebValutaParametroAjax("LabelVersione_value");
+                        if (versione != versionericevutadachiamataperiodica) {
+                            iwebApriPopupMessaggioGenerico("Attenzione",
+                                "Sono pronti dei nuovi aggiornamenti,<br/><br/>" +
+                                `<a onclick="sessionStorage.clear();" id="LinkButtonLogout2" href="javascript:__doPostBack('ctl00$LinkButtonLogout','')" style="background-color: #5cb85c;color: white; display:inline-block; padding:8px 10px; margin-bottom:2px; border-radius:4px; text-decoration-line: none;">Clicca qui per scaricare gli aggiornamenti, quindi riavvia il computer. Dopo il riavvio, potrai consultarli nella pagina Aggiornamenti.</a>`
+                                , "");
+
+                            // hack grafico al popup generico. nessuno potrà più fare altre azioni su ideaweb
+                            let popupMessaggioGenerico = document.getElementById("popupMessaggioGenerico");
+                            let elpopupHeader = prendiElementoConClasse(popupMessaggioGenerico, "popupHeader");
+                            let elpopupCorpo = prendiElementoConClasse(popupMessaggioGenerico, "popupCorpo");
+                            let elpopupFooter = prendiElementoConClasse(popupMessaggioGenerico, "popupFooter");
+                            popupMessaggioGenerico.setAttribute("style", "display:block; z-index:1111; backdrop-filter: brightness(0.5); text-align:center");
+                            elpopupHeader.setAttribute("style", "display:none");
+                            elpopupCorpo.setAttribute("style", "padding:30px;");
+                            elpopupFooter.setAttribute("style", "display:none");
+                        }
+
+
+                        let numeronotifiche = getXmlhttpItem(xmlhttp, 'alertdaleggere', 'int');
+                        let testoelenconotifiche = getXmlhttpItem(xmlhttp, 'codicepernotifiche');
+
+                        if (numeronotifiche > 0) {
+                            rimuoviClasseDaElemento(prendiElementoConClasse(document, "genitorenotifiche"), "iwebNascostoImportant");
+
+                            iwebElaboraCampo(prendiElementoConClasse(document, "numeronotifiche"), numeronotifiche);
+                            iwebElaboraCampo(prendiElementoConClasse(document, "testoelenconotifiche"), testoelenconotifiche);
+
+                            localStorage.setItem("oggettochesincronizzaleschede_numeronotifiche", numeronotifiche);
+                            localStorage.setItem("oggettochesincronizzaleschede_testoelenconotifiche", testoelenconotifiche);
+
+                            //AGGIORNO METATITOLO
+                            let metatitolo = document.title;
+                            let metatitolosolotitle;
+
+                            if (metatitolo.indexOf(") ")) {
+                                metatitolosolotitle = metatitolo.substring(metatitolo, metatitolo.indexOf(") ") + 1);
+                            };
+
+
+                            document.title = "(" + numeronotifiche + ") " + metatitolo.replace(metatitolosolotitle, "");
+
+                            console.log("chiamataPeriodicaAggiornamentoDatiPagina HO PRESO I DATI DA SERVER");
+                        } else {
+                            aggiungiClasseAElemento(prendiElementoConClasse(document, "genitorenotifiche"), "iwebNascostoImportant");
+
+                            localStorage.setItem("oggettochesincronizzaleschede_numeronotifiche", "0");
+                            localStorage.setItem("oggettochesincronizzaleschede_testoelenconotifiche", "");
+                            console.log("chiamataPeriodicaAggiornamentoDatiPagina HO PRESO I DATI DA SERVER (NESSUNA NUOVA NOTIFICA)");
+                        }
+
+                    }
+                }
+                let jsonAsObject = {
+                    //idprimanotatipologia: idprimanotatipologia
+                }
+                //xmlhttp.open('POST', getRootPath() + '/gestionale/WebService.asmx/chiamataPeriodicaAggiornamentoDatiPagina', true);
+                xmlhttp.open('POST', getRootPath() + '/WebService.asmx/chiamataPeriodicaAggiornamentoDatiPagina', true);
+                xmlhttp.setRequestHeader('Content-type', 'application/json'); let jsonAsString = JSON.stringify(jsonAsObject); xmlhttp.send(jsonAsString);
+
+
+            } else {
+
+                // riprendo i dati dal localstorage se i dati li ho
+                if (
+                    localStorage.getItem("oggettochesincronizzaleschede_testoelenconotifiche") != null
+                ) {
+                    let numeronotifiche = localStorage.getItem("oggettochesincronizzaleschede_numeronotifiche");
+                    let testoelenconotifiche = localStorage.getItem("oggettochesincronizzaleschede_testoelenconotifiche");
+
+                    iwebElaboraCampo(prendiElementoConClasse(document, "numeronotifiche"), numeronotifiche);
+                    iwebElaboraCampo(prendiElementoConClasse(document, "testoelenconotifiche"), testoelenconotifiche);
+                    console.log("chiamataPeriodicaAggiornamentoDatiPagina HO PRESO I DATI DA LOCALE");
+                } else {
+                    console.log("chiamataPeriodicaAggiornamentoDatiPagina IGNORO QUESTO CICLO");
+                }
+
+            }
+
+            setTimeout(chiamataPeriodicaAggiornamentoDatiPagina, 1000 * aggiornaDatiPaginaOgnisecondi);
+        }
+    </script>
 </body>
 </html>
