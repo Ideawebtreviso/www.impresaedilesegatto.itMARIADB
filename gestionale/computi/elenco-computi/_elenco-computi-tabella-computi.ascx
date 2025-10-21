@@ -401,6 +401,32 @@
                             </td>
                         </tr>
                         <tr>
+                            <td>Cantiere</td>
+                            <td>
+                                <div class="iwebAUTOCOMPLETAMENTO iwebCAMPO_cantiere.id" id="iwebAUTOCOMPLETAMENTOCantiereInserimento">
+                                    <span class="iwebNascosto">-1</span> <%-- numero rigaSelezionata --%>
+
+                                    <%-- Chiave dell'el selezionato --%>
+                                    <span class="iwebNascosto"></span>
+
+                                    <%-- Valore dell'el selezionato --%>
+                                    <input type="text" autocomplete="off" class="iwebTIPOCAMPO_varchar"
+                                        onkeyup="iwebAUTOCOMPLETAMENTO_Ricerca(event, this)" 
+                                        onkeydown="iwebAUTOCOMPLETAMENTO_ScorriRisultati(event, this)" 
+                                        onblur="iwebAUTOCOMPLETAMENTO_onblur(event, this)"/>
+
+                                    <%-- Query di ricerca --%>
+                                    <span class="iwebSQLSELECT">
+                                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                                            SELECT id as chiave, descrizione as valore FROM cantiere WHERE descrizione like @descrizione
+                                        ") %></span>
+                                        <span class="iwebPARAMETRO">@nominativo = like_iwebAUTOCOMPLETAMENTOCantiereInserimento_getValore</span>
+                                    </span>
+                                    <div class="iwebAUTOCOMPLETAMENTO_risultatiRicerca"><%--RISULTATI RICERCA--%></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
                             <td>Tipo</td>
                             <td>
                                 <select class="iwebCAMPO_tipo">

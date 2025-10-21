@@ -177,23 +177,28 @@
             </tfoot>
         </table>
         <span class="iwebSQLSELECT">
-            <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                                  "SELECT voce.id as 'voce.id', " +
-                                         "voce.codice as 'voce.codice', " +
-                                         "voce.titolo as 'voce.titolo', " +
-                                         "voce.descrizione as 'voce.descrizione', " +
-                                         "voce.posizione as 'voce.posizione', " +
-                                         "computo.id as 'computo.id', " +
-                                         "suddivisione.id as 'suddivisione.id', " +
-                                         "suddivisione.descrizione as 'suddivisione.descrizione', " +
-                                         "sum(misura.totaleimporto) as 'misura.totaleimporto' " + // non posso usare il sum?
-                                  "FROM voce INNER JOIN computo ON voce.idcomputo = computo.id " +
-                                            "LEFT JOIN suddivisione ON voce.idsuddivisione = suddivisione.id " +
-                                            "LEFT JOIN misura ON misura.idvoce = voce.id " +
-                                  "WHERE computo.id = @idcomputo " +
-                                  "GROUP BY voce.id, voce.codice " +
-                                  "ORDER BY suddivisione.posizione, voce.posizione "
-                                  ) %></span>
+            <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                SELECT
+                    voce.id as 'voce.id',
+                    voce.codice as 'voce.codice',
+                    voce.titolo as 'voce.titolo',
+                    voce.descrizione as 'voce.descrizione',
+                    voce.posizione as 'voce.posizione',
+                    computo.id as 'computo.id',
+                    suddivisione.id as 'suddivisione.id',
+                    suddivisione.descrizione as 'suddivisione.descrizione',
+                    SUM(misura.totaleimporto) as 'misura.totaleimporto'
+
+                FROM voce
+                    INNER JOIN computo ON voce.idcomputo = computo.id
+                    LEFT JOIN suddivisione ON voce.idsuddivisione = suddivisione.id
+                    LEFT JOIN misura ON misura.idvoce = voce.id
+                    LEFT JOIN vocetemplate ON misura.idvocetemplate = vocetemplate.id
+
+                WHERE computo.id = @idcomputo
+                GROUP BY voce.id, voce.codice
+                ORDER BY suddivisione.posizione, voce.posizione
+            ") %></span>
 	        <span class="iwebPARAMETRO">@idcomputo = IDCOMPUTO_value</span>
         </span>
         <%-- inserimento --%>

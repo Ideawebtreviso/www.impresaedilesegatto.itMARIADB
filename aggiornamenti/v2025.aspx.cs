@@ -1,0 +1,80 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+using MySqlConnector;
+
+public partial class aggiornamenti_v2025 : System.Web.UI.Page
+{
+    public void aggiornamentiSpecifici(MySqlConnection connection, MySqlCommand command)
+    {
+        Utility utility = new Utility();
+
+        command.CommandText = "SHOW TABLES LIKE 'vocetemplate'";
+        if (command.ExecuteScalar() == null)
+        {
+            command = connection.CreateCommand();
+            command.CommandText = @"
+                CREATE TABLE IF NOT EXISTS vocetemplate (
+                    id INT NOT NULL AUTO_INCREMENT,
+                    datacreazione DATETIME,
+                    utentecreazione INT,
+                    ipcreazione VARCHAR(50),
+                    datamodifica DATETIME,
+                    utentemodifica INT,
+                    ipmodifica VARCHAR(50),
+
+                    codice VARCHAR(255),
+                    nome TEXT,
+
+                    PRIMARY KEY (id)
+                ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+            command.ExecuteNonQuery();
+
+            utility.AggiungiIndice(connection, "vocetemplate", "codice");
+        }
+        utility.AggiungiColonna(connection, "misura", "idvocetemplate", "INT");
+
+    } // chiudo il metodo aggiornamentiSpecifici
+
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        // Se la querystring è "aggiornamentoRapido=1" oppure "aggiornamentoRapido=true" eseguo un aggiornamento rapido (= solo traduzioni)
+        String stringaAggiornamentoRapido = Request.QueryString["aggiornamentoRapido"];
+        bool aggiornamentoRapido = false;
+        if (stringaAggiornamentoRapido != null && stringaAggiornamentoRapido != "")
+        {
+            aggiornamentoRapido = stringaAggiornamentoRapido == "1" || stringaAggiornamentoRapido == "true";
+        }
+
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString))
+            {
+                connection.Open();
+
+                MySqlCommand command;
+                command = connection.CreateCommand();
+
+                // aggiornamento della versione con varie query e passaggi specifici
+                aggiornamentiSpecifici(connection, command);
+
+                connection.Close();
+            }
+
+            Response.Write("ok");
+        }
+        catch (Exception ex)
+        {
+            //Response.Write(ex.Message + "\n" + ex.StackTrace);
+            Response.Write(ex.Message + "\n" + ex.Source + "\n\n" + ex.StackTrace + "\n\n" + ex.InnerException);
+        }
+
+    }
+
+
+}

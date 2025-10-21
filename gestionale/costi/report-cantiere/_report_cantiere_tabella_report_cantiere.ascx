@@ -251,52 +251,52 @@
         </tfoot>
     </table>
     <span class="iwebSQLSELECT">
-	    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-            "SELECT costo.id as 'costo.id', "
-          + "       costo.idcostobollariferita as 'costo.idcostobollariferita', "
-          + "       costofatturariferita.id as 'idcostofatturachechiude', "
-          + "       costo.quantita as 'costo.quantita', "
-          + "       costo.prezzo as 'costo.prezzo', "
-          + "       costo.sconto1 as 'costo.sconto1', "
-          + "       costo.sconto2 as 'costo.sconto2', "
-          + "       IF (bolla.isddt = true, bolla.databollafattura, costo.datacosto) as 'datacostoodatabolla', "
+	    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+             SELECT costo.id as 'costo.id', 
+                    costo.idcostobollariferita as 'costo.idcostobollariferita', 
+                    costofatturariferita.id as 'idcostofatturachechiude', 
+                    costo.quantita as 'costo.quantita', 
+                    costo.prezzo as 'costo.prezzo', 
+                    costo.sconto1 as 'costo.sconto1', 
+                    costo.sconto2 as 'costo.sconto2', 
+                    IF (bolla.isddt = true, bolla.databollafattura, costo.datacosto) as 'datacostoodatabolla', 
+            
+                    (costo.quantita * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000)) as 'costo.importo', 
+                    IF (bollafattura.isfattura && bollafattura.isddt = false, rigacostobolla.descrizione, costo.descrizione) as 'costo.descrizione', 
+            
+                    prodotto.id as 'prodotto.id', 
+                    prodotto.descrizione as 'prodotto.descrizione', 
+                    prodotto.listino as 'prodotto.listino', 
+            
+                    fornitore.ragionesociale as 'fornitore.ragionesociale', 
+                    fornitore.tipofornitore as 'fornitore.tipofornitore', 
+            
+                    bolla.isddt as 'bolla.isddt', 
+                    bollafattura.isddt as 'bollafattura.isddt', 
+                    bolla.id as 'bolla.id', 
+                    bollafattura.id as 'bollafattura.id', 
+                    bollafattura.numero as 'bollafattura.numero', 
+                    IF (bollafattura.isfattura && bollafattura.isddt = false, bolla.numero, bollafattura.numero) as 'numerobolla', 
+                    IF (bollafattura.isfattura && bollafattura.isddt = false, bollafattura.numero, '') as 'numerofattura', 
+            
+                    IF (bollafattura.isfattura && bollafattura.isddt = false, bolla.protocollo, bollafattura.protocollo) as 'protocollobolla', 
+                    IF (bollafattura.isfattura && bollafattura.isddt = false, bollafattura.protocollo, '') as 'protocollofattura', 
+            
+                    (bollafattura.isfattura && bollafattura.isddt) as 'bollafattura.isfattura' 
 
-          + "       (costo.quantita * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000)) as 'costo.importo', "
-          + "       IF (bollafattura.isfattura && bollafattura.isddt = false, rigacostobolla.descrizione, costo.descrizione) as 'costo.descrizione', "
-
-          + "       prodotto.id as 'prodotto.id', "
-          + "       prodotto.descrizione as 'prodotto.descrizione', "
-          + "       prodotto.listino as 'prodotto.listino', "
-
-          + "       fornitore.ragionesociale as 'fornitore.ragionesociale', "
-          + "       fornitore.tipofornitore as 'fornitore.tipofornitore', "
-
-          + "       bolla.isddt as 'bolla.isddt', "
-          + "       bollafattura.isddt as 'bollafattura.isddt', "
-          + "       bolla.id as 'bolla.id', "
-          + "       bollafattura.id as 'bollafattura.id', "
-          + "       bollafattura.numero as 'bollafattura.numero', "
-          + "       IF (bollafattura.isfattura && bollafattura.isddt = false, bolla.numero, bollafattura.numero) as 'numerobolla', "
-          + "       IF (bollafattura.isfattura && bollafattura.isddt = false, bollafattura.numero, '') as 'numerofattura', "
-          
-          + "       IF (bollafattura.isfattura && bollafattura.isddt = false, bolla.protocollo, bollafattura.protocollo) as 'protocollobolla', "
-          + "       IF (bollafattura.isfattura && bollafattura.isddt = false, bollafattura.protocollo, '') as 'protocollofattura', "
-          
-          + "       (bollafattura.isfattura && bollafattura.isddt) as 'bollafattura.isfattura' "
-
-          + "FROM costo INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere) "
-          + "           LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita) " 
-          + "           INNER JOIN prodotto ON costo.idprodotto = prodotto.id "
-          + "           LEFT JOIN bollafattura ON costo.idbollafattura = bollafattura.id "
-          + "           INNER JOIN fornitore ON ((bollafattura.id is null AND prodotto.idfornitore = fornitore.id) OR bollafattura.idfornitore = fornitore.id) "
-
-          + "           LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id " /* mi serve come tabella intermedia per ottenere il numero bolla */
-          + "           LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id " /* da qui ottengo il numero bolla */
-
-          + "WHERE costofatturariferita.id is NULL AND "
-                    + "      (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND "
-                    + "      (@dataA = '' OR ((bolla.databollafattura is null AND costo.datacosto <= @dataA) OR (bolla.databollafattura is not null AND bolla.databollafattura <= @dataA))) "
-        ) %></span>
+             FROM costo INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere) 
+                        LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita)
+                        INNER JOIN prodotto ON costo.idprodotto = prodotto.id 
+                        LEFT JOIN bollafattura ON costo.idbollafattura = bollafattura.id 
+                        INNER JOIN fornitore ON ((bollafattura.id is null AND prodotto.idfornitore = fornitore.id) OR bollafattura.idfornitore = fornitore.id) 
+            
+                        LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id  /* mi serve come tabella intermedia per ottenere il numero bolla */
+                        LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id  /* da qui ottengo il numero bolla */
+            
+             WHERE costofatturariferita.id is NULL AND 
+                        (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND 
+                        (@dataA = '' OR ((bolla.databollafattura is null AND costo.datacosto <= @dataA) OR (bolla.databollafattura is not null AND bolla.databollafattura <= @dataA))) 
+        ") %></span>
 
         <%-- La data costo deve essere sempre la data della bolla se si riferisce a una bolla e la data fattura se si riferisce alla fattura. --%>
         <%-- Il difficile di questa query è che deve scartare i record di bolla che sono stati chiusi da una fattura. 
