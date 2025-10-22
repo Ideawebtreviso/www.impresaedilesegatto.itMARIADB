@@ -43,7 +43,7 @@
                     <th>
                         <%-- filtro di testo con autocompletamento sul campo nominativo --%>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_unitadimisura.codice">
-                            <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th></th><%-- ALTRO --%>

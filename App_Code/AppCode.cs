@@ -25,6 +25,8 @@ namespace AppCode {
 
         public static string getDDBB(string pwd){
 
+            // Utility utility = new Utility();
+            // utility.SonoInLocale()
             string fullpathname = HttpContext.Current.Request.Url.Authority.ToLower();
             bool sonoinlocale = fullpathname.Contains("localhost");
             if (sonoinlocale) {

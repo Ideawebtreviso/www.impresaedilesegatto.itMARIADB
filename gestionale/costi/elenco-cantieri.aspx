@@ -67,7 +67,7 @@
                     <th>
                         <%-- filtro di testo sul campo descrizione --%>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.descrizione">
-                            <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th></th><%-- ALTRO --%>

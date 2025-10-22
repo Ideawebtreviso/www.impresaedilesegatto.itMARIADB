@@ -22,7 +22,7 @@ public class Utility
 		// TODO: aggiungere qui la logica del costruttore
 		//
 	}
-
+    // utility.getProprietaDaTicketAutenticazione(FormsAuthenticationTicket, "ConnectionString");
     public static String getProprietaDaTicketAutenticazione(FormsAuthenticationTicket ticket, String nomeProprieta) {
         int begin = ticket.UserData.IndexOf(nomeProprieta) + nomeProprieta.Length + 2;
         int end = ticket.UserData.IndexOf("]", begin);
@@ -41,6 +41,12 @@ public class Utility
         return listaParametri;
     }
 
+
+    public static bool SonoInLocale()
+    {
+        String fullpathname = HttpContext.Current.Request.Url.Authority.ToLower();
+        return fullpathname.Contains("localhost");
+    }
 
 
     // METODI SOSTITUTIVI ALLE STORED PROCEDURE:

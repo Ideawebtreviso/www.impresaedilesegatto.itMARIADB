@@ -61,13 +61,13 @@
                 <td>
                     <%-- codice cantiere --%>
                     <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.codice">
-                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento()"/>
+                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                     </div>
                 </td>
                 <td>
                     <%-- cantiere --%>
                     <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.descrizione">
-                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento()"/>
+                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                     </div>
                 </td>
                 <td>
@@ -86,13 +86,13 @@
                 <td>
                     <%-- filtro di testo sul fornitore.ragionesociale --%>
                     <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_fornitore.ragionesociale">
-                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento()"/>
+                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                     </div>
                 </td>
                 <td>
                     <%-- filtro di testo sul campo prodotto.descrizione --%>
                     <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_prodotto.descrizione">
-                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento()"/>
+                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                     </div>
                 </td>
                 <td></td>

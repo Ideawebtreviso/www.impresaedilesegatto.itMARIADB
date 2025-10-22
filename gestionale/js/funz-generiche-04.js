@@ -254,3 +254,170 @@ function log(stringa) {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email); // ritorna true se la mail è corretta
 }*/
+
+
+function parseToType(value, valuetype) {
+    if (valuetype == null) console.log("%cErrore in parseToType: secondo parametro mancante", "color:" + COSTANTE_CONSOLELOG_ERRORCOLOR);
+    valuetype = valuetype.toLowerCase();
+    if (valuetype == "char") return (value + "")[0];
+    if (valuetype == "string") return value == null ? value : value + "";
+    if (valuetype == "stringnull") return (value + "") ? value + "" : null; // OBSOLETO, ED ERRATO
+    if (valuetype == "bool" || valuetype == "boolean") {
+        if (value && value != "0" && value != "false")
+            return true; else return false;
+    }
+    if (valuetype == "int") {
+        value = parseInt(value);
+        if (isNaN(value)) value = 0;
+        return value;
+    }
+    if (valuetype == "int?") {
+        if (value === "" || value === null) {
+            value = null;
+        } else {
+            value = parseToType(value, "int");
+        }
+        return value;
+    }
+    if (valuetype == "double") {
+        if (value != null && value + "" != "") value = value.toString().replace(",", ".");
+        value = parseFloat(value);
+        if (isNaN(value)) value = 0;
+        return value;
+    }
+    if (valuetype == "double?") {
+        if (value === "" || value === null) {
+            value = null;
+        } else {
+            value = parseToType(value, "double");
+        }
+    }
+    if (valuetype == "datetime") {
+        if (parseToType(value, "bool")) {
+            if (typeof (value) == "string" && value.length == 10)
+                return new Date(value + " 00:00:00");
+            else
+                return new Date(value + "");
+        }
+        //throw("Datetime si aspetta data valorizzata [" + value + "]");
+        return null;
+    }
+    if (valuetype == "datetime?") {
+        if (parseToType(value, "bool")) {
+            if (typeof (value) == "string" && value.length == 10) // solo date
+                return value[4] == '-' ? new Date(value + "T00:00:00") : new Date(stringaData.substr(6, 4) + "-" + stringaData.substr(3, 2) + "-" + stringaData.substr(0, 2) + "T00:00:00");
+            else
+                if (typeof (value) == "string" && value.length == 9) // solo time
+                    return null;
+                else
+                    return alert("valuedata (COMPLETARE WORK IN PROGRESS):" + value);
+                    //return value[5] == '-' ? convertiStringaInputInData(value) : new Date(value + "");
+        }
+        return null;
+    }
+    if (valuetype == "tojson") return JSON.stringify(value);
+    if (valuetype == "fromjson") return JSON.parse(value);
+    if (valuetype == "int[]") {
+        if (value === "" || value === null) value = new Array();
+        else if (typeof (value) == "string") { // string to int?[]
+            let temparray = value.split(",");
+            value = new Array();
+            for (let i = 0; i < temparray.length; i++) {
+                value.push(parseToType(temparray[i], "int"));
+            }
+        }
+        return value;
+    }
+    if (valuetype == "int?[]") {
+        if (value === "" || value === null) value = new Array();
+        else if (typeof (value) == "string") { // string to int?[]
+            let temparray = value.split(",");
+            value = new Array();
+            for (let i = 0; i < temparray.length; i++) {
+                value.push(parseToType(temparray[i], "int?"));
+            }
+        }
+        return value;
+    }
+    return value;
+}
+
+function ajax2024(percorso, parametri, funzioneAFineEsecuzionne) {
+    ajax2024_SE(true, percorso, parametri, funzioneAFineEsecuzionne)
+}
+function ajax2024_SE(condizione, percorso, parametri, funzioneAFineEsecuzionne) {
+    if (condizione !== true) { funzioneAFineEsecuzionne(null); return; }
+
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4 && xmlhttp.status != 200) {
+
+            if (xmlhttp.status == 401) {
+                console.log("Sessione scaduta");
+                console.log(xmlhttp.responseText.replace("\\r\\n", "\r\n\r\n"));
+                location.href = '/Login.aspx';
+            }
+            else {
+                try {
+                    let tentativo = JSON.parse(xmlhttp.responseText);
+                    let messaggio = "";
+                    if (tentativo.Message != "") {
+                        console.log("Condizione di eccezione 1");
+                        {
+                            messaggio = tentativo.Message + "\n\n" + xmlhttp.responseText.replace("\\r\\n", "\r\n\r\n");
+                            alert(messaggio);
+                            console.log("%c[" + messaggio.split("\\r\\n").join("\n").split("\\n").join("\n") + "]", "color:" + COSTANTE_CONSOLELOG_ERRORCOLOR);
+                        }
+                        inviaEccezioneWebMethod("ERRORE da inviaEccezioneWebMethod:\n ", tentativo.Message + "\n\n" + xmlhttp.responseText.replace("\\r\\n", "\r\n\r\n"));
+                    } else {
+                        console.log("Condizione di eccezione 2");
+                        {
+                            messaggio = xmlhttp.responseText.replace("\\r\\n", "\r\n\r\n");
+                            alert(messaggio);
+                            console.log("%c[" + messaggio.split("\\r\\n").join("\n").split("\\n").join("\n") + "]", "color:" + COSTANTE_CONSOLELOG_ERRORCOLOR);
+                        }
+                        inviaEccezioneWebMethod("Errore da inviaEccezioneWebMethod:\n ", xmlhttp.responseText.replace("\\r\\n", "\r\n\r\n"));
+                    }
+                } catch {
+                    if (xmlhttp.status == 0) {
+                        console.log("Condizione di eccezione 3 (Internet assente)");
+                        iwebNascondiCaricamentoAjax(); iwebNascondiCaricamentoAjax(); iwebNascondiCaricamentoAjax();
+                        iwebApriPopupMessaggioGenerico("Internet assente", "Internet assente, ricaricare la pagina appena possibile.");
+                    } else {
+                        console.log("Condizione di eccezione 4");
+                        {
+                            messaggio = xmlhttp.responseText.replace("\\r\\n", "\r\n\r\n");
+                            alert(messaggio);
+                            console.log("%c[" + messaggio.split("\\r\\n").join("\n").split("\\n").join("\n") + "]", "color:" + COSTANTE_CONSOLELOG_ERRORCOLOR);
+                        }
+                        inviaEccezioneWebMethod("errore da inviaEccezioneWebMethod:\n ", xmlhttp.responseText.replace("\\r\\n", "\r\n\r\n"));
+                    }
+                }
+            }
+
+
+            var jsonRisultatoQuery = JSON.parse(xmlhttp.responseText);
+            if (jsonRisultatoQuery.d == "") jsonRisultatoQuery = ""; else jsonRisultatoQuery = JSON.parse(jsonRisultatoQuery.d);
+
+            if (jsonRisultatoQuery == "" || jsonRisultatoQuery[0].errore == null) {
+                // codice qui
+                iwebCaricaElemento("tabellaComputi", false, function () {
+                    chiudiPopupType2B(document.getElementById("popupTabellaComputiDuplica"));
+                    iwebNascondiCaricamentoAjax();
+                });
+
+            } else {
+                if (jsonRisultatoQuery[0] == null || jsonRisultatoQuery[0].errore == null) console.log("errore json" + jsonRisultatoQuery[0]);
+                else console.log("errore json " + jsonRisultatoQuery[0].errore);
+            }
+
+        } else if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            let response = JSON.parse(xmlhttp.responseText);
+            if (response.d) response = JSON.parse(response.d); // asp net D incapsulation
+            if (funzioneAFineEsecuzionne) funzioneAFineEsecuzionne(response);
+        }
+
+    }
+    xmlhttp.open('POST', getRootPath() + percorso, true); // percorso, ad esempio: "/WebServiceComputi.asmx/duplicaComputo"
+    xmlhttp.setRequestHeader('Content-type', 'application/json'); let jsonAsString = JSON.stringify(parametri || {}); xmlhttp.send(jsonAsString);
+}

@@ -61,12 +61,12 @@
                     </th>
                     <th>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_voce.codice">
-                            <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_voce.titolo">
-                            <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th>

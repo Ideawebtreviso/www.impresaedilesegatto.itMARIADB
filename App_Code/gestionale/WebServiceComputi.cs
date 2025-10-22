@@ -23,11 +23,14 @@ public class WebServiceComputi : System.Web.Services.WebService {
         //InitializeComponent(); 
     }
 
-    /*[WebMethod]
-    public void scaricobolla_eliminaRigaCosto(int idcosto)
+    // metodo di esempio:
+    // [WebMethod] public void metodoDiEsempio(int valore) { }
+
+    protected bool sonoInLocale()
     {
-    
-    }*/
+        String fullpathname = HttpContext.Current.Request.Url.Authority.ToLower();
+        return fullpathname.Contains("localhost");
+    }
 
     [WebMethod]
     public void eliminaVoce(int idvoce)
@@ -2364,8 +2367,14 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
 
 
-    public long inserisciRecord(
-        MySqlConnection mysqlconnection, string query, Dictionary<string, object> parametri) {
+    public void lanciaQuery(MySqlConnection mysqlconnection, string query, Dictionary<string, object> parametri) {
+        MySqlCommand command = mysqlconnection.CreateCommand();
+        command.CommandText = query;
+        aggiungiParametriNellaQuery(command, parametri);
+        command.ExecuteNonQuery();
+    }
+
+    public long inserisciRecord(MySqlConnection mysqlconnection, string query, Dictionary<string, object> parametri) {
 
         MySqlCommand command = mysqlconnection.CreateCommand();
         command.CommandText = query;
@@ -2373,8 +2382,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
         command.ExecuteNonQuery();
         return command.LastInsertedId;
     }
-    public Dictionary<string, object> leggiRecordDaQuery(
-        MySqlConnection mysqlconnection, string query, Dictionary<string, object> parametri) {
+    public Dictionary<string, object> leggiRecordDaQuery(MySqlConnection mysqlconnection, string query, Dictionary<string, object> parametri) {
 
         List<Dictionary<string, object>> risultato = new List<Dictionary<string, object>>();
         Dictionary<string, object> record = null;
@@ -2394,8 +2402,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
         reader.Close();
         return record;
     }
-    public List<Dictionary<string, object>> leggiRecordsDaQuery(
-        MySqlConnection mysqlconnection, string query, Dictionary<string, object> parametri) {
+    public List<Dictionary<string, object>> leggiRecordsDaQuery(MySqlConnection mysqlconnection, string query, Dictionary<string, object> parametri) {
 
         List<Dictionary<string, object>> risultato = new List<Dictionary<string, object>>();
         Dictionary<string, object> record;
@@ -2748,8 +2755,57 @@ public class WebServiceComputi : System.Web.Services.WebService {
         }
     }
 
-    protected bool sonoInLocale() {
-        String fullpathname = HttpContext.Current.Request.Url.Authority.ToLower();
-        return fullpathname.Contains("localhost");
+    [WebMethod] public void elencoComputi_popupTabellaComputiModifica_aggiorna(
+        int? idcliente,
+        int? idcantiere,
+        string tipo,
+        string codice,
+        string titolo,
+        string descrizione,
+        DateTime? datadiconsegna,
+        string condizioniprimapagina,
+        string condizioniultimapagina,
+        string stato,
+        int idcomputo
+        )
+    {
+        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
+        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+        {
+            conn.Open();
+
+            string query = @"
+                UPDATE computo 
+                SET idcliente = @idcliente, 
+                    idcantiere = @idcantiere, 
+                    tipo = @tipo, 
+                    codice = @codice, 
+                    titolo = @titolo, 
+                    descrizione = @descrizione, 
+                    datadiconsegna = @datadiconsegna, 
+                    condizioniprimapagina = @condizioniprimapagina, 
+                    condizioniultimapagina = @condizioniultimapagina, 
+                    stato = @stato 
+                WHERE computo.id = @idcomputo
+            ";
+            Dictionary<string, object> parametriquery = new Dictionary<string, object>() {
+                {"idcliente", idcliente},
+                {"idcantiere", idcantiere},
+                {"tipo", tipo},
+                {"codice", codice},
+                {"titolo", titolo},
+                {"descrizione", descrizione},
+                {"datadiconsegna", datadiconsegna},
+                {"condizioniprimapagina", condizioniprimapagina},
+                {"condizioniultimapagina", condizioniultimapagina},
+                {"stato", stato},
+                {"idcomputo", idcomputo}
+            };
+            lanciaQuery(conn, query, parametriquery);
+
+            conn.Close();
+        }
     }
+
 }

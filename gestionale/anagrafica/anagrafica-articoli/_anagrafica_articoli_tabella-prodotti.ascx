@@ -58,18 +58,18 @@
                     </th>--%>
                     <th>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_fornitore.ragionesociale">
-                            <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th class="iwebNascosto">
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_prodotto.codice">
-                            <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th>
                         <%-- filtro di testo sul campo descrizione --%>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_prodotto.descrizione">
-                            <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th>

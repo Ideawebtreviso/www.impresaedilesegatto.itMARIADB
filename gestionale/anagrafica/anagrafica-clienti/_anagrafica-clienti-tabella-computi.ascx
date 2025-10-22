@@ -53,19 +53,19 @@
                                 <span class="iwebCAMPO_computo.id"></span>
                             </td>
                             <td>
-                                <span class="iwebCAMPO_codice iwebCodice"></span>
+                                <span class="iwebCAMPO_computo.codice iwebCodice"></span>
                             </td>
                             <td>
-                                <span class="iwebCAMPO_titolo iwebDescrizione"></span>
+                                <span class="iwebCAMPO_computo.titolo iwebDescrizione"></span>
                             </td>
                             <td>
-                                <span class="iwebCAMPO_descrizione iwebDescrizione"></span>
+                                <span class="iwebCAMPO_computo.descrizione iwebDescrizione"></span>
                             </td>
                             <td>
-                                <span class="iwebCAMPO_stato"></span>
+                                <span class="iwebCAMPO_computo.stato"></span>
                             </td>
                             <td>
-                                <span class="iwebCAMPO_tipo"></span>
+                                <span class="iwebCAMPO_computo.tipo"></span>
                             </td>
                             <td class="iwebNascosto">
                                 <div class="iwebCliccabile glyphicon glyphicon-trash" title="Elimina"
@@ -83,12 +83,6 @@
                         <%-- iwebPAGENUMBER, iwebTOTPAGINE, iwebPAGESIZE,iwebTOTRECORD sono di riferimento al js --%>
                         <%-- eventualmente va messo display:none --%>
                         <tr class="iwebNascosto">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
                             <td></td>
                         </tr>
                         <tr>
@@ -120,8 +114,23 @@
                     </tfoot>
                 </table>
                 <span class="iwebSQLSELECT">
-                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL("SELECT computo.id as 'computo.id', codice, titolo, descrizione, stato, tipo " +
-                                                            "FROM computo WHERE idcliente = @idcliente") %></span>
+                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                        SELECT
+                            computo.id as 'computo.id',
+                            computo.codice as 'computo.codice',
+                            computo.titolo as 'computo.titolo',
+                            computo.descrizione as 'computo.descrizione',
+                            computo.stato as 'computo.stato',
+                            computo.tipo as 'computo.tipo',
+
+                            cantiere.id as 'cantiere.id',
+                            cantiere.codice as 'cantiere.codice'
+
+                        FROM computo
+                            LEFT JOIN cantiere on computo.idcantiere = cantiere.id
+
+                        WHERE computo.idcliente = @idcliente 
+                    ") %></span>
                     <span class="iwebPARAMETRO">@idcliente = tabellaClienti_selectedValue_cliente.id</span>
                 </span>
 
@@ -136,6 +145,34 @@
                         </div>
                         <div class="popupCorpo">
                             <table>
+                                <tr>
+                                    <td>Cantiere</td>
+                                    <td>
+                                        <div class="iwebAUTOCOMPLETAMENTO iwebCAMPO_cantiere.id" id="popupTabellaComputiInserimentoiwebAUTOCOMPLETAMENTOCantiere">
+                                            <span class="iwebNascosto">-1</span> <%-- numero rigaSelezionata --%>
+
+                                            <%-- Chiave dell'el selezionato --%>
+                                            <span class="iwebNascosto"></span>
+
+                                            <%-- Valore dell'el selezionato --%>
+                                            <input type="text" autocomplete="off" class="iwebTIPOCAMPO_varchar iwebCAMPO_cantiere.codice"
+                                                onkeyup="iwebAUTOCOMPLETAMENTO_Ricerca(event, this)" 
+                                                onkeydown="iwebAUTOCOMPLETAMENTO_ScorriRisultati(event, this)" 
+                                                onblur="iwebAUTOCOMPLETAMENTO_onblur(event, this)"/>
+
+                                            <%-- Query di ricerca --%>
+                                            <span class="iwebSQLSELECT">
+                                                <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                                                    SELECT id as chiave, codice as valore
+                                                    FROM cantiere
+                                                    WHERE codice like @codice
+                                                ") %></span>
+                                                <span class="iwebPARAMETRO">@codice = like_popupTabellaComputiInserimentoiwebAUTOCOMPLETAMENTOCantiere_getValore</span>
+                                            </span>
+                                            <div class="iwebAUTOCOMPLETAMENTO_risultatiRicerca"><%--RISULTATI RICERCA--%></div>
+                                        </div>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td>Tipo</td>
                                     <td class="iwebCAMPO_tipo">
@@ -203,7 +240,11 @@
                             <%-- IdPopupAssociato, nomeQuery, parametriQuery, attesaRispostaServer --%>
                             <div class="btn btn-success" onclick="iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaComputiInserimento', 'tabellaComputi', 'nominativo, indirizzo, citta, provincia, email, telefono, cf, piva', true)">Inserisci</div>
                             <span class="iwebSQLINSERT">
-                                <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL("INSERT INTO computo (codice, titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina) VALUES(@codice, @titolo, @descrizione, @idcliente, @datadiconsegna, @stato, @tipo, @condizioniprimapagina, @condizioniultimapagina)") %></span>
+                                <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                                    INSERT INTO computo (idcantiere, codice, titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina)
+                                    VALUES (@idcantiere, @codice, @titolo, @descrizione, @idcliente, @datadiconsegna, @stato, @tipo, @condizioniprimapagina, @condizioniultimapagina)
+                                ") %></span>
+                                <span class="iwebPARAMETRO">@idcantiere = popupTabellaComputiInserimentoiwebAUTOCOMPLETAMENTOCantiere_getchiave</span>
                                 <span class="iwebPARAMETRO">@codice = popupTabellaComputiInserimentoCodice_value</span>
                                 <span class="iwebPARAMETRO">@titolo = popupTabellaComputiInserimentoTitolo_value</span>
                                 <span class="iwebPARAMETRO">@descrizione = popupTabellaComputiInserimentoDescrizione_value</span>

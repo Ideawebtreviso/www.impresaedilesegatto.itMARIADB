@@ -64,7 +64,7 @@
                     <th>
                         <%-- filtro di testo sul campo email --%>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_fornitore.email">
-                            <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th>

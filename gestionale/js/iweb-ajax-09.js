@@ -412,8 +412,8 @@ function iwebTABELLA_GeneraFooterTabella(idTabella, nRigheContate, pageSize, pag
     tFoot.getElementsByClassName("iwebTOTRECORD")[0].innerHTML = "Trovati " + nRigheContate + " record";
 }
 
-/*function iwebTABELLA_VerificaAutocompletamento() {
-    var el = event.srcElement;
+/*function iwebTABELLA_VerificaAutocompletamento(el) {
+    el = el || event.srcElement;
     var stringa = el.value;
     setTimeout(function () {
         var newStringa = el.value;
@@ -422,8 +422,8 @@ function iwebTABELLA_GeneraFooterTabella(idTabella, nRigheContate, pageSize, pag
         }
     }, 400);
 }*/
-function iwebTABELLA_VerificaAutocompletamento() {
-    var el = iweb_EVENTO.target || iweb_EVENTO.srcElement;
+function iwebTABELLA_VerificaAutocompletamento(el) {
+    el = el || iweb_EVENTO.target || iweb_EVENTO.srcElement;
     if (el.onkeyup != undefined && el.onkeyup != null) {
         var stringa = el.style.maxHeight;
         if (stringa == undefined ||
@@ -1991,7 +1991,7 @@ function iwebGeneraParametriQueryDaSpanSql(elQuery) {
 // la stringa potrebbe essere ad esempio:
 // tabellaClienti_selectedValue_ID_string
 // si intende idTabella_nomeAzione_nomeCampo
-function iwebValutaParametroAjax(stringa, elQuery) { // il secondo campo serve solo per il log
+function iwebValutaParametroAjax(stringa, elQuery, castType) { // il secondo campo serve solo per il log
     var risultatoValuzione = "'0'";
     var aggiungiLIKE = false;
 
@@ -2171,8 +2171,21 @@ function iwebValutaParametroAjax(stringa, elQuery) { // il secondo campo serve s
                 risultatoValuzione = el.getElementsByTagName("option")[selectedindex].value;
                 console.log(risultatoValuzione);
             }
-        }
+        } // fine caso di semplice value
 
+    }
+
+    if (castType != null) {
+        let risultatoValuzione_tipoarray = risultatoValuzione != null && risultatoValuzione.keys != undefined;
+        if (risultatoValuzione_tipoarray == true) {
+            // per il caso di select multiple
+            for (var i2 = 0; i2 < risultatoValuzione.length; i2++) {
+                risultatoValuzione[i2] = risultatoValuzione[i2] == "#NULL#" ? null : parseToType(risultatoValuzione[i2], castType);
+            }
+        }
+        else {
+            risultatoValuzione = parseToType(risultatoValuzione, castType);
+        }
     }
 
     if (aggiungiLIKE)

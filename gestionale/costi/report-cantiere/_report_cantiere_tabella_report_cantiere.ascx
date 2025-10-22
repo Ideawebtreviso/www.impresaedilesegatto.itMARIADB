@@ -84,13 +84,13 @@
                 <td>
                     <%-- filtro di testo sul fornitore.ragionesociale --%>
                     <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_fornitore.ragionesociale">
-                        <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                     </div>
                 </td>
                 <td>
                     <%-- filtro di testo sul campo prodotto.descrizione --%>
                     <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_prodotto.descrizione">
-                        <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                        <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                     </div>
                 </td>
                 <td></td>

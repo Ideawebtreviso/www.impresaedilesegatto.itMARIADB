@@ -56,7 +56,7 @@
                     </th>
                     <th>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.codice">
-                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento()">
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)">
                         </div>
                     </th>
                     <th></th>

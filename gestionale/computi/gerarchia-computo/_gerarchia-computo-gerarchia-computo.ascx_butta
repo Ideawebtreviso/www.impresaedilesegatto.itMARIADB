@@ -39,7 +39,7 @@
                             <th>
                                 <%-- filtro di testo sul campo titolo --%>
                                 <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_titolo">
-                                    <input type="text" onkeypress="iwebTABELLA_VerificaAutocompletamento()"/>
+                                    <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                                 </div>
                             </th>
                             <th></th>

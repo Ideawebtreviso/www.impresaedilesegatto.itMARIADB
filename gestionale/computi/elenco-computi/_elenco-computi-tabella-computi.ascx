@@ -27,6 +27,7 @@
                     <th>Organizza</th>
                     <th style="width:50px">Duplica</th>
                     <th>Cliente</th>
+                    <th>Computo</th>
                     <th>Codice computo</th>
                     <th>Titolo</th>
                     <th>Descrizione</th>
@@ -44,23 +45,28 @@
                     <th></th>
                     <th>
                         <%-- filtro di testo con autocompletamento sul campo nominativo --%>
-                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_nominativo iwebFILTRORICORDA_paginaElencoComputi_tabellaComputi_nominativo">
-                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento()" />
+                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cliente.nominativo iwebFILTRORICORDA_paginaElencoComputi_tabellaComputi_nominativo">
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)" />
                         </div>
                     </th>
                     <th>
-                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_codice">
-                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento()" />
+                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.codice">
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)" />
                         </div>
                     </th>
                     <th>
-                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_titolo">
-                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento()" />
+                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_computo.codice">
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)" />
+                        </div>
+                    </th>
+                    <th>
+                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_computo.titolo">
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)" />
                         </div>
                     </th>
                     <th></th>
                     <th>
-                        <div class="iwebFILTRO iwebFILTROUgualaA iwebCAMPO_stato">
+                        <div class="iwebFILTRO iwebFILTROUgualaA iwebCAMPO_computo.stato">
                             <select id="popupTabellaComputiStato"
                                 onchange="iwebTABELLA_Carica(cercaTablePadreRicors().id, 0, true)">
                                 <option value="">Tutti</option>
@@ -70,7 +76,7 @@
                         </div>
                     </th>
                     <th>
-                        <div class="iwebFILTRO iwebFILTROUgualaA iwebCAMPO_tipo">
+                        <div class="iwebFILTRO iwebFILTROUgualaA iwebCAMPO_computo.tipo">
                             <select id="popupTabellaComputiTipo"
                                 onchange="iwebTABELLA_Carica(cercaTablePadreRicors().id, 0, true)">
                                 <option value="">Tutti</option>
@@ -81,14 +87,14 @@
                     </th>
                     <th>
                         <%--maggiore uguale di--%>
-                        <div class="iwebFILTRO iwebFILTROMaggioreUgualeDi iwebFILTROTIPOCAMPO_data iwebCAMPO_datadiconsegna">
+                        <div class="iwebFILTRO iwebFILTROMaggioreUgualeDi iwebFILTROTIPOCAMPO_data iwebCAMPO_computo.datadiconsegna">
                             <%--<input type="text" placeholder="Da" onfocus="scwLanguage='it';scwShow(this, event);" onclick="scwLanguage = 'it'; scwShow(this, event);" maxlength="10" />--%>
                             <input class="iwebCAMPO_datadiconsegna iwebTIPOCAMPO_date" placeholder="Da"
                                     onkeydown="if (event.keyCode == 9) scwHide(this, event)"
                                     type="text" onfocus="scwLanguage='it';scwShow(this, event);" onclick="scwLanguage = 'it'; scwShow(this, event);" maxlength="10" />
                         </div>
                         <%--minore di--%>
-                        <div class="iwebFILTRO iwebFILTROMinoreDi iwebFILTROTIPOCAMPO_data iwebCAMPO_datadiconsegna">
+                        <div class="iwebFILTRO iwebFILTROMinoreDi iwebFILTROTIPOCAMPO_data iwebCAMPO_computo.datadiconsegna">
                             <%--<input type="text" placeholder="A" onfocus="scwLanguage='it';scwShow(this, event);" onclick="scwLanguage = 'it'; scwShow(this, event);" maxlength="10" />--%>
                             <input class="iwebCAMPO_datadiconsegna iwebTIPOCAMPO_date" placeholder="A"
                                     onkeydown="if (event.keyCode == 9) scwHide(this, event)"
@@ -111,8 +117,8 @@
                     <td class="iwebNascosto">
                         <span class="iwebCAMPO_cliente.id"></span>
                         <span class="iwebCAMPO_computo.id"></span>
-                        <span class="iwebCAMPO_condizioniprimapagina"></span>
-                        <span class="iwebCAMPO_condizioniultimapagina"></span>
+                        <span class="iwebCAMPO_computo.condizioniprimapagina"></span>
+                        <span class="iwebCAMPO_computo.condizioniultimapagina"></span>
                     </td>
                     <td>
                         <a href="../gestione-computo/gestione-computo.aspx?IDCOMPUTO=@iwebCAMPO_LinkPerComputo" class="iwebCAMPO_LinkPerComputo">
@@ -136,26 +142,29 @@
                         "></div>
                     </td>
                     <td>
-                        <span class="iwebCAMPO_nominativo"></span>
+                        <span class="iwebCAMPO_cliente.nominativo"></span>
                     </td>
                     <td>
-                        <span class="iwebCAMPO_codice iwebCodice"></span>
+                        <span class="iwebCAMPO_cantiere.codice"></span>
                     </td>
                     <td>
-                        <span class="iwebCAMPO_titolo iwebTitolo"></span>
+                        <span class="iwebCAMPO_computo.codice iwebCodice"></span>
                     </td>
                     <td>
-                        <span class="iwebCAMPO_descrizione iwebDescrizione iwebTroncaCrtsAt_20"></span>
+                        <span class="iwebCAMPO_computo.titolo iwebTitolo"></span>
                     </td>
                     <td>
-                        <span class="iwebCAMPO_stato"></span>
+                        <span class="iwebCAMPO_computo.descrizione iwebDescrizione iwebTroncaCrtsAt_20"></span>
                     </td>
                     <td>
-                        <span class="iwebCAMPO_tipo"></span>
+                        <span class="iwebCAMPO_computo.stato"></span>
+                    </td>
+                    <td>
+                        <span class="iwebCAMPO_computo.tipo"></span>
                     </td>
                     <td>
                         <%--<span class="iwebCAMPO_datadiconsegna iwebFORMATO_datetime_dd-MM-yyyy"></span>--%>
-                        <span class="iwebCAMPO_datadiconsegna iwebData"></span>
+                        <span class="iwebCAMPO_computo.datadiconsegna iwebData"></span>
                     </td>
                     <td>
                         <%--<input type="button" value="PDF" onclick="generaPDF()"/>--%>
@@ -165,7 +174,7 @@
                     </td>
                     <td>
                         <div class="iwebCliccabile glyphicon glyphicon-trash" title="Elimina"
-                                onclick="iwebTABELLA_SelezionaRigaComeUnica(); iwebBind('tabellaComputi');
+                                onclick="iwebTABELLA_SelezionaRigaComeUnica(this); iwebBind('tabellaComputi');
                                         iwebTABELLA_EliminaRigaInPopup('popupTabellaComputiElimina')"></div>
                     </td>
                 </tr>
@@ -176,12 +185,6 @@
             <tfoot><%-- iwebPAGENUMBER, iwebTOTPAGINE, iwebPAGESIZE,iwebTOTRECORD sono di riferimento al js --%>
                 <%-- eventualmente va messo display:none --%>
                 <tr class="iwebNascosto">
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                     <td></td>
                 </tr>
                 <tr><td><div class="iwebTABELLAFooterPaginazione">
@@ -196,25 +199,33 @@
             </tfoot>
         </table>
         <span class="iwebSQLSELECT">
-	        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                "SELECT cliente.id as 'cliente.id', "+
-                "cliente.nominativo, " +
-                "computo.id as 'computo.id', " +
-                "computo.id as LinkPerComputo, " +
-                "computo.id as LinkPerComputo2, " +
-                "computo.id as LinkPerComputo3, " +
-                "computo.id as LinkPerComputo4, " +
-                "computo.codice, " +
-                "computo.titolo, " +
-                "computo.descrizione, " +
-                "computo.stato, " +
-                "computo.tipo, " +
-                "computo.datadiconsegna, " +
-                "computo.condizioniprimapagina, " +
-                "computo.condizioniultimapagina " +
-                "FROM computo INNER JOIN cliente ON cliente.id = computo.idcliente "+
-                "ORDER BY computo.id DESC"
-            ) %></span>
+	        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                SELECT
+                    cliente.id as 'cliente.id',
+                    cliente.nominativo as 'cliente.nominativo', 
+                    computo.id as 'computo.id',
+                    computo.id as LinkPerComputo, 
+                    computo.id as LinkPerComputo2,
+                    computo.id as LinkPerComputo3,
+                    computo.id as LinkPerComputo4,
+
+                    computo.codice as 'computo.codice',
+                    computo.titolo as 'computo.titolo',
+                    computo.descrizione as 'computo.descrizione',
+                    computo.stato as 'computo.stato',
+                    computo.tipo as 'computo.tipo',
+                    computo.datadiconsegna as 'computo.datadiconsegna',
+                    computo.condizioniprimapagina as 'computo.condizioniprimapagina',
+                    computo.condizioniultimapagina as 'computo.condizioniultimapagina',
+
+                    cantiere.id as 'cantiere.id',
+                    cantiere.codice as 'cantiere.codice'
+
+                FROM computo
+                    INNER JOIN cliente ON cliente.id = computo.idcliente 
+                    LEFT JOIN cantiere ON computo.idcantiere = cantiere.id
+                ORDER BY computo.id DESC
+            ") %></span>
         </span>
 
         <%-- modifica --%>
@@ -245,7 +256,7 @@
                                     <span class="iwebNascosto iwebCAMPO_cliente.id"></span>
 
                                     <%-- Valore dell'el selezionato --%>
-                                    <input type="text" autocomplete="off" class="iwebTIPOCAMPO_varchar iwebCAMPO_nominativo"
+                                    <input type="text" autocomplete="off" class="iwebTIPOCAMPO_varchar iwebCAMPO_cliente.nominativo"
                                         onkeyup="iwebAUTOCOMPLETAMENTO_Ricerca(event, this)" 
                                         onkeydown="iwebAUTOCOMPLETAMENTO_ScorriRisultati(event, this)" 
                                         onblur="iwebAUTOCOMPLETAMENTO_onblur(event, this)"/>
@@ -264,9 +275,37 @@
                             </td>
                         </tr>
                         <tr>
+                            <td>Cantiere</td>
+                            <td>
+                                <div class="iwebAUTOCOMPLETAMENTO iwebCAMPO_cantiere.id" id="popupTabellaComputiModificaIwebAUTOCOMPLETAMENTOcantiere">
+                                    <span class="iwebNascosto">-1</span> <%-- numero rigaSelezionata --%>
+
+                                    <%-- Chiave dell'el selezionato --%>
+                                    <span class="iwebNascosto"></span>
+
+                                    <%-- Valore dell'el selezionato --%>
+                                    <input type="text" autocomplete="off" class="iwebTIPOCAMPO_varchar iwebCAMPO_cantiere.codice"
+                                        onkeyup="iwebAUTOCOMPLETAMENTO_Ricerca(event, this)" 
+                                        onkeydown="iwebAUTOCOMPLETAMENTO_ScorriRisultati(event, this)" 
+                                        onblur="iwebAUTOCOMPLETAMENTO_onblur(event, this)"/>
+
+                                    <%-- Query di ricerca --%>
+                                    <span class="iwebSQLSELECT">
+                                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                                            SELECT id as chiave, codice as valore
+                                            FROM cantiere
+                                            WHERE codice like @codice 
+                                        ") %></span>
+                                        <span class="iwebPARAMETRO">@codice = like_popupTabellaComputiModificaIwebAUTOCOMPLETAMENTOcantiere_getValore</span>
+                                    </span>
+                                    <div class="iwebAUTOCOMPLETAMENTO_risultatiRicerca"><%--RISULTATI RICERCA--%></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
                             <td>Tipo</td>
                             <td>
-                                <select class="iwebCAMPO_tipo">
+                                <select class="iwebCAMPO_computo.tipo">
                                     <option value="Preventivo">Preventivo</option>
                                     <option value="Consuntivo">Consuntivo</option>
                                 </select>
@@ -275,24 +314,24 @@
                         <tr>
                             <td>Codice *</td>
                             <td><input type="text" 
-                                class="iwebCAMPO_codice iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
+                                class="iwebCAMPO_computo.codice iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
                                 onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)" /></td>
                         </tr>
                         <tr>
                             <td>Titolo *</td>
-                            <td><input type="text" class="iwebCAMPO_titolo iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
+                            <td><input type="text" class="iwebCAMPO_computo.titolo iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
                                 onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)" /></td>
                         </tr>
                         <tr>
                             <td>Descrizione</td>
                             <td><%--<input id="popupTabellaComputiInserimentoDescrizione" type="text" class="iwebCAMPO_descrizione" />--%>
-                                <textarea class="iwebCAMPO_descrizione iwebTIPOCAMPO_memo"></textarea>
+                                <textarea class="iwebCAMPO_computo.descrizione iwebTIPOCAMPO_memo"></textarea>
                             </td>
                         </tr>
                         <tr>
                             <td>Data di consegna</td>
                             <td>
-                                <input class="iwebCAMPO_datadiconsegna iwebTIPOCAMPO_date" placeholder="gg/mm/aaaa"
+                                <input class="iwebCAMPO_computo.datadiconsegna iwebTIPOCAMPO_date" placeholder="gg/mm/aaaa"
                                     onkeydown="if (event.keyCode == 9) scwHide(this, event)"
                                     type="text" onfocus="scwLanguage='it';scwShow(this, event);" onclick="scwLanguage = 'it'; scwShow(this, event);" maxlength="10" />
                             </td>
@@ -300,20 +339,20 @@
                         <tr>
                             <td>Condizioni prima pagina offerta</td>
                             <td>
-                                <textarea class="iwebCAMPO_condizioniprimapagina iwebTIPOCAMPO_memo"></textarea>
+                                <textarea class="iwebCAMPO_computo.condizioniprimapagina iwebTIPOCAMPO_memo"></textarea>
                             </td>
                         </tr>
                         <tr>
                             <td>Condizioni ultima pagina offerta</td>
                             <td>
-                                <textarea class="iwebCAMPO_condizioniultimapagina iwebTIPOCAMPO_memo"></textarea>
+                                <textarea class="iwebCAMPO_computo.condizioniultimapagina iwebTIPOCAMPO_memo"></textarea>
 
                             </td>
                         </tr>
                         <tr>
                             <td>Stato</td>
                             <td>
-                                <select class="iwebCAMPO_stato">
+                                <select class="iwebCAMPO_computo.stato">
                                     <option value="Aperto">Aperto</option>
                                     <option value="Bloccato">Bloccato</option>
                                 </select>
@@ -323,11 +362,57 @@
                 </div>
                 <div class="popupFooter">
                     <div class="btn btn-warning" onclick="chiudiPopupType2()" >Annulla</div>
-                    <div class="btn btn-success" onclick="iwebTABELLA_ConfermaModificaRigaInPopup('popupTabellaComputiModifica', 'tabellaComputi', 'tipo,codice,titolo,descrizione,datadiconsegna,condizioniprimapagina,condizioniultimapagina,stato', 'computo.id', true);">Aggiorna</div>
-                    <span class="iwebSQLUPDATE">
+                    <div class="btn btn-success" onclick="elencoComputi_popupTabellaComputiModifica_aggiorna()">Aggiorna</div>
+                    <script>
+                        function elencoComputi_popupTabellaComputiModifica_aggiorna() {
+
+                            let idcliente = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_cliente.id", null, "int?");
+                            let idcantiere = iwebValutaParametroAjax("popupTabellaComputiModificaIwebAUTOCOMPLETAMENTOcantiere_getchiave", null, "int?");
+                            let tipo = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.tipo");
+                            let codice = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.codice");
+                            let titolo = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.titolo");
+                            let descrizione = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.descrizione");
+                            let datadiconsegna = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.datadiconsegna", null, "DateTime?");
+                            let condizioniprimapagina = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.condizioniprimapagina");
+                            let condizioniultimapagina = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.condizioniultimapagina");
+                            let stato = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.stato");
+                            let idcomputo = iwebValutaParametroAjax("popupTabellaComputiModifica_findValue_computo.id", null, "int?");
+
+                            // if (idcliente == null) { alert("Cliente obbligatorio"); return; }
+                            // if (idcantiere == null) { alert("Cantiere obbligatorio"); return; }
+                            // if (datadiconsegna == null) { alert("Data di consegna obbligatoria"); return; }
+                            // if (idcomputo == null) { alert("Computo non definito?"); return; }
+
+                            // iwebTABELLA_ConfermaModificaRigaInPopup('popupTabellaComputiModifica', 'tabellaComputi', 'idcliente,idcantiere,tipo,codice,titolo,descrizione,datadiconsegna,condizioniprimapagina,condizioniultimapagina,stato', 'computo.id', true);
+
+                            let parametri = {
+                                idcliente: idcliente,
+                                idcantiere: idcantiere,
+                                tipo: tipo,
+                                codice: codice,
+                                titolo: titolo,
+                                descrizione: descrizione,
+                                datadiconsegna: datadiconsegna,
+                                condizioniprimapagina: condizioniprimapagina,
+                                condizioniultimapagina: condizioniultimapagina,
+                                stato: stato,
+                                idcomputo: idcomputo
+                            };
+                            iwebMostraCaricamentoAjax();
+                            ajax2024("/WebServiceComputi.asmx/elencoComputi_popupTabellaComputiModifica_aggiorna", parametri, function () {
+
+                                iwebCaricaElemento("tabellaComputi");
+                                chiudiPopupType2B("popupTabellaComputiModifica");
+
+                                iwebNascondiCaricamentoAjax();
+                            });
+                        }
+                    </script>
+                    <%--<span class="iwebSQLUPDATE">
 	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
                             UPDATE computo 
                             SET idcliente = @idcliente, 
+                                idcantiere = @idcantiere, 
                                 tipo = @tipo, 
                                 codice = @codice, 
                                 titolo = @titolo, 
@@ -336,19 +421,20 @@
                                 condizioniprimapagina = @condizioniprimapagina, 
                                 condizioniultimapagina = @condizioniultimapagina, 
                                 stato = @stato 
-                            WHERE id = @id 
+                            WHERE computo.id = @id 
                         ") %></span>
 	                    <span class="iwebPARAMETRO">@idcliente = popupTabellaComputiModifica_findValue_cliente.id</span>
-	                    <span class="iwebPARAMETRO">@tipo = popupTabellaComputiModifica_findValue_tipo</span>
-	                    <span class="iwebPARAMETRO">@codice = popupTabellaComputiModifica_findValue_codice</span>
-	                    <span class="iwebPARAMETRO">@titolo = popupTabellaComputiModifica_findValue_titolo</span>
-	                    <span class="iwebPARAMETRO">@descrizione = popupTabellaComputiModifica_findValue_descrizione</span>
-	                    <span class="iwebPARAMETRO">@datadiconsegna = popupTabellaComputiModifica_findValue_datadiconsegna</span>
-	                    <span class="iwebPARAMETRO">@condizioniprimapagina = popupTabellaComputiModifica_findValue_condizioniprimapagina</span>
-	                    <span class="iwebPARAMETRO">@condizioniultimapagina = popupTabellaComputiModifica_findValue_condizioniultimapagina</span>
-	                    <span class="iwebPARAMETRO">@stato = popupTabellaComputiModifica_findValue_stato</span>
+                        <span class="iwebPARAMETRO">@idcantiere = popupTabellaComputiModificaIwebAUTOCOMPLETAMENTOcantiere_getchiave</span>
+	                    <span class="iwebPARAMETRO">@tipo = popupTabellaComputiModifica_findValue_computo.tipo</span>
+	                    <span class="iwebPARAMETRO">@codice = popupTabellaComputiModifica_findValue_computo.codice</span>
+	                    <span class="iwebPARAMETRO">@titolo = popupTabellaComputiModifica_findValue_computo.titolo</span>
+	                    <span class="iwebPARAMETRO">@descrizione = popupTabellaComputiModifica_findValue_computo.descrizione</span>
+	                    <span class="iwebPARAMETRO">@datadiconsegna = popupTabellaComputiModifica_findValue_computo.datadiconsegna</span>
+	                    <span class="iwebPARAMETRO">@condizioniprimapagina = popupTabellaComputiModifica_findValue_computo.condizioniprimapagina</span>
+	                    <span class="iwebPARAMETRO">@condizioniultimapagina = popupTabellaComputiModifica_findValue_computo.condizioniultimapagina</span>
+	                    <span class="iwebPARAMETRO">@stato = popupTabellaComputiModifica_findValue_computo.stato</span>
 	                    <span class="iwebPARAMETRO">@id = popupTabellaComputiModifica_findValue_computo.id</span>
-                    </span>
+                    </span>--%>
                 </div>
             </div>
         </div>
@@ -403,14 +489,14 @@
                         <tr>
                             <td>Cantiere</td>
                             <td>
-                                <div class="iwebAUTOCOMPLETAMENTO iwebCAMPO_cantiere.id" id="iwebAUTOCOMPLETAMENTOCantiereInserimento">
+                                <div class="iwebAUTOCOMPLETAMENTO iwebCAMPO_cantiere.id" id="popupTabellaComputiInserimentoiwebAUTOCOMPLETAMENTOCantiere">
                                     <span class="iwebNascosto">-1</span> <%-- numero rigaSelezionata --%>
 
                                     <%-- Chiave dell'el selezionato --%>
                                     <span class="iwebNascosto"></span>
 
                                     <%-- Valore dell'el selezionato --%>
-                                    <input type="text" autocomplete="off" class="iwebTIPOCAMPO_varchar"
+                                    <input type="text" autocomplete="off" class="iwebTIPOCAMPO_varchar iwebCAMPO_cantiere.codice"
                                         onkeyup="iwebAUTOCOMPLETAMENTO_Ricerca(event, this)" 
                                         onkeydown="iwebAUTOCOMPLETAMENTO_ScorriRisultati(event, this)" 
                                         onblur="iwebAUTOCOMPLETAMENTO_onblur(event, this)"/>
@@ -418,9 +504,11 @@
                                     <%-- Query di ricerca --%>
                                     <span class="iwebSQLSELECT">
                                         <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
-                                            SELECT id as chiave, descrizione as valore FROM cantiere WHERE descrizione like @descrizione
+                                            SELECT id as chiave, codice as valore
+                                            FROM cantiere
+                                            WHERE codice like @codice
                                         ") %></span>
-                                        <span class="iwebPARAMETRO">@nominativo = like_iwebAUTOCOMPLETAMENTOCantiereInserimento_getValore</span>
+                                        <span class="iwebPARAMETRO">@codice = like_popupTabellaComputiInserimentoiwebAUTOCOMPLETAMENTOCantiere_getValore</span>
                                     </span>
                                     <div class="iwebAUTOCOMPLETAMENTO_risultatiRicerca"><%--RISULTATI RICERCA--%></div>
                                 </div>
@@ -492,9 +580,11 @@
                     <div class="btn btn-success" onclick="
                         iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaComputiInserimento', 'tabellaComputi', '', true)">Inserisci</div>
                     <span class="iwebSQLINSERT">
-                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                            "INSERT INTO computo (codice, titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina) " +
-                            "VALUES (@codice, @titolo, @descrizione, @idcliente, @datadiconsegna, @stato, @tipo, @condizioniprimapagina, @condizioniultimapagina)") %></span>
+                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                            INSERT INTO computo (idcantiere, codice, titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina)
+                            VALUES (@idcantiere, @codice, @titolo, @descrizione, @idcliente, @datadiconsegna, @stato, @tipo, @condizioniprimapagina, @condizioniultimapagina)
+                        ") %></span>
+                        <span class="iwebPARAMETRO">@idcantiere = popupTabellaComputiInserimentoiwebAUTOCOMPLETAMENTOCantiere_getchiave</span>
 	                    <span class="iwebPARAMETRO">@codice = popupTabellaComputiInserimento_findValue_codice</span>
 	                    <span class="iwebPARAMETRO">@titolo = popupTabellaComputiInserimento_findValue_titolo</span>
 	                    <span class="iwebPARAMETRO">@descrizione = popupTabellaComputiInserimento_findValue_descrizione</span>

@@ -30,14 +30,50 @@ function chiudiPopupType2(theTarget) {
     setTimeout(function () { el.style.display = "none" }, 480);
 }
 
-function chiudiPopupType2B(theTarget) {
-    var el = theTarget;
-    //el.className = "popup popupType2 chiudiPopup";
-    if (el.className.indexOf("chiudiPopup") == -1)
-        el.className += " chiudiPopup";
-    el.className = el.className.replace("apriPopup", "");
+function chiudiPopupType2B(popup_o_idpopup_dachiudere, azzera_campi_popup_opzionale, funzioneAFineEsecuzione) {
 
-    setTimeout(function () { el.style.display = "none" }, 480);
+    // primo parametro
+    let popup;
+    if (popup_o_idpopup_dachiudere == null) { alertEConsole("Errore in chiudiPopupType2B. Non è stato passato il popup da chiudere."); return; }
+    if (popup_o_idpopup_dachiudere instanceof HTMLElement) {
+        /* ho ricevuto in input un elemento HTML */
+        popup = popup_o_idpopup_dachiudere;
+    } else {
+        /* ho ricevuto in input un id */
+        popup = document.getElementById(popup_o_idpopup_dachiudere);
+        if (popup == null) { alertEConsole("Errore in chiudiPopupType2B. L'id del popup non è stato trovato in pagina."); return; }
+    }
+
+    // secondo parametro
+    if (azzera_campi_popup_opzionale == null) azzera_campi_popup_opzionale = true;
+
+    // chiusura popup
+
+    // chiusura popup
+    let isPopupInizialmenteAperto = elementoContieneClasse(popup, "chiudiPopup") == false;
+    rimuoviClasseDaElemento(popup, "apriPopup");
+    aggiungiClasseAElemento(popup, "chiudiPopup");
+
+    //for (let i = 0; i < popup_STACK.length; i++) {
+    //    if (popup_STACK[i].id == popup.id) popup_STACK.splice(i, 1);
+    //}
+
+    // azzera popup
+    if (false && azzera_campi_popup_opzionale) azzeraContenutoCampiNellElemento(popup.id);
+
+    //COSTANTE_ANIMAZIONE_TEMPO_CHIUSURA_POPUP = 480;
+    //if (isPopupInizialmenteAperto) {
+    //    setTimeout(function () { aggiungiClasseAElemento(popup, "iwebNascostoImportant"); if (funzioneAFineEsecuzione) funzioneAFineEsecuzione(); }, COSTANTE_ANIMAZIONE_TEMPO_CHIUSURA_POPUP);
+    //}
+    //else {
+    //    if (funzioneAFineEsecuzione) funzioneAFineEsecuzione();
+    //}
+
+    //popup.className = "popup popupType2 chiudiPopup";
+    if (popup.className.indexOf("chiudiPopup") == -1) popup.className += " chiudiPopup";
+    popup.className = popup.className.replace("apriPopup", "");
+    setTimeout(function () { popup.style.display = "none" }, 480);
+    if (funzioneAFineEsecuzione) funzioneAFineEsecuzione();
 }
 
 function apriPopupType1_bind(idPopup, bindIdPopup) {
