@@ -517,7 +517,7 @@
                         <tr>
                             <td>Tipo</td>
                             <td>
-                                <select class="iwebCAMPO_tipo">
+                                <select id="popupTabellaComputiInserimentoTipo">
                                     <option value="Preventivo">Preventivo</option>
                                     <option value="Consuntivo">Consuntivo</option>
                                 </select>
@@ -525,26 +525,27 @@
                         </tr>
                         <tr>
                             <td>Codice *</td>
-                            <td><input type="text" 
+                            <td><input type="text" id="popupTabellaComputiInserimentoCodice"
                                 class="iwebCAMPO_codice iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
                                 onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)" /></td>
                         </tr>
                         <tr>
                             <td>Titolo *</td>
-                            <td><input type="text" 
+                            <td><input type="text" id="popupTabellaComputiInserimentoTitolo"
                                 class="iwebCAMPO_titolo iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
                                 onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)" /></td>
                         </tr>
                         <tr>
                             <td>Descrizione</td>
-                            <td><%--<input id="popupTabellaComputiInserimentoDescrizione" type="text" class="iwebCAMPO_descrizione" />--%>
-                                <textarea class="iwebCAMPO_descrizione iwebTIPOCAMPO_memo"></textarea>
+                            <td>
+                                <textarea class="iwebCAMPO_descrizione iwebTIPOCAMPO_memo" id="popupTabellaComputiInserimentoDescrizione"></textarea>
                             </td>
                         </tr>
                         <tr>
                             <td>Data di consegna</td>
                             <td>
-                                <input class="iwebCAMPO_datadiconsegna iwebTIPOCAMPO_date" placeholder="gg/mm/aaaa"
+                                <input id="popupTabellaComputiInserimentoDataDiConsegna"
+                                    class="iwebCAMPO_datadiconsegna iwebTIPOCAMPO_date" placeholder="gg/mm/aaaa"
                                     type="text" onfocus="scwLanguage='it'; scwShow(this, event);" 
                                     onkeydown="if (event.keyCode == 9) scwHide(this, event)"
                                     onclick="scwLanguage = 'it'; scwShow(this, event);" maxlength="10" />
@@ -567,7 +568,7 @@
                         <tr>
                             <td>Stato</td>
                             <td>
-                                <select class="iwebCAMPO_stato">
+                                <select class="iwebCAMPO_stato" id="popupTabellaComputiInserimentoStato">
                                     <option value="Aperto">Aperto</option>
                                     <option value="Bloccato">Bloccato</option>
                                 </select>
@@ -577,9 +578,8 @@
                 </div>
                 <div class="popupFooter">
                     <div class="btn btn-warning" onclick="chiudiPopupType2()" >Annulla</div>
-                    <div class="btn btn-success" onclick="
-                        iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaComputiInserimento', 'tabellaComputi', '', true)">Inserisci</div>
-                    <span class="iwebSQLINSERT">
+                    <div class="btn btn-success" onclick="popupTabellaComputiInserimento_inserisci()">Inserisci</div>
+                    <%--<span class="iwebSQLINSERT">
                         <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
                             INSERT INTO computo (idcantiere, codice, titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina)
                             VALUES (@idcantiere, @codice, @titolo, @descrizione, @idcliente, @datadiconsegna, @stato, @tipo, @condizioniprimapagina, @condizioniultimapagina)
@@ -594,7 +594,50 @@
 	                    <span class="iwebPARAMETRO">@tipo = popupTabellaComputiInserimento_findValue_tipo</span>
 	                    <span class="iwebPARAMETRO">@condizioniprimapagina = popupTabellaComputiInserimento_findValue_condizioniprimapagina</span>
 	                    <span class="iwebPARAMETRO">@condizioniultimapagina = popupTabellaComputiInserimento_findValue_condizioniultimapagina</span>
-                    </span>
+                    </span>--%>
+                    <script>
+                        function popupTabellaComputiInserimento_inserisci() {
+
+                            let idcliente = iwebValutaParametroAjax("iwebAUTOCOMPLETAMENTOClienteInserimento_getchiave", null, "int?");
+                            let idcantiere = iwebValutaParametroAjax("popupTabellaComputiInserimentoiwebAUTOCOMPLETAMENTOCantiere_getchiave", null, "int?");
+                            let tipo = iwebValutaParametroAjax("popupTabellaComputiInserimentoTipo_value");
+                            let codice = iwebValutaParametroAjax("popupTabellaComputiInserimentoCodice_value");
+                            let titolo = iwebValutaParametroAjax("popupTabellaComputiInserimentoTitolo_value");
+                            let descrizione = iwebValutaParametroAjax("popupTabellaComputiInserimentoDescrizione_value");
+                            let datadiconsegna = iwebValutaParametroAjax("popupTabellaComputiInserimentoDataDiConsegna_value", null, "DateTime?");
+                            let condizioniprimapagina = iwebValutaParametroAjax("popupTabellaComputiInserimento_findValue_condizioniprimapagina");
+                            let condizioniultimapagina = iwebValutaParametroAjax("popupTabellaComputiInserimento_findValue_condizioniultimapagina");
+                            let stato = iwebValutaParametroAjax("popupTabellaComputiInserimentoStato_value");
+
+                            // if (idcliente == null) { alert("Cliente obbligatorio"); return; }
+                            // if (idcantiere == null) { alert("Cantiere obbligatorio"); return; }
+                            // if (datadiconsegna == null) { alert("Data di consegna obbligatoria"); return; }
+                            // if (idcomputo == null) { alert("Computo non definito?"); return; }
+
+                            // iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaComputiInserimento', 'tabellaComputi', '', true)
+
+                            let parametri = {
+                                idcliente: idcliente,
+                                idcantiere: idcantiere,
+                                tipo: tipo,
+                                codice: codice,
+                                titolo: titolo,
+                                descrizione: descrizione,
+                                datadiconsegna: datadiconsegna,
+                                condizioniprimapagina: condizioniprimapagina,
+                                condizioniultimapagina: condizioniultimapagina,
+                                stato: stato
+                            };
+                            iwebMostraCaricamentoAjax();
+                            ajax2024("/WebServiceComputi.asmx/popupTabellaComputiInserimento_inserisci", parametri, function () {
+
+                                iwebCaricaElemento("tabellaComputi");
+                                chiudiPopupType2B("popupTabellaComputiInserimento");
+
+                                iwebNascondiCaricamentoAjax();
+                            });
+                        }
+                    </script>
                 </div>
             </div>
         </div>
@@ -610,46 +653,66 @@
                 <div class="iwebTABELLA_ContenitoreParametri"></div>
                 <div class="popupCorpo">
                     <table>
-                        <%-- in eliminazione deve comparire il/i campo/i chiave, eventualmente come span iwebNascosto. 
-                                in questo modo dovrebbero essere eseguiti meno controlli rispetto alla ricerca dell'id sulla riga --%>
                         <tr>
                             <td>id</td>
                             <td><span class="iwebCAMPO_computo.id"></span></td>
                         </tr>
                         <tr>
                             <td>Nominativo</td>
-                            <td><span class="iwebCAMPO_nominativo"></span></td>
+                            <td><span class="iwebCAMPO_cliente.nominativo"></span></td>
                         </tr>
                         <tr>
-                            <td>Indirizzo</td>
-                            <td><span class="iwebCAMPO_indirizzo"></span></td>
+                            <td>Cantiere</td>
+                            <td><span class="iwebCAMPO_cantiere.codice"></span></td>
                         </tr>
                         <tr>
-                            <td>Citta</td>
-                            <td><span class="iwebCAMPO_citta"></span></td>
+                            <td>Codice</td>
+                            <td><span class="iwebCAMPO_computo.codice"></span></td>
                         </tr>
                         <tr>
-                            <td>Provincia</td>
-                            <td><span class="iwebCAMPO_provincia"></span></td>
+                            <td>Titolo</td>
+                            <td><span class="iwebCAMPO_computo.titolo"></span></td>
                         </tr>
                         <tr>
-                            <td>Email</td>
-                            <td><span class="iwebCAMPO_email"></span></td>
+                            <td>Descrizione</td>
+                            <td><span class="iwebCAMPO_computo.descrizione"></span></td>
                         </tr>
                         <tr>
-                            <td>Telefono</td>
-                            <td><span class="iwebCAMPO_telefono"></span></td>
+                            <td>Stato</td>
+                            <td><span class="iwebCAMPO_computo.stato"></span></td>
                         </tr>
-                        <%-- se voglio aggiungere un campo ho necessità di averlo in tabella --%>
+                        <tr>
+                            <td>Tipo</td>
+                            <td><span class="iwebCAMPO_computo.tipo"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Data consegna</td>
+                            <td><span class="iwebCAMPO_computo.datadiconsegna iwebData"></span></td>
+                        </tr>
                     </table>
                 </div>
                 <div class="popupFooter">
-                    <div class="btn btn-warning" onclick="chiudiPopupType2()" >Annulla</div>
-                    <div class="btn btn-danger" onclick="elencoComputi_eliminaComputo('tabellaComputi');">Elimina</div>
-                    <span class="iwebSQLDELETE">
-                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL("DELETE FROM computo WHERE id = @id") %></span>
-                        <span class="iwebPARAMETRO">@id = tabellaComputi_selectedValue_computo.id</span>
-                    </span>
+                    <div class="btn btn-warning" onclick="chiudiPopupType2(this)" >Annulla</div>
+                    <div class="btn btn-danger" onclick="elencoComputi_popupTabellaComputiElimina_elimina()">Elimina</div>
+                    <script>
+                        function elencoComputi_popupTabellaComputiElimina_elimina() {
+                            let idcomputo = iwebValutaParametroAjax("tabellaComputi_selectedValue_computo.id", null, "int?");
+
+                            // if (idcomputo == null) { alert("Computo non definito?"); return; }
+
+                            let parametri = {
+                                idcomputo: idcomputo
+                            };
+                            iwebMostraCaricamentoAjax();
+                            ajax2024("/WebServiceComputi.asmx/elencoComputi_popupTabellaComputiElimina_elimina", parametri, function () {
+
+                                iwebCaricaElemento("tabellaComputi");
+                                chiudiPopupType2B("popupTabellaComputiElimina");
+
+                                iwebNascondiCaricamentoAjax();
+                            });
+                        }
+                    </script>
                 </div>
             </div>
         </div>

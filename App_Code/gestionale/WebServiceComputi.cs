@@ -2370,7 +2370,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
     public void lanciaQuery(MySqlConnection mysqlconnection, string query, Dictionary<string, object> parametri) {
         MySqlCommand command = mysqlconnection.CreateCommand();
         command.CommandText = query;
-        aggiungiParametriNellaQuery(command, parametri);
+        foreach (KeyValuePair<string, object> entry in parametri) command.Parameters.AddWithValue("@" + entry.Key, entry.Value);
         command.ExecuteNonQuery();
     }
 
@@ -2378,7 +2378,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         MySqlCommand command = mysqlconnection.CreateCommand();
         command.CommandText = query;
-        aggiungiParametriNellaQuery(command, parametri);
+        foreach (KeyValuePair<string, object> entry in parametri) command.Parameters.AddWithValue("@" + entry.Key, entry.Value);
         command.ExecuteNonQuery();
         return command.LastInsertedId;
     }
@@ -2389,7 +2389,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         MySqlCommand command = mysqlconnection.CreateCommand();
         command.CommandText = query;
-        aggiungiParametriNellaQuery(command, parametri);
+        foreach (KeyValuePair<string, object> entry in parametri) command.Parameters.AddWithValue("@" + entry.Key, entry.Value);
 
         MySqlDataReader reader = command.ExecuteReader();
         if (reader.Read()) {
@@ -2409,7 +2409,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         MySqlCommand command = mysqlconnection.CreateCommand();
         command.CommandText = query;
-        aggiungiParametriNellaQuery(command, parametri);
+        foreach (KeyValuePair<string, object> entry in parametri) command.Parameters.AddWithValue("@" + entry.Key, entry.Value);
         MySqlDataReader reader = command.ExecuteReader();
         while (reader.Read()) {
             // trasformo il record in un dictionary
@@ -2422,12 +2422,9 @@ public class WebServiceComputi : System.Web.Services.WebService {
         reader.Close();
         return risultato;
     }
-    public void aggiungiParametriNellaQuery(MySqlCommand command, Dictionary<string, object> parametri) {
-        foreach (KeyValuePair<string, object> entry in parametri) {
-            // do something with entry.Value or entry.Key
-            command.Parameters.AddWithValue("@" + entry.Key, entry.Value);
-        }
-    }
+    //public void aggiungiParametriNellaQuery(MySqlCommand command, Dictionary<string, object> parametri) {
+    //    foreach (KeyValuePair<string, object> entry in parametri) command.Parameters.AddWithValue("@" + entry.Key, entry.Value);
+    //}
 
     public Dictionary<string, object> combinaDictionary(Dictionary<string, object> dict1, Dictionary<string, object> dict2) {
         Dictionary<string, object> dictRisultato = new Dictionary<string, object>();
@@ -2755,6 +2752,46 @@ public class WebServiceComputi : System.Web.Services.WebService {
         }
     }
 
+    [WebMethod] public void popupTabellaComputiInserimento_inserisci(
+        int? idcliente,
+        int? idcantiere,
+        string tipo,
+        string codice,
+        string titolo,
+        string descrizione,
+        DateTime? datadiconsegna,
+        string condizioniprimapagina,
+        string condizioniultimapagina,
+        string stato
+        )
+    {
+        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
+        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+        {
+            conn.Open();
+
+            string query = @"
+                INSERT INTO computo (idcliente, idcantiere, codice, titolo, descrizione, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina)
+                VALUES (@idcliente, @idcantiere, @codice, @titolo, @descrizione, @datadiconsegna, @stato, @tipo, @condizioniprimapagina, @condizioniultimapagina)
+            ";
+            Dictionary<string, object> parametriquery = new Dictionary<string, object>() {
+                {"idcliente", idcliente},
+                {"idcantiere", idcantiere},
+                {"tipo", tipo},
+                {"codice", codice},
+                {"titolo", titolo},
+                {"descrizione", descrizione},
+                {"datadiconsegna", datadiconsegna},
+                {"condizioniprimapagina", condizioniprimapagina},
+                {"condizioniultimapagina", condizioniultimapagina},
+                {"stato", stato}
+            };
+            lanciaQuery(conn, query, parametriquery);
+
+            conn.Close();
+        }
+    }
     [WebMethod] public void elencoComputi_popupTabellaComputiModifica_aggiorna(
         int? idcliente,
         int? idcantiere,
@@ -2803,6 +2840,22 @@ public class WebServiceComputi : System.Web.Services.WebService {
                 {"idcomputo", idcomputo}
             };
             lanciaQuery(conn, query, parametriquery);
+
+            conn.Close();
+        }
+    }
+    [WebMethod] public void elencoComputi_popupTabellaComputiElimina_elimina(int idcomputo)
+    {
+        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
+        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+        {
+            conn.Open();
+
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = @"DELETE FROM computo WHERE id = @idcomputo";
+            command.Parameters.AddWithValue("@idcomputo", idcomputo);
+            command.ExecuteNonQuery();
 
             conn.Close();
         }

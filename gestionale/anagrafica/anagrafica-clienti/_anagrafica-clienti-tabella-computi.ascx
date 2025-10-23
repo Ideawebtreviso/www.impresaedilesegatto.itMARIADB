@@ -175,7 +175,7 @@
                                 </tr>
                                 <tr>
                                     <td>Tipo</td>
-                                    <td class="iwebCAMPO_tipo">
+                                    <td class="iwebCAMPO_computo.tipo">
                                         <select id="popupTabellaComputiInserimentoTipo">
                                             <option value="Preventivo">Preventivo</option>
                                             <option value="Consuntivo">Consuntivo</option>
@@ -238,8 +238,8 @@
                         <div class="popupFooter">
                             <div class="btn btn-warning" onclick="chiudiPopupType2()">Annulla</div>
                             <%-- IdPopupAssociato, nomeQuery, parametriQuery, attesaRispostaServer --%>
-                            <div class="btn btn-success" onclick="iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaComputiInserimento', 'tabellaComputi', 'nominativo, indirizzo, citta, provincia, email, telefono, cf, piva', true)">Inserisci</div>
-                            <span class="iwebSQLINSERT">
+                            <div class="btn btn-success" onclick="popupTabellaComputiInserimento_inserisci()">Inserisci</div>
+                            <%--<span class="iwebSQLINSERT">
                                 <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
                                     INSERT INTO computo (idcantiere, codice, titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina)
                                     VALUES (@idcantiere, @codice, @titolo, @descrizione, @idcliente, @datadiconsegna, @stato, @tipo, @condizioniprimapagina, @condizioniultimapagina)
@@ -254,7 +254,50 @@
                                 <span class="iwebPARAMETRO">@tipo = popupTabellaComputiInserimentoTipo_value</span>
                                 <span class="iwebPARAMETRO">@condizioniprimapagina = popupTabellaComputiInserimentoCondizioniPrimaPagina_value</span>
                                 <span class="iwebPARAMETRO">@condizioniultimapagina = popupTabellaComputiInserimentoCondizioniUltimaPagina_value</span>
-                            </span>
+                            </span>--%>
+                            <script>
+                                function popupTabellaComputiInserimento_inserisci() {
+
+                                    let idcliente = iwebValutaParametroAjax("tabellaClienti_selectedValue_cliente.id", null, "int?");
+                                    let idcantiere = iwebValutaParametroAjax("popupTabellaComputiInserimentoiwebAUTOCOMPLETAMENTOCantiere_getchiave", null, "int?");
+                                    let tipo = iwebValutaParametroAjax("popupTabellaComputiInserimentoTipo_value");
+                                    let codice = iwebValutaParametroAjax("popupTabellaComputiInserimentoCodice_value");
+                                    let titolo = iwebValutaParametroAjax("popupTabellaComputiInserimentoTitolo_value");
+                                    let descrizione = iwebValutaParametroAjax("popupTabellaComputiInserimentoDescrizione_value");
+                                    let datadiconsegna = iwebValutaParametroAjax("popupTabellaComputiInserimentoDataDiConsegna_value", null, "DateTime?");
+                                    let condizioniprimapagina = iwebValutaParametroAjax("popupTabellaComputiInserimentoCondizioniPrimaPagina_value");
+                                    let condizioniultimapagina = iwebValutaParametroAjax("popupTabellaComputiInserimentoCondizioniUltimaPagina_value");
+                                    let stato = iwebValutaParametroAjax("popupTabellaComputiInserimentoStato_value");
+
+                                    // if (idcliente == null) { alert("Cliente obbligatorio"); return; }
+                                    // if (idcantiere == null) { alert("Cantiere obbligatorio"); return; }
+                                    // if (datadiconsegna == null) { alert("Data di consegna obbligatoria"); return; }
+                                    // if (idcomputo == null) { alert("Computo non definito?"); return; }
+
+                                    // iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaComputiInserimento', 'tabellaComputi', 'nominativo, indirizzo, citta, provincia, email, telefono, cf, piva', true)
+
+                                    let parametri = {
+                                        idcliente: idcliente,
+                                        idcantiere: idcantiere,
+                                        tipo: tipo,
+                                        codice: codice,
+                                        titolo: titolo,
+                                        descrizione: descrizione,
+                                        datadiconsegna: datadiconsegna,
+                                        condizioniprimapagina: condizioniprimapagina,
+                                        condizioniultimapagina: condizioniultimapagina,
+                                        stato: stato
+                                    };
+                                    iwebMostraCaricamentoAjax();
+                                    ajax2024("/WebServiceComputi.asmx/popupTabellaComputiInserimento_inserisci", parametri, function () {
+
+                                        iwebCaricaElemento("tabellaComputi");
+                                        chiudiPopupType2B("popupTabellaComputiInserimento");
+
+                                        iwebNascondiCaricamentoAjax();
+                                    });
+                                }
+                            </script>
                         </div>
                     </div>
                 </div>
