@@ -260,6 +260,9 @@
                                     <div class="iwebAUTOCOMPLETAMENTO_risultatiRicerca"><%--RISULTATI RICERCA--%></div>
                                 </div>
                             </td>
+                            <td>
+                                <div class="btn btn-warning" tabindex="1" onclick="popupTabellaVociInserimentoPickingVoceTemplate()">Picking</div>
+                            </td>
                         </tr>
                         <tr>
                             <td>Descrizione</td>
@@ -310,6 +313,27 @@
                 </div>
             </div>
         </div>
+        <script>
+            function popupTabellaVociInserimentoPickingVoceTemplate() {
+
+                // parametri di input
+                // iwebElaboraCampo("C0001inputAAA", aaa);
+
+                // parametri di output
+                C0001PopupASCX_chiudi = function (idvocetemplate, codice, nome) {
+                    iwebAUTOCOMPLETAMENTO_SetChiaveSelezionato("iwebAUTOCOMPLETAMENTOTitoloInserimento", idvocetemplate);
+                    iwebAUTOCOMPLETAMENTO_SetValoreSelezionato("iwebAUTOCOMPLETAMENTOTitoloInserimento", nome);
+                }
+
+                let livelloPopup = getLivelloNuovoPopup("popupTabellaVociInserimento");
+                C0001PopupASCX_apri(livelloPopup);
+            }
+        </script>
+
+
+
+
+
 
         <%-- elimina --%>
         <script>
@@ -381,4 +405,5 @@
                 </div>
             </div>
         </div>
+
     </div>

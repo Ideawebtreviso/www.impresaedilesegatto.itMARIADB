@@ -106,3 +106,28 @@ function apriPopupType2(idPopup) {
 
     return false;
 }
+
+
+// funzione più avanzata rispetto alla precedente 
+// (funziona in modo un po' diverso: la precedente restituisce già il livello +1, questa restituisce il livello corrente
+// esempio di utilizzo: var livelloProssimoPopup = getLivelloQuestoPopup("C0006tabellaRigheInserimento") + 1;
+function getLivelloQuestoPopup(idOEl) {
+    if (typeof (idOEl) == "string") idOEl = document.getElementById(idOEl);
+    var elPopup = idOEl;
+    var livelloPopup = elPopup.style.zIndex;
+    if (livelloPopup != "") livelloPopup = parseInt(livelloPopup) - 1000; else livelloPopup = 0;
+    return livelloPopup;
+}
+function getLivelloNuovoPopup(idOEl) { return getLivelloQuestoPopup(idOEl) + 1; }
+// esempio di utilizzo: setLivelloNuovoPopup("C0016Popup", livelloPopup);
+function setLivelloNuovoPopup(idOEl, livelloPopup) {
+    if (typeof (idOEl) == "string") idOEl = document.getElementById(idOEl);
+    var elPopup = idOEl;
+    if (livelloPopup != null) {
+        livelloPopup = parseInt(livelloPopup);
+        elPopup.style.zIndex = 1000 + livelloPopup;
+    }
+    //for (let i = 0; i < popup_STACK.length; i++) {
+    //    if (popup_STACK[i].id == elPopup.id) popup_STACK[i].zIndex = elPopup.style.zIndex;
+    //}
+}

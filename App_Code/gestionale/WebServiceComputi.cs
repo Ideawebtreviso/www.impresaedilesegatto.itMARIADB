@@ -2861,4 +2861,61 @@ public class WebServiceComputi : System.Web.Services.WebService {
         }
     }
 
+    [WebMethod] public void C0001popupInserimentoVoceTemplate_salva(string codice, string nome)
+    {
+        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
+        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+        {
+            conn.Open();
+
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = @"INSERT INTO vocetemplate (codice, nome) VALUES (@codice, @nome)";
+            command.Parameters.AddWithValue("@codice", codice);
+            command.Parameters.AddWithValue("@nome", nome);
+            command.ExecuteNonQuery();
+
+            conn.Close();
+        }
+    }
+    [WebMethod] public void C0001popupModificaVoceTemplate_salva(int idvocetemplate, string codice, string nome)
+    {
+        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
+        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+        {
+            conn.Open();
+
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = @"
+                UPDATE vocetemplate
+                SET
+                    vocetemplate.codice = @codice,
+                    vocetemplate.nome = @nome
+                WHERE vocetemplate.id = @idvocetemplate";
+            command.Parameters.AddWithValue("@codice", codice);
+            command.Parameters.AddWithValue("@nome", nome);
+            command.Parameters.AddWithValue("@idvocetemplate", idvocetemplate);
+            command.ExecuteNonQuery();
+
+            conn.Close();
+        }
+    }
+    [WebMethod] public void C0001popupEliminaVoceTemplate_conferma(int idvocetemplate)
+    {
+        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
+        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+        {
+            conn.Open();
+
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = @"DELETE vocetemplate FROM vocetemplate WHERE vocetemplate.id = @idvocetemplate";
+            command.Parameters.AddWithValue("@idvocetemplate", idvocetemplate);
+            command.ExecuteNonQuery();
+
+            conn.Close();
+        }
+    }
+
 }

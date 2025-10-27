@@ -13,6 +13,28 @@ public partial class aggiornamenti_v2025 : System.Web.UI.Page
     {
         Utility utility = new Utility();
 
+
+        // fix bug date:
+        command = connection.CreateCommand();
+        command.CommandText = @"UPDATE computo SET datadiconsegna = '2000-01-01 00:00:00' WHERE datadiconsegna = '0000-00-00 00:00:00'";
+        command.ExecuteNonQuery();
+
+        command = connection.CreateCommand();
+        command.CommandText = @"UPDATE computo SET datadiconsegna = '2000-01-01 00:00:00' WHERE datadiconsegna = '0001-01-01 00:00:00'";
+        command.ExecuteNonQuery();
+
+        utility.RinominaColonna(connection, "computo", "datadiconsegna", "datadiconsegna", "DATETIME NULL AFTER idcantiere");
+
+        command = connection.CreateCommand();
+        command.CommandText = @"UPDATE computo SET datadiconsegna = null WHERE datadiconsegna = '2000-01-01 00:00:00'";
+        command.ExecuteNonQuery();
+
+
+        // punto 2 del preventivo
+        utility.AggiungiColonna(connection, "computo", "idcantiere", "INT AFTER idcliente");
+
+
+        // punto 3
         command.CommandText = "SHOW TABLES LIKE 'vocetemplate'";
         if (command.ExecuteScalar() == null)
         {
@@ -37,23 +59,6 @@ public partial class aggiornamenti_v2025 : System.Web.UI.Page
             utility.AggiungiIndice(connection, "vocetemplate", "codice");
         }
         utility.AggiungiColonna(connection, "misura", "idvocetemplate", "INT");
-
-
-        utility.AggiungiColonna(connection, "computo", "idcantiere", "INT AFTER idcliente");
-
-        command = connection.CreateCommand();
-        command.CommandText = @"UPDATE computo SET datadiconsegna = '2000-01-01 00:00:00' WHERE datadiconsegna = '0000-00-00 00:00:00'";
-        command.ExecuteNonQuery();
-
-        command = connection.CreateCommand();
-        command.CommandText = @"UPDATE computo SET datadiconsegna = '2000-01-01 00:00:00' WHERE datadiconsegna = '0001-01-01 00:00:00'";
-        command.ExecuteNonQuery();
-
-        utility.RinominaColonna(connection, "computo", "datadiconsegna", "datadiconsegna", "DATETIME NULL AFTER idcantiere");
-
-        command = connection.CreateCommand();
-        command.CommandText = @"UPDATE computo SET datadiconsegna = null WHERE datadiconsegna = '2000-01-01 00:00:00'";
-        command.ExecuteNonQuery();
 
     } // chiudo il metodo aggiornamentiSpecifici
 

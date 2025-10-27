@@ -330,7 +330,9 @@ function iwebTABELLA_GeneraRigheTabella(jsonRisultatoQuery, tBodySorg, tBodyDest
     }
 }
 
-function iwebElaboraCampo(elTemp, valore) {
+function iwebElaboraCampo(idOEl, valore) {
+    let elTemp = idOEl;
+    if (typeof (idOEl) == "string") elTemp = document.getElementById(idOEl);
     var nomeClasse = elTemp.className;
 
     if (nomeClasse.indexOf("iwebFORMATO_") >= 0) { // es: iwebFORMATO_datetime_dd/MM/yyyy
@@ -2234,18 +2236,18 @@ function cercaTablePadreRicors(el) {
     return el;
 }
 
-function cercaPopupPadreRicors(el) {
-    var nomeTag = el.nodeName.toLowerCase();
-    if (nomeTag == "document")
-        return el
-    else
-        if (nomeTag == "div" && el.className != "" && el.className.toLowerCase().indexOf("popup ") >= 0) {
-            return el
-        } else
-            el = cercaPopupPadreRicors(el.parentElement);
-    return el;
-}
-
+//function cercaPopupPadreRicors(el) {
+//    var nomeTag = el.nodeName.toLowerCase();
+//    if (nomeTag == "document")
+//        return el
+//    else
+//        if (nomeTag == "div" && el.className != "" && el.className.toLowerCase().indexOf("popup ") >= 0) {
+//            return el
+//        } else
+//            el = cercaPopupPadreRicors(el.parentElement);
+//    return el;
+//}
+function cercaPopupPadreRicors(el) { return el.closest(".popup"); }
 // cerco il primo elemento padre che ha la classe specificata
 function cercaElPadreConClasseRicors(el, nomeClasse) {
     if (el.nodeName.toLowerCase() == "body") return el; // in caso di body, restituisco il body

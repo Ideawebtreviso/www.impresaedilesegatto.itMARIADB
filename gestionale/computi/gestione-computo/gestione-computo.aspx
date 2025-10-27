@@ -1,5 +1,7 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/gestionale/MasterPage.master" AutoEventWireup="true" CodeFile="gestione-computo.aspx.cs" Inherits="gestionale_computi_gestione_computo_gestione_computo" %>
 
+<%@ Register TagPrefix="_C0001PopupTemplateVoce" TagName="_C0001PopupTemplateVoce" Src="~/gestionale/_common/_C0001PopupTemplateVoce.ascx" %>
+
 <%@ Register TagPrefix="gestioneComputo" TagName="tabellaComputi" Src="_gestione_computo_tabella_computi.ascx" %>
 <%@ Register TagPrefix="gestioneComputo" TagName="tabellaVoci" Src="_gestione_computo_tabella_voci.ascx" %>
 <%@ Register TagPrefix="gestioneComputo" TagName="dettaglioVoci" Src="_gestione_computo_dettaglio_voci.ascx" %>
@@ -11,6 +13,9 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder" Runat="Server">
     <span id="IDCOMPUTO" class="iwebNascosto"><asp:Literal ID="LiteralIDCOMPUTO" runat="server"></asp:Literal></span>
     <%--<span id="IDCLIENTE"><asp:Literal ID="LiteralIDCLIENTE" runat="server"></asp:Literal></span>--%>
+
+    <%-- _C0001PopupTemplateVoce --%>
+    <_C0001PopupTemplateVoce:_C0001PopupTemplateVoce runat="server" />
 
     <gestioneComputo:tabellaComputi runat="server" ID="gestioneComputo_tabellaComputi" />
 
