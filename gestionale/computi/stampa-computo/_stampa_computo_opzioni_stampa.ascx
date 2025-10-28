@@ -51,7 +51,11 @@
     </tr>
     <tr>
         <td>Iva</td>
-        <td><input type="text" id="stampaIva" onblur="this.style.border = '1px solid #e5e5e5'" /></td>
+        <td><input type="text" id="stampaIva" onblur="this.style.border = '1px solid #e5e5e5'" style="width:70px" /></td>
+    </tr>
+    <tr>
+        <td>Indica solo totale</td>
+        <td><input type="checkbox" id="indicaSoloTotale" checked /></td>
     </tr>
     <tr>
         <td></td>
@@ -65,11 +69,11 @@
         INSERT INTO computopdf (idcomputo, datacreazione, dataora, 
             stampalogo, stampaprezzi, stampacopertina, stampasuddivisioni, stampamisure, 
             stampatotalenellesuddivisioni, stampatotalefinale, stampanumeropagina, titolocomputo,
-            iva) 
+            iva, indicaSoloTotale) 
         VALUES (@idcomputo, @datacreazione, @dataora, 
             @stampalogo, @stampaprezzi, @stampacopertina, @stampasuddivisioni, @stampamisure, 
             @stampatotalenellesuddivisioni, @stampatotalefinale, @stampanumeropagina, @titolocomputo,
-            @iva)
+            @iva, @indicaSoloTotale)
     ") %></span>
     <span class="iwebPARAMETRO">@idcomputo = IDCOMPUTO_value</span>
 	<span class="iwebPARAMETRO">@dataora = dataDiStampa_value</span>
@@ -82,8 +86,9 @@
     <span class="iwebPARAMETRO">@stampatotalenellesuddivisioni = stampaTotaleNelleSuddivisioni_value</span>
 	<span class="iwebPARAMETRO">@stampatotalefinale = stampaTotaleFinale_value</span>
 	<span class="iwebPARAMETRO">@stampanumeropagina = stampaNumeroPagina_value</span>
-	<span class="iwebPARAMETRO">@titolocomputo = titoloComputo_value</span>
 	<span class="iwebPARAMETRO">@iva = FUNZIONE_funzioneTabellaopzionistampaSqlInsertStampaIva()</span>
+	<span class="iwebPARAMETRO">@indicaSoloTotale = indicaSoloTotale_value</span>
+	<span class="iwebPARAMETRO">@titolocomputo = titoloComputo_value</span>
 </span>
 <script>
     function funzioneTabellaopzionistampaSqlInsertStampaIva() {

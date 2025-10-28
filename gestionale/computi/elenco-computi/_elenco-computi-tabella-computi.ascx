@@ -27,7 +27,7 @@
                     <th>Organizza</th>
                     <th style="width:50px">Duplica</th>
                     <th>Cliente</th>
-                    <th>Computo</th>
+                    <th>Cantiere</th>
                     <th>Codice computo</th>
                     <th>Titolo</th>
                     <th>Descrizione</th>
@@ -145,7 +145,11 @@
                         <span class="iwebCAMPO_cliente.nominativo"></span>
                     </td>
                     <td>
+                        <span class="iwebCAMPO_cantiere.id iwebNascosto"></span>
                         <span class="iwebCAMPO_cantiere.codice"></span>
+                        <div>
+                            <span class="iwebCAMPO_cantiere.indirizzo" style="font-style:italic"></span>
+                        </div>
                     </td>
                     <td>
                         <span class="iwebCAMPO_computo.codice iwebCodice"></span>
@@ -219,6 +223,7 @@
                     computo.condizioniultimapagina as 'computo.condizioniultimapagina',
 
                     cantiere.id as 'cantiere.id',
+                    cantiere.indirizzo as 'cantiere.indirizzo',
                     cantiere.codice as 'cantiere.codice'
 
                 FROM computo

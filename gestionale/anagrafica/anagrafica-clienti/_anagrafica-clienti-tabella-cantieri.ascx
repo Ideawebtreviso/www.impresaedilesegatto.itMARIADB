@@ -17,6 +17,7 @@
                             </th>
                             <th class="iwebNascosto">ID</th>
                             <th>Codice</th>
+                            <th>Indirizzo</th>
                             <th>Descrizione</th>
                             <th>Stato</th>
                             <th class="iwebNascosto"></th>
@@ -28,6 +29,7 @@
                             <th><%-- AZIONI --%>
                             </th>
                             <th class="iwebNascosto"></th>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -55,6 +57,9 @@
                                 <span class="iwebCAMPO_cantiere.codice iwebCodice"></span>
                             </td>
                             <td>
+                                <span class="iwebCAMPO_cantiere.indirizzo iwebDescrizione"></span>
+                            </td>
+                            <td>
                                 <span class="iwebCAMPO_cantiere.descrizione iwebDescrizione"></span>
                             </td>
                             <td>
@@ -76,6 +81,7 @@
                         <%-- iwebPAGENUMBER, iwebTOTPAGINE, iwebPAGESIZE,iwebTOTRECORD sono di riferimento al js --%>
                         <%-- eventualmente va messo display:none --%>
                         <tr class="iwebNascosto">
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -112,13 +118,16 @@
                     </tfoot>
                 </table>
                 <span class="iwebSQLSELECT">
-                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                                          "SELECT cantiere.id as 'cantiere.id', "
-                                        + "       cantiere.idcliente as 'cantiere.idcliente', "
-                                        + "       cantiere.codice as 'cantiere.codice', "
-                                        + "       cantiere.descrizione as 'cantiere.descrizione', "
-                                        + "       cantiere.stato as 'cantiere.stato' "
-                                        + "FROM cantiere WHERE idcliente = @idcliente ") %></span>
+                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                        SELECT cantiere.id as 'cantiere.id',
+                               cantiere.idcliente as 'cantiere.idcliente',
+                               cantiere.codice as 'cantiere.codice',
+                               cantiere.indirizzo as 'cantiere.indirizzo',
+                               cantiere.descrizione as 'cantiere.descrizione',
+                               cantiere.stato as 'cantiere.stato'
+                        FROM cantiere
+                        WHERE idcliente = @idcliente
+                    ") %></span>
                     <span class="iwebPARAMETRO">@idcliente = tabellaClienti_selectedValue_cliente.id</span>
                 </span>
 
@@ -140,6 +149,10 @@
                                     <td><span id="popupTabellaCantieriInserimentoSpanCodiceErrato" style="display:none">Il codice esiste già.</span></td>
                                 </tr>
                                 <tr>
+                                    <td>Indirizzo</td>
+                                    <td><input id="popupTabellaCantieriInserimentoIndirizzo" type="text" class="iwebCAMPO_cantiere.indirizzo iwebTIPOCAMPO_varchar" /></td>
+                                </tr>
+                                <tr>
                                     <td>Descrizione*</td>
                                     <td><input id="popupTabellaCantieriInserimentoDescrizione" type="text" 
                                         class="iwebCAMPO_cantiere.descrizione iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
@@ -153,9 +166,13 @@
                             <%-- IdPopupAssociato, nomeQuery, parametriQuery, attesaRispostaServer --%>
                             <div class="btn btn-success" onclick="anagraficaClienti_iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaCantieriInserimento', 'tabellaCantieri', 'nominativo,tel,mail', true)">Inserisci</div>
                             <span class="iwebSQLINSERT">
-                                <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL("INSERT INTO cantiere (idcliente, codice, descrizione, stato) VALUES(@idcliente, @codice, @descrizione, 'Da firmare')") %></span>
+                                <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                                    INSERT INTO cantiere (idcliente, codice, indirizzo, descrizione, stato)
+                                    VALUES (@idcliente, @codice, @indirizzo, @descrizione, 'Da firmare')
+                                ") %></span>
                                 <span class="iwebPARAMETRO">@idcliente = tabellaClienti_selectedValue_cliente.id</span>
                                 <span class="iwebPARAMETRO">@codice = popupTabellaCantieriInserimentoCodice_value</span>
+                                <span class="iwebPARAMETRO">@indirizzo = popupTabellaCantieriInserimentoIndirizzo_value</span>
                                 <span class="iwebPARAMETRO">@descrizione = popupTabellaCantieriInserimentoDescrizione_value</span>
                             </span>
                         </div>
@@ -183,14 +200,18 @@
                                 </tr>
                                 <tr>
                                     <td>Codice *</td>
-                                    <td><input id="Text1" type="text" 
+                                    <td><input type="text" 
                                         class="iwebCAMPO_cantiere.codice iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
                                         onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)" /></td>
                                     <td><span id="popupTabellaCantieriModificaSpanCodiceErrato" style="display:none">Il codice esiste già.</span></td>
                                 </tr>
                                 <tr>
+                                    <td>Indirizzo</td>
+                                    <td><input type="text" class="iwebCAMPO_cantiere.indirizzo iwebTIPOCAMPO_varchar" /></td>
+                                </tr>
+                                <tr>
                                     <td>Descrizione *</td>
-                                    <td><input id="Text2" type="text" 
+                                    <td><input type="text" 
                                         class="iwebCAMPO_cantiere.descrizione iwebTIPOCAMPO_varchar iwebCAMPOOBBLIGATORIO" 
                                         onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)" /></td>
                                 </tr>
@@ -211,9 +232,19 @@
                             <div class="btn btn-warning" onclick="chiudiPopupType2()" >Annulla</div>
                             <div class="btn btn-success" onclick="anagraficaClienti_iwebTABELLA_ConfermaModificaRigaInPopup('popupTabellaCantieriModifica', 'tabellaCantieri', 'codice,descrizione,stato', 'cantiere.id', true);">Aggiorna</div>
                             <span class="iwebSQLUPDATE">
-	                            <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL("UPDATE cantiere SET idcliente = @idcliente, codice = @codice, descrizione = @descrizione, stato = @stato WHERE id = @id") %></span>
+	                            <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                                    UPDATE cantiere
+                                    SET
+                                        idcliente = @idcliente,
+                                        codice = @codice,
+                                        indirizzo = @indirizzo,
+                                        descrizione = @descrizione,
+                                        stato = @stato
+                                    WHERE id = @id
+                                ") %></span>
 	                            <span class="iwebPARAMETRO">@idcliente = popupTabellaCantieriModifica_findValue_cantiere.idcliente</span>
 	                            <span class="iwebPARAMETRO">@codice = popupTabellaCantieriModifica_findValue_cantiere.codice</span>
+	                            <span class="iwebPARAMETRO">@indirizzo = popupTabellaCantieriModifica_findValue_cantiere.indirizzo</span>
 	                            <span class="iwebPARAMETRO">@descrizione = popupTabellaCantieriModifica_findValue_cantiere.descrizione</span>
 	                            <span class="iwebPARAMETRO">@stato = popupTabellaCantieriModifica_findValue_cantiere.stato</span>
 	                            <span class="iwebPARAMETRO">@id = popupTabellaCantieriModifica_findValue_cantiere.id</span>
@@ -224,7 +255,6 @@
 
                 <%-- elimina --%>
                 <div id="popupTabellaCantieriElimina" class="popup popupType2" style="display:none">
-                <div>
                     <div class="popupHeader">
                         <div class="glyphicon glyphicon-remove iwebCliccabile r" onclick="chiudiPopupType2()" ></div>
                         <div class="popupTitolo l">Eliminazione cantiere, ricontrolla i dati</div>

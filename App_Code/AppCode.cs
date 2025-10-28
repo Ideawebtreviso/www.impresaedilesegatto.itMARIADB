@@ -16,8 +16,10 @@ namespace AppCode {
         public static string conn1 /* ufficiale */ = "server=localhost; user id=h983433_segatto1; password=Yvhkv7!Rm@hEp2v8; database=h983433_segatto1; pooling=true; ConnectionIdleTimeout=10; SSL Mode=None;";
         public static string conn2 /* durigon   */ = "server=localhost; user id=h983433_segatto2; password=Yvhkv7!Rm@hEp2v8; database=h983433_segatto2; pooling=true; ConnectionIdleTimeout=10; SSL Mode=None;";
 
-        public static string conn1locale = "server=localhost; user id=root; password=rootroot; database=segattoufficiale; pooling=false;SSL Mode=None;";
-        public static string conn2locale = "server=localhost; user id=root; password=rootroot; database=segattodurigon; pooling=false;SSL Mode=None;";
+        //public static string conn1locale = "server=localhost; user id=root; password=rootroot; database=segattoufficiale; pooling=false;SSL Mode=None;";
+        //public static string conn2locale = "server=localhost; user id=root; password=rootroot; database=segattodurigon; pooling=false;SSL Mode=None;";
+        public static string conn1locale = "server=localhost; user id=root; password=rootroot; database=segattoufficiale; pooling=true; ConnectionIdleTimeout=10; SSL Mode=None;";
+        public static string conn2locale = "server=localhost; user id=root; password=rootroot; database=segattodurigon; pooling=true; ConnectionIdleTimeout=10; SSL Mode=None;";
 
         public GetDB() {
 

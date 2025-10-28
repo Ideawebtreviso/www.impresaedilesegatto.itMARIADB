@@ -4,6 +4,7 @@ using System.Collections;
 using System.Linq;
 using System.Web;
 
+using System.Web.Security;
 using MySqlConnector;
 using Newtonsoft.Json;
 
@@ -30,6 +31,7 @@ public class OpzioniStampa
     public bool stampaTotaleNelleSuddivisioni { get; set; }
     public bool stampaTotaleFinale { get; set; }
     public bool stampaNumeroPagina { get; set; }
+    public bool indicaSoloTotale { get; set; }
     public string titolocomputo { get; set; }
     public object iva { get; set; } // iva è un double che può essere null
     //public Suddivisione suddPrimoLvDaStampare { get; set; }
@@ -39,47 +41,49 @@ public class OpzioniStampa
     }
     public OpzioniStampa(int idStampa, string connectionString)
     {
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = connectionString;
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)HttpContext.Current.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        connection.Open();
-        MySqlDataReader reader;
-        MySqlCommand command;
-        command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM computopdf WHERE id = @id";
-        command.Parameters.AddWithValue("@id", idStampa);
+            MySqlDataReader reader;
+            MySqlCommand command;
+            command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM computopdf WHERE id = @id";
+            command.Parameters.AddWithValue("@id", idStampa);
 
-        reader = command.ExecuteReader();
-        while (reader.Read()) {
-            this.idComputo = (int)reader["idcomputo"];
-            this.dataDiStampa = Convert.ToDateTime(reader["dataora"]);
-            this.stampaLogo = Convert.ToBoolean(reader["stampalogo"]);
-            this.stampaPrezzi = Convert.ToBoolean(reader["stampaprezzi"]);
-            this.stampaCopertina = Convert.ToBoolean(reader["stampacopertina"]);
-            this.stampaSuddivisioni = Convert.ToBoolean(reader["stampasuddivisioni"]);
-            this.stampaMisure = Convert.ToBoolean(reader["stampamisure"]);
-            this.stampaTotaleNelleSuddivisioni = Convert.ToBoolean(reader["stampatotalenellesuddivisioni"]);
-            this.stampaTotaleFinale = Convert.ToBoolean(reader["stampatotalefinale"]);
-            this.stampaNumeroPagina = Convert.ToBoolean(reader["stampanumeropagina"]);
-            this.titolocomputo = reader["titolocomputo"].ToString();
-            this.iva = reader["iva"];
+            reader = command.ExecuteReader();
+            while (reader.Read()) {
+                this.idComputo = (int)reader["idcomputo"];
+                this.dataDiStampa = Convert.ToDateTime(reader["dataora"]);
+                this.stampaLogo = Convert.ToBoolean(reader["stampalogo"]);
+                this.stampaPrezzi = Convert.ToBoolean(reader["stampaprezzi"]);
+                this.stampaCopertina = Convert.ToBoolean(reader["stampacopertina"]);
+                this.stampaSuddivisioni = Convert.ToBoolean(reader["stampasuddivisioni"]);
+                this.stampaMisure = Convert.ToBoolean(reader["stampamisure"]);
+                this.stampaTotaleNelleSuddivisioni = Convert.ToBoolean(reader["stampatotalenellesuddivisioni"]);
+                this.stampaTotaleFinale = Convert.ToBoolean(reader["stampatotalefinale"]);
+                this.stampaNumeroPagina = Convert.ToBoolean(reader["stampanumeropagina"]);
+                this.indicaSoloTotale = Convert.ToBoolean(reader["indicaSoloTotale"]);
+                this.titolocomputo = reader["titolocomputo"].ToString();
+                this.iva = reader["iva"];
+            }
+            reader.Close();
+
+            //suddPrimoLvDaStampare
+            suddPrimoLvDaStampare = new List<int>();
+            command = connection.CreateCommand();
+            command.CommandText = "SELECT idsuddivisione FROM suddivisionepdf WHERE idcomputopdf = @idcomputopdf";
+            command.Parameters.AddWithValue("@idcomputopdf", idStampa);
+
+            reader = command.ExecuteReader();
+            while (reader.Read()) {
+                int idsuddivisione = Convert.ToInt32(reader["idsuddivisione"]);
+                this.suddPrimoLvDaStampare.Add(idsuddivisione);
+            }
+            reader.Close();
+
+            connection.Close();
         }
-        reader.Close();
-
-        //suddPrimoLvDaStampare
-        suddPrimoLvDaStampare = new List<int>();
-        command = connection.CreateCommand();
-        command.CommandText = "SELECT idsuddivisione FROM suddivisionepdf WHERE idcomputopdf = @idcomputopdf";
-        command.Parameters.AddWithValue("@idcomputopdf", idStampa);
-
-        reader = command.ExecuteReader();
-        while (reader.Read()) {
-            int idsuddivisione = Convert.ToInt32(reader["idsuddivisione"]);
-            this.suddPrimoLvDaStampare.Add(idsuddivisione);
-        }
-        reader.Close();
-
-        connection.Close();
     }
 }
 
@@ -192,100 +196,101 @@ public class Suddivisione
     }
     public static Suddivisione getSuddivisioneRoot(int idComputo, string connectionString)
     {
+        Suddivisione nodoRoot;
 
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = connectionString;
-        connection.Open();
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)HttpContext.Current.User.Identity).Ticket, "ConnectionString"))) {
+            connection.Open();
 
-        MySqlCommand command;
-        MySqlDataReader reader;
-
-
-
-        // ottengo la lista di suddivisioni
-        command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM suddivisione WHERE idcomputo = @idcomputo ORDER BY posizione";
-        command.Parameters.AddWithValue("@idComputo", idComputo);
-
-        // andrò a riempirla in un secondo momento
-        List<Suddivisione> listaSuddivisioni = new List<Suddivisione>();
-        reader = command.ExecuteReader();
-        while (reader.Read()) {
-            listaSuddivisioni.Add(new Suddivisione((int)reader["id"],
-                                                        reader["idpadre"],
-                                                        reader["descrizione"].ToString(),
-                                                        (int)reader["posizione"]));
-        }
-        reader.Close();
-
-        // nodo root
-        Suddivisione nodoRoot = new Suddivisione(0, null, "nodo root", 0);
-
-        // funzione che genera l'albero dati la lista di nodi e il nodo di root
-        elaboraalbero(listaSuddivisioni, nodoRoot);
+            MySqlCommand command;
+            MySqlDataReader reader;
 
 
-        // ho ottenuto le suddivisioni
-        // per ogni suddivisione ottengo le voci
-        for (int i = 0; i < listaSuddivisioni.Count; i++) {
-            int idsuddivisione = listaSuddivisioni[i].id;
 
-            MySqlCommand command2 = connection.CreateCommand();
-            command2.CommandText = "SELECT * FROM voce WHERE idcomputo = @idcomputo && idsuddivisione = @idsuddivisione ORDER BY posizione";
-            command2.Parameters.AddWithValue("@idcomputo", idComputo);
-            command2.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
+            // ottengo la lista di suddivisioni
+            command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM suddivisione WHERE idcomputo = @idcomputo ORDER BY posizione";
+            command.Parameters.AddWithValue("@idComputo", idComputo);
 
-            List<Voce> listaVoci = new List<Voce>();
-            MySqlDataReader reader2 = command2.ExecuteReader();
-            while (reader2.Read()) {
-                Voce voce = new Voce((int)reader2["id"],
-                                     reader2["idvoceorigine"],
-                                     reader2["codice"].ToString(),
-                                     reader2["titolo"].ToString(),
-                                     reader2["descrizione"].ToString(),
-                                     (int)reader2["posizione"]);
-                listaVoci.Add(voce);
+            // andrò a riempirla in un secondo momento
+            List<Suddivisione> listaSuddivisioni = new List<Suddivisione>();
+            reader = command.ExecuteReader();
+            while (reader.Read()) {
+                listaSuddivisioni.Add(new Suddivisione((int)reader["id"],
+                                                            reader["idpadre"],
+                                                            reader["descrizione"].ToString(),
+                                                            (int)reader["posizione"]));
             }
-            reader2.Close();
+            reader.Close();
 
-            // aggiungo le voci alla suddivisione
-            listaSuddivisioni[i].aggiungiVoci(listaVoci);
-        }
+            // nodo root
+            nodoRoot = new Suddivisione(0, null, "nodo root", 0);
 
-        // ho ottenuto le voci
-        // per ogni voce ottengo le misure
-        for (int i = 0; i < listaSuddivisioni.Count; i++) {
-            List<Voce> listaVoci = listaSuddivisioni[i].listaVoci;
-            for (int j = 0; j < listaVoci.Count; j++) {
-                int idVoce = listaVoci[j].id;
+            // funzione che genera l'albero dati la lista di nodi e il nodo di root
+            elaboraalbero(listaSuddivisioni, nodoRoot);
 
-                // per ogni voce aggiungi le sue misure.
-                MySqlCommand command3 = connection.CreateCommand();
-                command3.CommandText = "SELECT misura.id as 'misura.id', misura.idunitamisura as 'misura.idunitamisura', unitadimisura.codice as 'unitadimisura.codice', "
-                                     + "       misura.sottocodice as 'misura.sottocodice', misura.descrizione as 'misura.descrizione', "
-                                     + "       misura.prezzounitario as 'misura.prezzounitario', misura.totalemisura as 'misura.totalemisura', misura.totaleimporto as 'misura.totaleimporto', "
-                                     + "       misura.posizione as 'misura.posizione' "
-                                     + "FROM misura LEFT JOIN unitadimisura ON misura.idunitamisura = unitadimisura.id WHERE idvoce = @idvoce "
-                                     + "ORDER BY posizione";
-                command3.Parameters.AddWithValue("@idvoce", idVoce);
 
-                List<Misura> listaMisure = new List<Misura>();
-                MySqlDataReader reader3 = command3.ExecuteReader();
-                while (reader3.Read()) {
-                    Misura misura = new Misura((int)reader3["misura.id"], (int)reader3["misura.idunitamisura"], reader3["unitadimisura.codice"].ToString(),
-                                               reader3["misura.sottocodice"].ToString(), reader3["misura.descrizione"].ToString(),
-                                               Convert.ToDouble(reader3["misura.prezzounitario"]), Convert.ToDouble(reader3["misura.totalemisura"]), Convert.ToDouble(reader3["misura.totaleimporto"]),
-                                               (int)reader3["misura.posizione"]);
-                    listaMisure.Add(misura);
+            // ho ottenuto le suddivisioni
+            // per ogni suddivisione ottengo le voci
+            for (int i = 0; i < listaSuddivisioni.Count; i++) {
+                int idsuddivisione = listaSuddivisioni[i].id;
+
+                MySqlCommand command2 = connection.CreateCommand();
+                command2.CommandText = "SELECT * FROM voce WHERE idcomputo = @idcomputo && idsuddivisione = @idsuddivisione ORDER BY posizione";
+                command2.Parameters.AddWithValue("@idcomputo", idComputo);
+                command2.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
+
+                List<Voce> listaVoci = new List<Voce>();
+                MySqlDataReader reader2 = command2.ExecuteReader();
+                while (reader2.Read()) {
+                    Voce voce = new Voce((int)reader2["id"],
+                                         reader2["idvoceorigine"],
+                                         reader2["codice"].ToString(),
+                                         reader2["titolo"].ToString(),
+                                         reader2["descrizione"].ToString(),
+                                         (int)reader2["posizione"]);
+                    listaVoci.Add(voce);
                 }
-                reader3.Close();
+                reader2.Close();
 
-                // aggiungi la voce con le sue misure associate
-                listaVoci[j].aggiungiMisure(listaMisure);
+                // aggiungo le voci alla suddivisione
+                listaSuddivisioni[i].aggiungiVoci(listaVoci);
             }
-        }
 
-        connection.Close();
+            // ho ottenuto le voci
+            // per ogni voce ottengo le misure
+            for (int i = 0; i < listaSuddivisioni.Count; i++) {
+                List<Voce> listaVoci = listaSuddivisioni[i].listaVoci;
+                for (int j = 0; j < listaVoci.Count; j++) {
+                    int idVoce = listaVoci[j].id;
+
+                    // per ogni voce aggiungi le sue misure.
+                    MySqlCommand command3 = connection.CreateCommand();
+                    command3.CommandText = "SELECT misura.id as 'misura.id', misura.idunitamisura as 'misura.idunitamisura', unitadimisura.codice as 'unitadimisura.codice', "
+                                         + "       misura.sottocodice as 'misura.sottocodice', misura.descrizione as 'misura.descrizione', "
+                                         + "       misura.prezzounitario as 'misura.prezzounitario', misura.totalemisura as 'misura.totalemisura', misura.totaleimporto as 'misura.totaleimporto', "
+                                         + "       misura.posizione as 'misura.posizione' "
+                                         + "FROM misura LEFT JOIN unitadimisura ON misura.idunitamisura = unitadimisura.id WHERE idvoce = @idvoce "
+                                         + "ORDER BY posizione";
+                    command3.Parameters.AddWithValue("@idvoce", idVoce);
+
+                    List<Misura> listaMisure = new List<Misura>();
+                    MySqlDataReader reader3 = command3.ExecuteReader();
+                    while (reader3.Read()) {
+                        Misura misura = new Misura((int)reader3["misura.id"], (int)reader3["misura.idunitamisura"], reader3["unitadimisura.codice"].ToString(),
+                                                   reader3["misura.sottocodice"].ToString(), reader3["misura.descrizione"].ToString(),
+                                                   Convert.ToDouble(reader3["misura.prezzounitario"]), Convert.ToDouble(reader3["misura.totalemisura"]), Convert.ToDouble(reader3["misura.totaleimporto"]),
+                                                   (int)reader3["misura.posizione"]);
+                        listaMisure.Add(misura);
+                    }
+                    reader3.Close();
+
+                    // aggiungi la voce con le sue misure associate
+                    listaVoci[j].aggiungiMisure(listaMisure);
+                }
+            }
+
+            connection.Close();
+        }
 
         return nodoRoot;
     }

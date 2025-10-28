@@ -23,7 +23,7 @@ public partial class aggiornamenti_v2025 : System.Web.UI.Page
         command.CommandText = @"UPDATE computo SET datadiconsegna = '2000-01-01 00:00:00' WHERE datadiconsegna = '0001-01-01 00:00:00'";
         command.ExecuteNonQuery();
 
-        utility.RinominaColonna(connection, "computo", "datadiconsegna", "datadiconsegna", "DATETIME NULL AFTER idcantiere");
+        utility.RinominaColonna(connection, "computo", "datadiconsegna", "datadiconsegna", "DATETIME NULL AFTER idcliente");
 
         command = connection.CreateCommand();
         command.CommandText = @"UPDATE computo SET datadiconsegna = null WHERE datadiconsegna = '2000-01-01 00:00:00'";
@@ -59,6 +59,17 @@ public partial class aggiornamenti_v2025 : System.Web.UI.Page
             utility.AggiungiIndice(connection, "vocetemplate", "codice");
         }
         utility.AggiungiColonna(connection, "misura", "idvocetemplate", "INT");
+        utility.AggiungiColonna(connection, "voce", "idvocetemplate", "INT"); // per traccia quando inserisco una voce. Non ha effetto nel programma, lo teniamo solo per informazione accessoria di storico.
+
+
+        // punto 4 (stampa pdf)
+        utility.AggiungiColonna(connection, "computopdf", "indicaSoloTotale", "BOOLEAN NOT NULL DEFAULT FALSE");
+
+
+        // punto 5 (gestione di indirizzo su cantiere)
+        utility.AggiungiColonna(connection, "cantiere", "indirizzo", "VARCHAR(250)");
+
+
 
     } // chiudo il metodo aggiornamentiSpecifici
 
@@ -75,7 +86,30 @@ public partial class aggiornamenti_v2025 : System.Web.UI.Page
 
         try
         {
-            using (MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(Utility.SonoInLocale() ? AppCode.GetDB.conn1locale : AppCode.GetDB.conn1))
+            {
+                connection.Open();
+
+                MySqlCommand command;
+                command = connection.CreateCommand();
+
+                // aggiornamento della versione con varie query e passaggi specifici
+                aggiornamentiSpecifici(connection, command);
+
+                connection.Close();
+            }
+
+            Response.Write("ok");
+        }
+        catch (Exception ex)
+        {
+            //Response.Write(ex.Message + "\n" + ex.StackTrace);
+            Response.Write(ex.Message + "\n" + ex.Source + "\n\n" + ex.StackTrace + "\n\n" + ex.InnerException);
+        }
+
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.SonoInLocale() ? AppCode.GetDB.conn2locale : AppCode.GetDB.conn2))
             {
                 connection.Open();
 

@@ -18,7 +18,8 @@
                     <th>Stampa numero pagina</th>
                     <th>Titolo di stampa</th>
                     <th>Iva %</th>
-                    <th></th> 
+                    <th>Indica solo totale</th>
+                    <th></th>
                 </tr>
                 <tr class="iwebNascosto">
                     <th class="iwebNascosto"></th><%-- CHECKBOX --%>
@@ -77,6 +78,9 @@
                         <span class="iwebCAMPO_iva r"></span>
                     </td>
                     <td>
+                        <input type="checkbox" class="iwebCAMPO_indicaSoloTotale iwebCheckbox" disabled />
+                    </td>
+                    <td>
                         <div class="iwebCAMPO_LINKIDCANTIERE btn btn-default iwebCliccabile" onclick="
                             iwebTABELLA_SelezionaRigaComeUnica();
                             ristampaComputoPrecedentementeGenerato();
@@ -118,10 +122,11 @@
                        computopdf.stampamisure as 'stampamisure', 
                        computopdf.stampatotalenellesuddivisioni as 'stampatotalenellesuddivisioni', 
                        computopdf.stampatotalefinale as 'stampatotalefinale', 
-                       computopdf.titolocomputo as 'titolocomputo', 
-                       computopdf.stampalogo as 'stampalogo', 
-                       computopdf.stampanumeropagina as 'stampanumeropagina', 
-                       computopdf.iva as 'iva'
+                       computopdf.titolocomputo as 'titolocomputo',
+                       computopdf.stampalogo as 'stampalogo',
+                       computopdf.stampanumeropagina as 'stampanumeropagina',
+                       computopdf.iva as 'iva',
+                       computopdf.indicaSoloTotale as 'indicaSoloTotale'
                 FROM computopdf 
                 WHERE computopdf.idcomputo = @idcomputo 
                 ORDER BY computopdf.id DESC"
@@ -136,6 +141,7 @@
                 "       stampatotalefinale, " +
                 "       stampatotalenellesuddivisioni, " +
                 "       stampanumeropagina, " +
+                "       indicaSoloTotale, " +
                 "       titolocomputo " +
                 "       iva " +
                 "FROM computopdf WHERE computopdf.idcomputo = @idcomputo ORDER BY computopdf.id DESC "--%>

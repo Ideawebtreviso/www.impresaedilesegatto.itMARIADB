@@ -186,270 +186,260 @@ public class WebService : System.Web.Services.WebService
 
         try
         {
-            //STRINGA DI CONNESSIONE
-            /*MySqlConnectionStringBuilder conn_string = new MySqlConnectionStringBuilder();
-            conn_string.Server = "62.149.150.214";
-            conn_string.UserID = "Sql867027";
-            conn_string.Password = "6txgnkpvwh";
-            conn_string.Database = "Sql867027_1";
-            conn_string.ConvertZeroDateTime = true;
-            conn_string.Pooling = false;
-            MySqlConnection connection = new MySqlConnection(conn_string.ToString());*/
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-           
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString"))) {
 
-            connection.Open();
-            MySqlCommand commandCount = connection.CreateCommand();
-            MySqlCommand command = connection.CreateCommand();
+                connection.Open();
+                MySqlCommand commandCount = connection.CreateCommand();
+                MySqlCommand command = connection.CreateCommand();
 
-            // spezzo la query in più parti
-            String stringaSelect = "";
-            if (query.ToLower().Contains("select"))
+                // spezzo la query in più parti
+                String stringaSelect = "";
+                if (query.ToLower().Contains("select"))
+                    if (query.ToLower().Contains("from"))
+                        stringaSelect = query.Substring(0, query.ToLower().IndexOf("from"));
+                    else
+                        stringaSelect = query;
+                stringaSelect = stringaSelect.Trim();
+
+                String stringaFrom = "";
                 if (query.ToLower().Contains("from"))
-                    stringaSelect = query.Substring(0, query.ToLower().IndexOf("from"));
-                else
-                    stringaSelect = query;
-            stringaSelect = stringaSelect.Trim();
-
-            String stringaFrom = "";
-            if (query.ToLower().Contains("from"))
-            {
-                int charNum = query.ToLower().IndexOf("from");
-                if (query.ToLower().Contains("where"))
-                    stringaFrom = query.Substring(charNum, query.ToLower().IndexOf("where") - charNum);
-                else if (query.ToLower().Contains("group by"))
-                    stringaFrom = query.Substring(charNum, query.ToLower().IndexOf("group by") - charNum);
-                else if (query.ToLower().Contains("order by"))
-                    stringaFrom = query.Substring(charNum, query.ToLower().IndexOf("order by") - charNum);
-                else if (query.ToLower().Contains("limit"))
-                    stringaFrom = query.Substring(charNum, query.ToLower().IndexOf("limit") - charNum);
-                else
-                    stringaFrom = query.Substring(charNum, query.Length - charNum);
-            }
-            stringaFrom = stringaFrom.Trim();
-
-            String stringaWhere = "";
-            if (query.ToLower().Contains("where"))
-            {
-                int charNum = query.ToLower().IndexOf("where");
-                if (query.ToLower().Contains("group by"))
-                    stringaWhere = query.Substring(charNum, query.ToLower().IndexOf("group by") - charNum);
-                else if (query.ToLower().Contains("order by"))
-                    stringaWhere = query.Substring(charNum, query.ToLower().IndexOf("order by") - charNum);
-                else if (query.ToLower().Contains("limit"))
-                    stringaWhere = query.Substring(charNum, query.ToLower().IndexOf("limit") - charNum);
-                else
-                    stringaWhere = query.Substring(charNum, query.Length - charNum);
-            }
-            stringaWhere = stringaWhere.Trim();
-
-            String stringaGroupBy = "";
-            if (query.ToLower().Contains("group by"))
-            {
-                int charNum = query.ToLower().IndexOf("group by");
-                if (query.ToLower().Contains("order by"))
-                    stringaGroupBy = query.Substring(charNum, query.ToLower().IndexOf("order by") - charNum);
-                else if (query.ToLower().Contains("limit"))
-                    stringaGroupBy = query.Substring(charNum, query.ToLower().IndexOf("limit") - charNum);
-                else
-                    stringaGroupBy = query.Substring(charNum, query.Length - charNum);
-            }
-            stringaGroupBy = stringaGroupBy.Trim();
-
-            String stringaOrderBy = "";
-            // String stringaLimit = "";
-            if (query.ToLower().Contains("order by"))
-            {
-                int charNum = query.ToLower().IndexOf("order by");
-                if (query.ToLower().Contains("limit"))
                 {
-                    stringaOrderBy = query.Substring(charNum, query.ToLower().IndexOf("limit") - charNum);
-                    // charNum = query.ToLower().IndexOf("limit");
-                    // stringaLimit = query.Substring(charNum, query.Length - charNum);
+                    int charNum = query.ToLower().IndexOf("from");
+                    if (query.ToLower().Contains("where"))
+                        stringaFrom = query.Substring(charNum, query.ToLower().IndexOf("where") - charNum);
+                    else if (query.ToLower().Contains("group by"))
+                        stringaFrom = query.Substring(charNum, query.ToLower().IndexOf("group by") - charNum);
+                    else if (query.ToLower().Contains("order by"))
+                        stringaFrom = query.Substring(charNum, query.ToLower().IndexOf("order by") - charNum);
+                    else if (query.ToLower().Contains("limit"))
+                        stringaFrom = query.Substring(charNum, query.ToLower().IndexOf("limit") - charNum);
+                    else
+                        stringaFrom = query.Substring(charNum, query.Length - charNum);
                 }
-                else
-                    stringaOrderBy = query.Substring(charNum, query.Length - charNum);
-            }
-            stringaOrderBy = stringaOrderBy.Trim();
+                stringaFrom = stringaFrom.Trim();
 
-
-            // preparo la where per entrambe le query
-            if (stringaWhere == "")
-                stringaWhere = "WHERE 1=1";
-            stringaWhere += " ";
-            String nomeCampoTemp = ""; String valoreCampoTemp = "";
-            if (datiFiltri != null)
-            {
-                for (int i = 0; i < datiFiltri.Length; ++i)
+                String stringaWhere = "";
+                if (query.ToLower().Contains("where"))
                 {
-                    foreach (DictionaryEntry item in (IDictionary)datiFiltri[i])
-                    {
-                        String nome = (String)item.Key;
-                        String valore = (String)item.Value;
-                        // in js è stato creato: var filtro = { nomeCampo: "", valoreCampo: "", tipoFiltro: "" }; quindi viene rispettato l'ordine
-                        if (nome == "nomeCampo")
-                            nomeCampoTemp = valore;
-                        if (nome == "valoreCampo")
-                            valoreCampoTemp = valore;
-                        // per ora prevedo solo il tipo data
-                        if (nome == "tipoCampo")
-                            if (valore == "data")
-                            {
-                                valoreCampoTemp = valoreCampoTemp.Replace('/', '-'); // cambia eventuali slash in trattino
-                                valoreCampoTemp = valoreCampoTemp.Substring(6) + valoreCampoTemp.Substring(3, 2) + valoreCampoTemp.Substring(0, 2);
-                            }
-                        if (nome == "tipoFiltro")
-                        {
-                            // utilizzato "|||" come separatore per i valori multipli di select (usato qui e in mio-ajax.js)
-                            String[] listaValoriUgualeAMolti = valoreCampoTemp.Split(new string[] { "|||" }, StringSplitOptions.None);
+                    int charNum = query.ToLower().IndexOf("where");
+                    if (query.ToLower().Contains("group by"))
+                        stringaWhere = query.Substring(charNum, query.ToLower().IndexOf("group by") - charNum);
+                    else if (query.ToLower().Contains("order by"))
+                        stringaWhere = query.Substring(charNum, query.ToLower().IndexOf("order by") - charNum);
+                    else if (query.ToLower().Contains("limit"))
+                        stringaWhere = query.Substring(charNum, query.ToLower().IndexOf("limit") - charNum);
+                    else
+                        stringaWhere = query.Substring(charNum, query.Length - charNum);
+                }
+                stringaWhere = stringaWhere.Trim();
 
-                            switch (valore)
+                String stringaGroupBy = "";
+                if (query.ToLower().Contains("group by"))
+                {
+                    int charNum = query.ToLower().IndexOf("group by");
+                    if (query.ToLower().Contains("order by"))
+                        stringaGroupBy = query.Substring(charNum, query.ToLower().IndexOf("order by") - charNum);
+                    else if (query.ToLower().Contains("limit"))
+                        stringaGroupBy = query.Substring(charNum, query.ToLower().IndexOf("limit") - charNum);
+                    else
+                        stringaGroupBy = query.Substring(charNum, query.Length - charNum);
+                }
+                stringaGroupBy = stringaGroupBy.Trim();
+
+                String stringaOrderBy = "";
+                // String stringaLimit = "";
+                if (query.ToLower().Contains("order by"))
+                {
+                    int charNum = query.ToLower().IndexOf("order by");
+                    if (query.ToLower().Contains("limit"))
+                    {
+                        stringaOrderBy = query.Substring(charNum, query.ToLower().IndexOf("limit") - charNum);
+                        // charNum = query.ToLower().IndexOf("limit");
+                        // stringaLimit = query.Substring(charNum, query.Length - charNum);
+                    }
+                    else
+                        stringaOrderBy = query.Substring(charNum, query.Length - charNum);
+                }
+                stringaOrderBy = stringaOrderBy.Trim();
+
+
+                // preparo la where per entrambe le query
+                if (stringaWhere == "")
+                    stringaWhere = "WHERE 1=1";
+                stringaWhere += " ";
+                String nomeCampoTemp = ""; String valoreCampoTemp = "";
+                if (datiFiltri != null)
+                {
+                    for (int i = 0; i < datiFiltri.Length; ++i)
+                    {
+                        foreach (DictionaryEntry item in (IDictionary)datiFiltri[i])
+                        {
+                            String nome = (String)item.Key;
+                            String valore = (String)item.Value;
+                            // in js è stato creato: var filtro = { nomeCampo: "", valoreCampo: "", tipoFiltro: "" }; quindi viene rispettato l'ordine
+                            if (nome == "nomeCampo")
+                                nomeCampoTemp = valore;
+                            if (nome == "valoreCampo")
+                                valoreCampoTemp = valore;
+                            // per ora prevedo solo il tipo data
+                            if (nome == "tipoCampo")
+                                if (valore == "data")
+                                {
+                                    valoreCampoTemp = valoreCampoTemp.Replace('/', '-'); // cambia eventuali slash in trattino
+                                    valoreCampoTemp = valoreCampoTemp.Substring(6) + valoreCampoTemp.Substring(3, 2) + valoreCampoTemp.Substring(0, 2);
+                                }
+                            if (nome == "tipoFiltro")
                             {
-                                case "TestoSemplice":
-                                    stringaWhere += " AND " + nomeCampoTemp + " like @" + nomeCampoTemp + "iweb" + i.ToString();
-                                    valoreCampoTemp = "%" + valoreCampoTemp + "%";
-                                    break;
-                                case "UgualeA":
-                                    stringaWhere += " AND " + nomeCampoTemp + " in (@" + nomeCampoTemp + "iweb" + i.ToString() + ")";
-                                    break;
-                                case "UgualeAMolti":
-                                    // 1. preparo la stringa where
-                                    stringaWhere += " AND " + nomeCampoTemp + " in ( ";
-                                    for (int j = 0; j < listaValoriUgualeAMolti.Length; j++)
-                                        stringaWhere += "@" + nomeCampoTemp + "iweb" + i.ToString() + j.ToString() + ",";
-                                    // elimino l'ultimo carattere che è la virgola se ho aggiunto almeno un elemento, ed è uno spazio se ne ho aggiunti 0.
-                                    stringaWhere = stringaWhere.Substring(0, stringaWhere.Length - 1);
-                                    stringaWhere += ")";
-                                    // 2. preparo i parametri
-                                    for (int j = 0; j < listaValoriUgualeAMolti.Length; j++)
-                                    {
-                                        commandCount.Parameters.AddWithValue("@" + nomeCampoTemp + "iweb" + i.ToString() + j, listaValoriUgualeAMolti[j]);
-                                        command.Parameters.AddWithValue("@" + nomeCampoTemp + "iweb" + i.ToString() + j, listaValoriUgualeAMolti[j]);
-                                    }
-                                    break;
-                                case "DiversoDa":
-                                    stringaWhere += " AND " + nomeCampoTemp + " <> @" + nomeCampoTemp + "iweb" + i.ToString();
-                                    break;
-                                case "MaggioreDi":
-                                    stringaWhere += " AND " + nomeCampoTemp + " > @" + nomeCampoTemp + "iweb" + i.ToString();
-                                    break;
-                                case "MaggioreUgualeDi":
-                                    stringaWhere += " AND " + nomeCampoTemp + " >= @" + nomeCampoTemp + "iweb" + i.ToString();
-                                    break;
-                                case "MinoreDi":
-                                    stringaWhere += " AND " + nomeCampoTemp + " < @" + nomeCampoTemp + "iweb" + i.ToString();
-                                    break;
-                                case "MinoreUgualeDi":
-                                    stringaWhere += " AND " + nomeCampoTemp + " <= @" + nomeCampoTemp + "iweb" + i.ToString();
-                                    break;
+                                // utilizzato "|||" come separatore per i valori multipli di select (usato qui e in mio-ajax.js)
+                                String[] listaValoriUgualeAMolti = valoreCampoTemp.Split(new string[] { "|||" }, StringSplitOptions.None);
+
+                                switch (valore)
+                                {
+                                    case "TestoSemplice":
+                                        stringaWhere += " AND " + nomeCampoTemp + " like @" + nomeCampoTemp + "iweb" + i.ToString();
+                                        valoreCampoTemp = "%" + valoreCampoTemp + "%";
+                                        break;
+                                    case "UgualeA":
+                                        stringaWhere += " AND " + nomeCampoTemp + " in (@" + nomeCampoTemp + "iweb" + i.ToString() + ")";
+                                        break;
+                                    case "UgualeAMolti":
+                                        // 1. preparo la stringa where
+                                        stringaWhere += " AND " + nomeCampoTemp + " in ( ";
+                                        for (int j = 0; j < listaValoriUgualeAMolti.Length; j++)
+                                            stringaWhere += "@" + nomeCampoTemp + "iweb" + i.ToString() + j.ToString() + ",";
+                                        // elimino l'ultimo carattere che è la virgola se ho aggiunto almeno un elemento, ed è uno spazio se ne ho aggiunti 0.
+                                        stringaWhere = stringaWhere.Substring(0, stringaWhere.Length - 1);
+                                        stringaWhere += ")";
+                                        // 2. preparo i parametri
+                                        for (int j = 0; j < listaValoriUgualeAMolti.Length; j++)
+                                        {
+                                            commandCount.Parameters.AddWithValue("@" + nomeCampoTemp + "iweb" + i.ToString() + j, listaValoriUgualeAMolti[j]);
+                                            command.Parameters.AddWithValue("@" + nomeCampoTemp + "iweb" + i.ToString() + j, listaValoriUgualeAMolti[j]);
+                                        }
+                                        break;
+                                    case "DiversoDa":
+                                        stringaWhere += " AND " + nomeCampoTemp + " <> @" + nomeCampoTemp + "iweb" + i.ToString();
+                                        break;
+                                    case "MaggioreDi":
+                                        stringaWhere += " AND " + nomeCampoTemp + " > @" + nomeCampoTemp + "iweb" + i.ToString();
+                                        break;
+                                    case "MaggioreUgualeDi":
+                                        stringaWhere += " AND " + nomeCampoTemp + " >= @" + nomeCampoTemp + "iweb" + i.ToString();
+                                        break;
+                                    case "MinoreDi":
+                                        stringaWhere += " AND " + nomeCampoTemp + " < @" + nomeCampoTemp + "iweb" + i.ToString();
+                                        break;
+                                    case "MinoreUgualeDi":
+                                        stringaWhere += " AND " + nomeCampoTemp + " <= @" + nomeCampoTemp + "iweb" + i.ToString();
+                                        break;
+                                }
+                                // in caso di "|||" i prossimi 2 parametri verranno aggiunti e non usati
+                                commandCount.Parameters.AddWithValue("@" + nomeCampoTemp + "iweb" + i.ToString(), valoreCampoTemp);
+                                command.Parameters.AddWithValue("@" + nomeCampoTemp + "iweb" + i.ToString(), valoreCampoTemp);
                             }
-                            // in caso di "|||" i prossimi 2 parametri verranno aggiunti e non usati
-                            commandCount.Parameters.AddWithValue("@" + nomeCampoTemp + "iweb" + i.ToString(), valoreCampoTemp);
-                            command.Parameters.AddWithValue("@" + nomeCampoTemp + "iweb" + i.ToString(), valoreCampoTemp);
                         }
                     }
                 }
-            }
 
-            // preparo la ORDER BY
-            if (ordinamento != null && ordinamento.Length > 0)
-                stringaOrderBy = "ORDER BY " + ordinamento[0] + " " + ordinamento[1];
-            /*if (ordinamento != null && ordinamento.Length > 0)
-                if (stringaOrderBy == "")
+                // preparo la ORDER BY
+                if (ordinamento != null && ordinamento.Length > 0)
                     stringaOrderBy = "ORDER BY " + ordinamento[0] + " " + ordinamento[1];
+                /*if (ordinamento != null && ordinamento.Length > 0)
+                    if (stringaOrderBy == "")
+                        stringaOrderBy = "ORDER BY " + ordinamento[0] + " " + ordinamento[1];
+                    else
+                        stringaOrderBy += "," + ordinamento[0] + " " + ordinamento[1];*/
+
+
+                // conto gli elementi senza limit e offset
+                // se la query originale ha un GROUP BY, accade che il COUNT(*) produce più record tanti quanti sono i raggruppamenti
+                // QUINDI è necessario fare una queri innestata per contarli.
+                if (stringaGroupBy == "")
+                    commandCount.CommandText = "SELECT COUNT(*) as conteggio " + stringaFrom + " " + stringaWhere;
                 else
-                    stringaOrderBy += "," + ordinamento[0] + " " + ordinamento[1];*/
+                    commandCount.CommandText = "SELECT COUNT(*) FROM (SELECT COUNT(*) as conteggio " + stringaFrom + " " + stringaWhere + " " + stringaGroupBy + ") as tabella";
 
-
-            // conto gli elementi senza limit e offset
-            // se la query originale ha un GROUP BY, accade che il COUNT(*) produce più record tanti quanti sono i raggruppamenti
-            // QUINDI è necessario fare una queri innestata per contarli.
-            if (stringaGroupBy == "")
-                commandCount.CommandText = "SELECT COUNT(*) as conteggio " + stringaFrom + " " + stringaWhere;
-            else
-                commandCount.CommandText = "SELECT COUNT(*) FROM (SELECT COUNT(*) as conteggio " + stringaFrom + " " + stringaWhere + " " + stringaGroupBy + ") as tabella";
-
-            // parametri con la chiocciola
-            if (parametriExtra != "")
-            {
-                String[] listaParametri = parametriExtra.Split(new string[] { "&&&" }, StringSplitOptions.None);
-                for (int i = 0; i < listaParametri.Length; i++)
+                // parametri con la chiocciola
+                if (parametriExtra != "")
                 {
-                    String parametroTemp = listaParametri[i].Split('=')[0];
-                    String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
-                    //String valoreTemp = listaParametri[i].Split('=')[1];
-                    commandCount.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    String[] listaParametri = parametriExtra.Split(new string[] { "&&&" }, StringSplitOptions.None);
+                    for (int i = 0; i < listaParametri.Length; i++)
+                    {
+                        String parametroTemp = listaParametri[i].Split('=')[0];
+                        String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
+                        //String valoreTemp = listaParametri[i].Split('=')[1];
+                        commandCount.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    }
                 }
-            }
-            queryCountESEGUITA = commandCount.CommandText;
-            if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) {
-                log.log2("STO PER eseguiRE count query:\n");
-                log.log2(queryCountESEGUITA);
-                for (int i = 0; i < commandCount.Parameters.Count; i++) {
-                    log.log2(commandCount.Parameters[i].ParameterName + "=" + commandCount.Parameters[i].Value + ";");
-                }
-                log.log2("\n");
-            } // log
-            int elementiContati = Convert.ToInt32(commandCount.ExecuteScalar());
-            if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) { log.log2("eseguita count query"); } // log
+                queryCountESEGUITA = commandCount.CommandText;
+                if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) {
+                    log.log2("STO PER eseguiRE count query:\n");
+                    log.log2(queryCountESEGUITA);
+                    for (int i = 0; i < commandCount.Parameters.Count; i++) {
+                        log.log2(commandCount.Parameters[i].ParameterName + "=" + commandCount.Parameters[i].Value + ";");
+                    }
+                    log.log2("\n");
+                } // log
+                int elementiContati = Convert.ToInt32(commandCount.ExecuteScalar());
+                if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) { log.log2("eseguita count query"); } // log
 
-            // select con limit e offset
-            command.CommandText = stringaSelect + " " + stringaFrom + " " + stringaWhere + " " + stringaGroupBy + " " + stringaOrderBy;
-            command.CommandText += " LIMIT @limit OFFSET @offset";
+                // select con limit e offset
+                command.CommandText = stringaSelect + " " + stringaFrom + " " + stringaWhere + " " + stringaGroupBy + " " + stringaOrderBy;
+                command.CommandText += " LIMIT @limit OFFSET @offset";
 
-            command.Parameters.AddWithValue("@limit", pageSize);
-            command.Parameters.AddWithValue("@offset", (pageSize * pageNumber));
+                command.Parameters.AddWithValue("@limit", pageSize);
+                command.Parameters.AddWithValue("@offset", (pageSize * pageNumber));
 
-            // parametri con la chiocciola
-            if (parametriExtra != "")
-            {
-                String[] listaParametri = parametriExtra.Split(new string[] { "&&&" }, StringSplitOptions.None);
-                for (int i = 0; i < listaParametri.Length; i++)
+                // parametri con la chiocciola
+                if (parametriExtra != "")
                 {
-                    String parametroTemp = listaParametri[i].Split('=')[0];
-                    String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
-                    //String valoreTemp = listaParametri[i].Split('=')[1];
-                    if (!command.Parameters.Contains(parametroTemp)) // di test
-                        command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    String[] listaParametri = parametriExtra.Split(new string[] { "&&&" }, StringSplitOptions.None);
+                    for (int i = 0; i < listaParametri.Length; i++)
+                    {
+                        String parametroTemp = listaParametri[i].Split('=')[0];
+                        String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
+                        //String valoreTemp = listaParametri[i].Split('=')[1];
+                        if (!command.Parameters.Contains(parametroTemp)) // di test
+                            command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    }
                 }
-            }
 
-            // reader per leggere L'utente selezionato
-            queryESEGUITA = command.CommandText;
-            if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) { log.log2("sto per eseguire la seconda query"); } // log
-            MySqlDataReader reader = command.ExecuteReader();
-            List<Dictionary<String, object>> tabella = new List<Dictionary<String, object>>();
-            Dictionary<String, object> tempRiga;
-            if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) { log.log2("eseguita seconda query"); } // log
+                // reader per leggere L'utente selezionato
+                queryESEGUITA = command.CommandText;
+                if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) { log.log2("sto per eseguire la seconda query"); } // log
+                MySqlDataReader reader = command.ExecuteReader();
+                List<Dictionary<String, object>> tabella = new List<Dictionary<String, object>>();
+                Dictionary<String, object> tempRiga;
+                if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) { log.log2("eseguita seconda query"); } // log
 
-            // creo una prima riga con dati utili per la costruzione della tabella (header)
-            tempRiga = new Dictionary<String, object>();
-            tempRiga.Add("elementiContati", elementiContati);
-            tabella.Add(tempRiga);
-
-            while (reader.Read())
-            {
-                String nomeCampo = "";
-                Object valoreCampo = "";
+                // creo una prima riga con dati utili per la costruzione della tabella (header)
                 tempRiga = new Dictionary<String, object>();
-                for (int i = 0; i < reader.FieldCount; ++i)
-                {
-                    // se ho "cliente.id" mi prende solo "id", come lo risolvo?
-                    nomeCampo = reader.GetName(i);
-                    valoreCampo = reader[i];
-
-                    tempRiga.Add(nomeCampo, valoreCampo);
-                }
+                tempRiga.Add("elementiContati", elementiContati);
                 tabella.Add(tempRiga);
+
+                while (reader.Read())
+                {
+                    String nomeCampo = "";
+                    Object valoreCampo = "";
+                    tempRiga = new Dictionary<String, object>();
+                    for (int i = 0; i < reader.FieldCount; ++i)
+                    {
+                        // se ho "cliente.id" mi prende solo "id", come lo risolvo?
+                        nomeCampo = reader.GetName(i);
+                        valoreCampo = reader[i];
+
+                        tempRiga.Add(nomeCampo, valoreCampo);
+                    }
+                    tabella.Add(tempRiga);
+                }
+                reader.Close();
+
+                // aggiorna jsonString
+                jsonString = JsonConvert.SerializeObject(tabella);
+                if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) { log.log2("fine query"); } // log
+
+                connection.Close();
             }
-            reader.Close();
-
-            // aggiorna jsonString
-            jsonString = JsonConvert.SerializeObject(tabella);
-            if (query.Contains("SELECT cantiere.id as 'cantiere.id',")) { log.log2("fine query"); } // log
-
-            connection.Close();
         }
         catch (Exception ex)
         {
@@ -467,39 +457,42 @@ public class WebService : System.Web.Services.WebService
         String jsonString = "";
 
         try {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+            Int32 Identity;
 
-            connection.Open();
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = query;
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = query;
 
-            if (parametri != "") {
-                String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
-                for (int i = 0; i < listaParametri.Length; i++) {
-                    String parametroTemp = listaParametri[i].Split('=')[0];
-                    String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
-                    if (valoreTemp == "##INSERTDBNULL##")
-                        command.Parameters.AddWithValue(parametroTemp, DBNull.Value); // aggiunto per la pagina stampa (campo iva, double, nullable)
-                    else
-                        command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                if (parametri != "")
+                {
+                    String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
+                    for (int i = 0; i < listaParametri.Length; i++)
+                    {
+                        String parametroTemp = listaParametri[i].Split('=')[0];
+                        String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
+                        if (valoreTemp == "##INSERTDBNULL##")
+                            command.Parameters.AddWithValue(parametroTemp, DBNull.Value); // aggiunto per la pagina stampa (campo iva, double, nullable)
+                        else
+                            command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    }
                 }
+                command.ExecuteNonQuery();
+
+                // ottieni l'Identity dell'ultimo elemento inserito
+                command.CommandText = "SELECT @@Identity";
+                object objTemp = command.ExecuteScalar();
+                Identity = objTemp == null ? 0 : Convert.ToInt32(objTemp);
+
+                // If has last inserted id, add a parameter to hold it.
+                //if (command.LastInsertedId != null)
+                //    command.Parameters.AddWithValue(new MySqlParameter("newId", command.LastInsertedId));
+                // Return the id of the new record. Convert from Int64 to Int32 (int).
+                //return Convert.ToInt32(command.Parameters["@newId"].Value);
+                connection.Close();
             }
-            command.ExecuteNonQuery();
-
-            // ottieni l'Identity dell'ultimo elemento inserito
-            command.CommandText = "SELECT @@Identity";
-            object objTemp = command.ExecuteScalar();
-            Int32 Identity = objTemp == null ? 0 : Convert.ToInt32(objTemp);
-
-            // If has last inserted id, add a parameter to hold it.
-            //if (command.LastInsertedId != null)
-            //    command.Parameters.AddWithValue(new MySqlParameter("newId", command.LastInsertedId));
-            // Return the id of the new record. Convert from Int64 to Int32 (int).
-            //return Convert.ToInt32(command.Parameters["@newId"].Value);
-            connection.Close();
 
             jsonString = "[{\"risultato\":" + Identity.ToString() + "}]";
         } catch (Exception ex) {
@@ -536,28 +529,26 @@ public class WebService : System.Web.Services.WebService
 
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString"))) {
+                connection.Open();
 
-            connection.Open();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = query;
 
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = query;
-
-            if (parametri != "")
-            {
-                String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
-                for (int i = 0; i < listaParametri.Length; i++)
+                if (parametri != "")
                 {
-                    String parametroTemp = listaParametri[i].Split('=')[0];
-                    String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
-                    command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
+                    for (int i = 0; i < listaParametri.Length; i++)
+                    {
+                        String parametroTemp = listaParametri[i].Split('=')[0];
+                        String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
+                        command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    }
                 }
-            }
-            command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
 
-            connection.Close();
+                connection.Close();
+            }
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         }

@@ -11,6 +11,7 @@
                     <th class="iwebNascosto"><input type="checkbox" onclick="iwebTABELLA_CheckboxTuttiNessuno(); iwebTABELLA_AggiornaConteggioSelezionati()"/></th>
                     <th class="iwebNascosto">ID</th>
                     <th>Cliente</th>
+                    <th>Cantiere</th>
                     <th>Codice computo</th>
                     <th>Titolo</th>
                     <th>Descrizione</th>
@@ -23,6 +24,7 @@
                 <tr class="iwebNascosto">
                     <th class="iwebNascosto"></th><%-- CHECKBOX --%>
                     <th><%-- AZIONI --%></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -42,6 +44,14 @@
                     </td>
                     <td>
                         <span class="iwebCAMPO_nominativo"></span>
+                    </td>
+                    <td>
+                        <span class="iwebCAMPO_cantiere.id iwebNascosto"></span>
+                        <span class="iwebCAMPO_cantiere.codice"></span>
+                        <div>
+                            <span class="iwebCAMPO_cantiere.indirizzo" style="font-style:italic"></span>
+                        </div>
+                        <%--<span class="iwebCAMPO_cantiere.descrizione"></span>--%>
                     </td>
                     <td>
                         <span class="iwebCAMPO_codice iwebCodice"></span>
@@ -75,8 +85,6 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td></td>
-                    <td></td>
                 </tr>
                 <tr><td><div class="iwebTABELLAFooterPaginazione">
                     <div>Pagina</div>
@@ -90,21 +98,29 @@
             </tfoot>
         </table>
         <span class="iwebSQLSELECT">
-	        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                "SELECT cliente.id as 'cliente.id', " +
-                "       cliente.nominativo, " +
-                "       computo.id as 'computo.id', " +
-                "       computo.codice, " +
-                "       computo.titolo, " +
-                "       computo.descrizione, " +
-                "       computo.stato, " +
-                "       computo.tipo, " +
-                "       computo.datadiconsegna, " +
-                "       computo.condizioniprimapagina, " +
-                "       computo.condizioniultimapagina " +
-                "FROM computo INNER JOIN cliente ON cliente.id = computo.idcliente " +
-                "WHERE computo.id = @idcomputo"
-            ) %></span>
+	        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                SELECT cliente.id as 'cliente.id',
+                       cliente.nominativo,
+
+                       cantiere.id as 'cantiere.id',
+                       cantiere.indirizzo as 'cantiere.indirizzo',
+                       cantiere.codice as 'cantiere.codice',
+                       /* cantiere.descrizione, */
+
+                       computo.id as 'computo.id',
+                       computo.codice,
+                       computo.titolo,
+                       computo.descrizione,
+                       computo.stato,
+                       computo.tipo,
+                       computo.datadiconsegna,
+                       computo.condizioniprimapagina,
+                       computo.condizioniultimapagina
+                FROM computo
+                    INNER JOIN cliente ON cliente.id = computo.idcliente
+                    LEFT JOIN cantiere ON computo.idcantiere = cantiere.id
+                WHERE computo.id = @idcomputo
+            ") %></span>
 	        <span class="iwebPARAMETRO">@idcomputo = IDCOMPUTO_value</span>
         </span>
     </div><%-- fine tabella in alto --%>

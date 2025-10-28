@@ -35,6 +35,7 @@
                         </div>
                         <div class="b"></div>
                     </th>
+                    <th>Indirizzo</th>
                     <th>Descrizione</th>
                     <th>Stato</th>
                     <th>Report</th>
@@ -48,13 +49,19 @@
                     <th>
                         <%-- filtro di testo sul campo nominativo --%>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cliente.nominativo">
-                            <input type="text" onchange="iwebTABELLA_Carica(cercaTablePadreRicors().id, 0, true)"/>
+                            <input type="text" onkeyup="iwebCaricaElemento(cercaTablePadreRicors().id, true)" />
                         </div>
                     </th>
                     <th>
                         <%-- filtro di testo sul campo codice --%>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.codice">
-                            <input type="text" onchange="iwebTABELLA_Carica(cercaTablePadreRicors().id, 0, true)"/>
+                            <input type="text" onkeyup="iwebCaricaElemento(cercaTablePadreRicors().id, true)" />
+                        </div>
+                    </th>
+                    <th>
+                        <%-- filtro di testo sul campo indirizzo --%>
+                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.indirizzo">
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                         </div>
                     </th>
                     <th>
@@ -97,6 +104,9 @@
                     </td>
                     <td>
                         <span class="iwebCAMPO_cantiere.codice iwebCodice"></span>
+                    </td>
+                    <td>
+                        <span class="iwebCAMPO_cantiere.indirizzo iwebDescrizione"></span>
                     </td>
                     <td>
                         <span class="iwebCAMPO_cantiere.descrizione iwebDescrizione"></span>
@@ -145,12 +155,18 @@
             </tfoot>
         </table>
         <span class="iwebSQLSELECT">
-            <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                "SELECT cliente.nominativo as 'cliente.nominativo', cliente.id as 'cliente.id', "
-              + "       cantiere.id as 'cantiere.id', cantiere.codice as 'cantiere.codice', cantiere.descrizione as 'cantiere.descrizione', "
-              + "       cantiere.stato as 'cantiere.stato', cantiere.id as 'LINKIDCANTIERE' "
-              + "FROM cantiere LEFT JOIN cliente ON cantiere.idcliente = cliente.id"
-            ) %></span>
+            <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                SELECT
+                    cliente.nominativo as 'cliente.nominativo',
+                    cliente.id as 'cliente.id',
+                    cantiere.id as 'cantiere.id',
+                    cantiere.codice as 'cantiere.codice',
+                    cantiere.indirizzo as 'cantiere.indirizzo',
+                    cantiere.descrizione as 'cantiere.descrizione',
+                    cantiere.stato as 'cantiere.stato',
+                    cantiere.id as 'LINKIDCANTIERE'
+                FROM cantiere LEFT JOIN cliente ON cantiere.idcliente = cliente.id
+            ") %></span>
         </span>
 
         <%-- inserimento --%>
@@ -211,6 +227,10 @@
                             <td><span id="popupTabellaCantieriInserimentoSpanCodiceErrato" style="display:none">Il codice esiste già.</span></td>
                         </tr>
                         <tr>
+                            <td>Indirizzo</td>
+                            <td><input id="popupTabellaCantieriInserimentoIndirizzo" type="text" class="iwebCAMPO_cantiere.indirizzo iwebTIPOCAMPO_varchar" /></td>
+                        </tr>
+                        <tr>
                             <td>Descrizione</td>
                             <td><input id="popupTabellaCantieriInserimentoDescrizione" type="text" class="iwebCAMPO_cantiere.descrizione iwebTIPOCAMPO_varchar" /></td>
                         </tr>
@@ -221,9 +241,13 @@
                     <div class="btn btn-warning" onclick="chiudiPopupType2()" >Annulla</div>
                     <div class="btn btn-success" onclick="elencoCantieri_iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaCantieriInserimento', 'tabellaCantieri', '', true)">Inserisci</div>
                     <span class="iwebSQLINSERT">
-                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL("INSERT INTO cantiere (idcliente, codice, descrizione, stato) VALUES(@idcliente, @codice, @descrizione, 'Da firmare')") %></span>
+                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                            INSERT INTO cantiere (idcliente, codice, indirizzo, descrizione, stato)
+                            VALUES (@idcliente, @codice, @indirizzo, @descrizione, 'Da firmare')
+                        ") %></span>
                         <span class="iwebPARAMETRO">@idcliente = popupTabellaCantieriInserimento_findvalue_cliente.id</span>
                         <span class="iwebPARAMETRO">@codice = popupTabellaCantieriInserimento_findvalue_cantiere.codice</span>
+                        <span class="iwebPARAMETRO">@indirizzo = popupTabellaCantieriInserimento_findvalue_cantiere.indirizzo</span>
                         <span class="iwebPARAMETRO">@descrizione = popupTabellaCantieriInserimento_findvalue_cantiere.descrizione</span>
                     </span>
                 </div>
@@ -250,6 +274,10 @@
                         <tr>
                             <td>Codice</td>
                             <td><span class="iwebCAMPO_cantiere.codice"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Indirizzo</td>
+                            <td><span class="iwebCAMPO_cantiere.indirizzo"></span></td>
                         </tr>
                         <tr>
                             <td>Descrizione</td>

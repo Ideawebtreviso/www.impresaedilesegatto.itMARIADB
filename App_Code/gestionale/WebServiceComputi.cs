@@ -35,65 +35,65 @@ public class WebServiceComputi : System.Web.Services.WebService {
     [WebMethod]
     public void eliminaVoce(int idvoce)
     {
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        connection.Open();
+            MySqlCommand command;
+            MySqlDataReader reader;
 
-        MySqlCommand command; 
-        MySqlDataReader reader;
+            // ciclo sulle misure di questa voce. Per ogni misura devo cancellare (se c'è) anche la sua immagine nel percorso percorsoUploadImmaginiGestionale
+            command = connection.CreateCommand();
+            command.CommandText = "SELECT id FROM misura WHERE idvoce = @idvoce";
+            command.Parameters.AddWithValue("@idvoce", idvoce);
 
-        // ciclo sulle misure di questa voce. Per ogni misura devo cancellare (se c'è) anche la sua immagine nel percorso percorsoUploadImmaginiGestionale
-        command = connection.CreateCommand();
-        command.CommandText = "SELECT id FROM misura WHERE idvoce = @idvoce";
-        command.Parameters.AddWithValue("@idvoce", idvoce);
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int idmisura = (int)reader["id"];
+                eliminaMisura(idmisura);
+            }
+            reader.Close();
 
-        reader = command.ExecuteReader();
-        while (reader.Read()) {
-            int idmisura = (int)reader["id"];
-            eliminaMisura(idmisura);
+            command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM voce WHERE id = @id";
+            command.Parameters.AddWithValue("@id", idvoce);
+            command.ExecuteNonQuery();
+
+            connection.Close();
         }
-        reader.Close();
-
-        command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM voce WHERE id = @id";
-        command.Parameters.AddWithValue("@id", idvoce);
-        command.ExecuteNonQuery();
-
-        connection.Close();
     }
 
     // NOTA: Questa eliminazione non rimappa le misure, serve solo per eliminaVoce.
     private void eliminaMisura(int idmisura)
     {
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString"))) {
+            connection.Open();
 
-        connection.Open();
+            MySqlCommand command; object objTemp;
 
-        MySqlCommand command; object objTemp;
+            // ottengo il nome dell'immagine da cancellare
+            command = connection.CreateCommand();
+            command.CommandText = "SELECT pathimmagine FROM misura WHERE id = @id";
+            command.Parameters.AddWithValue("@id", idmisura);
 
-        // ottengo il nome dell'immagine da cancellare
-        command = connection.CreateCommand();
-        command.CommandText = "SELECT pathimmagine FROM misura WHERE id = @id";
-        command.Parameters.AddWithValue("@id", idmisura);
+            objTemp = command.ExecuteScalar();
+            String nomefile = objTemp == null ? "" : objTemp.ToString();
 
-        objTemp = command.ExecuteScalar();
-        String nomefile = objTemp == null ? "" : objTemp.ToString();
+            // ottengo il percorso del file dell'immagine (nota: non è mai stato utilizzato -> percorsoUploadImmaginiGestionale)
+            String percorsofile = Server.MapPath("~/" + System.Configuration.ConfigurationManager.AppSettings["percorsoUploadGestionaleScansioni"].ToString());
 
-        // ottengo il percorso del file dell'immagine (nota: non è mai stato utilizzato -> percorsoUploadImmaginiGestionale)
-        String percorsofile = Server.MapPath("~/" + System.Configuration.ConfigurationManager.AppSettings["percorsoUploadGestionaleScansioni"].ToString());
+            // elimino il file
+            if (nomefile != "")
+                File.Delete(percorsofile + nomefile);
 
-        // elimino il file
-        if (nomefile != "")
-            File.Delete(percorsofile + nomefile);
+            command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM misura WHERE id = @id";
+            command.Parameters.AddWithValue("@id", idmisura);
+            command.ExecuteNonQuery();
 
-        command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM misura WHERE id = @id";
-        command.Parameters.AddWithValue("@id", idmisura);
-        command.ExecuteNonQuery();
-
-        connection.Close();
+            connection.Close();
+        }
     }
 
 
@@ -118,44 +118,45 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            connection.Open();
+                MySqlCommand command; object objTemp;
 
-            MySqlCommand command; object objTemp;
+                // cancello la scansione. il path del file è: percorsoUploadGestionaleScansioni + bollafattura.pathfilescansione
+                command = connection.CreateCommand();
+                command.CommandText = "SELECT pathfilescansione FROM bollafattura WHERE id = @idBolla";
+                command.Parameters.AddWithValue("@idBolla", idBolla);
 
-            // cancello la scansione. il path del file è: percorsoUploadGestionaleScansioni + bollafattura.pathfilescansione
-            command = connection.CreateCommand();
-            command.CommandText = "SELECT pathfilescansione FROM bollafattura WHERE id = @idBolla";
-            command.Parameters.AddWithValue("@idBolla", idBolla);
+                // ottengo il nomefile della scansione
+                objTemp = command.ExecuteScalar();
+                String nomefile = objTemp == null ? "" : objTemp.ToString();
 
-            // ottengo il nomefile della scansione
-            objTemp = command.ExecuteScalar();
-            String nomefile = objTemp == null ? "" : objTemp.ToString();
+                // ottengo il percorso del file della scansione
+                String percorsofile = Server.MapPath("~/" + System.Configuration.ConfigurationManager.AppSettings["percorsoUploadGestionaleScansioni"].ToString());
 
-            // ottengo il percorso del file della scansione
-            String percorsofile = Server.MapPath("~/" + System.Configuration.ConfigurationManager.AppSettings["percorsoUploadGestionaleScansioni"].ToString());
+                // elimino il file
+                String file = percorsofile + nomefile;
+                if (nomefile != "")
+                    File.Delete(file);
 
-            // elimino il file
-            String file = percorsofile + nomefile;
-            if (nomefile != "")
-                File.Delete(file);
+                // cancello le righe (so per certo che quando mi trovo qui, non ci sono costi per questa bolla con dati associati ad una o più fatture)
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM costo WHERE idbollafattura = @idbollafattura";
+                command.Parameters.AddWithValue("@idbollafattura", idBolla);
+                command.ExecuteNonQuery();
 
-            // cancello le righe (so per certo che quando mi trovo qui, non ci sono costi per questa bolla con dati associati ad una o più fatture)
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM costo WHERE idbollafattura = @idbollafattura";
-            command.Parameters.AddWithValue("@idbollafattura", idBolla);
-            command.ExecuteNonQuery();
+                // cancello la bolla
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM bollafattura WHERE id = @idbollafattura";
+                command.Parameters.AddWithValue("@idbollafattura", idBolla);
+                command.ExecuteNonQuery();
 
-            // cancello la bolla
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM bollafattura WHERE id = @idbollafattura";
-            command.Parameters.AddWithValue("@idbollafattura", idBolla);
-            command.ExecuteNonQuery();
-
-            connection.Close();
+                connection.Close();
+            }
 
         } catch (Exception ex) {
             jsonString = "[{\"errore\":" + JsonConvert.SerializeObject(ex.Message + "\n" + ex.StackTrace) + "}]";
@@ -169,45 +170,45 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            connection.Open();
+                MySqlCommand command;
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM misura "
+                                    + "WHERE idvoce in (select id from voce where idcomputo = @idcomputo)";
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.ExecuteNonQuery();
 
-            MySqlCommand command;
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM misura "
-                                + "WHERE idvoce in (select id from voce where idcomputo = @idcomputo)";
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.ExecuteNonQuery();
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM voce "
+                                    + "WHERE idcomputo = @idcomputo";
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.ExecuteNonQuery();
 
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM voce "
-                                + "WHERE idcomputo = @idcomputo";
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.ExecuteNonQuery();
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM suddivisione "
+                                    + "WHERE idcomputo = @idcomputo";
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.ExecuteNonQuery();
 
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM suddivisione "
-                                + "WHERE idcomputo = @idcomputo";
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.ExecuteNonQuery();
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM computopdf "
+                                    + "WHERE idcomputo = @idcomputo";
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.ExecuteNonQuery();
 
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM computopdf "
-                                + "WHERE idcomputo = @idcomputo";
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.ExecuteNonQuery();
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM computo "
+                                    + "WHERE id = @idcomputo";
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.ExecuteNonQuery();
 
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM computo "
-                                + "WHERE id = @idcomputo";
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.ExecuteNonQuery();
-
-            connection.Close();
-
+                connection.Close();
+            }
         } catch (Exception ex) {
             jsonString = "[{\"errore\":" + JsonConvert.SerializeObject(ex.Message + "\n" + ex.StackTrace) + "}]";
         }
@@ -220,159 +221,159 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            connection.Open();
+                //MySqlDataReader reader;
+                MySqlCommand command;
 
-            //MySqlDataReader reader;
-            MySqlCommand command;
+                // 1. Clona la testata computo
+                command = connection.CreateCommand();
+                command.CommandText = @"
+                    INSERT INTO computo (codice, titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina, idcomputooriginaleclonato, ricaricopercentuale) 
+                    SELECT codice, concat(titolo, ' (clonato)') as titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina, id, @ricaricopercentuale
+                    FROM computo 
+                    WHERE id = @idcomputo";
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.Parameters.AddWithValue("@ricaricopercentuale", ricaricopercentuale);
+                command.ExecuteNonQuery();
 
-            // 1. Clona la testata computo
-            command = connection.CreateCommand();
-            command.CommandText = @"
-                INSERT INTO computo (codice, titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina, idcomputooriginaleclonato, ricaricopercentuale) 
-                SELECT codice, concat(titolo, ' (clonato)') as titolo, descrizione, idcliente, datadiconsegna, stato, tipo, condizioniprimapagina, condizioniultimapagina, id, @ricaricopercentuale
-                FROM computo 
-                WHERE id = @idcomputo";
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.Parameters.AddWithValue("@ricaricopercentuale", ricaricopercentuale);
-            command.ExecuteNonQuery();
+                 command = connection.CreateCommand();
+                command.CommandText = "SELECT LAST_INSERT_ID();";
+                Object IDComputoClonatoo =  command.ExecuteScalar();
+                int IDComputoClonato = int.Parse(IDComputoClonatoo.ToString());
 
-             command = connection.CreateCommand();
-            command.CommandText = "SELECT LAST_INSERT_ID();";
-            Object IDComputoClonatoo =  command.ExecuteScalar();
-            int IDComputoClonato = int.Parse(IDComputoClonatoo.ToString());
-
-            // 2. Clona le suddivisioni A. duplica tutti i record, poi  B. aggiusta con una query gli idpadre
-            command = connection.CreateCommand();
-            command.CommandText = @"
-                INSERT INTO suddivisione (idcomputo, descrizione, posizione, idsuddivisioneoriginaleclonato) 
-                SELECT  @IDClonato, descrizione, posizione, id 
-                FROM suddivisione 
-                WHERE idcomputo = @idcomputo";
-            command.Parameters.AddWithValue("@IDClonato", IDComputoClonato);
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.ExecuteNonQuery();
-
-
-            /*questa è la select che elabora gli stessi record della update
-            select suddivisioneclonata.*, suddivisioneoriginale.idpadre as idpadrenelloriginale, suddivisioneclonata2.id as idpadreinclonata
-            from suddivisione as suddivisioneclonata
-            inner join suddivisione as suddivisioneoriginale on suddivisioneclonata.idsuddivisioneoriginaleclonato = suddivisioneoriginale.id and suddivisioneclonata.idcomputo = 42 and suddivisioneoriginale.idcomputo = 27 
-            inner join suddivisione suddivisioneclonata2 on suddivisioneoriginale.idpadre = suddivisioneclonata2.idsuddivisioneoriginaleclonato and suddivisioneclonata2.idcomputo = 42 
-            */
-
-            /*questa è la update
-            update suddivisione as suddivisioneclonata
-            inner join suddivisione as suddivisioneoriginale on suddivisioneclonata.idsuddivisioneoriginaleclonato = suddivisioneoriginale.id and suddivisioneclonata.idcomputo = @IDComputoClonato and suddivisioneoriginale.id = @idcomputo
-            inner join suddivisione suddivisioneclonata2 on suddivisioneoriginale.idpadre = suddivisioneclonata2.idsuddivisioneoriginaleclonato and suddivisioneclonata2.idcomputo = @IDComputoClonato 
-            set suddivisioneclonata.idpadre = suddivisioneclonata2.id
-            */
-
-            // aggiusta le suddivisioni: valorizza correttamente gli idpadre
-            command = connection.CreateCommand();
-            command.CommandText = @"
-                update suddivisione as suddivisioneclonata 
-                    inner join suddivisione as suddivisioneoriginale on suddivisioneclonata.idsuddivisioneoriginaleclonato = suddivisioneoriginale.id and suddivisioneclonata.idcomputo = @IDComputoClonato1 and suddivisioneoriginale.idcomputo = @idcomputo1
-                    inner join suddivisione suddivisioneclonata2 on suddivisioneoriginale.idpadre = suddivisioneclonata2.idsuddivisioneoriginaleclonato and suddivisioneclonata2.idcomputo = @IDComputoClonato2 
-                set suddivisioneclonata.idpadre = suddivisioneclonata2.id";
-            command.Parameters.AddWithValue("@IDComputoClonato1", IDComputoClonato);
-            command.Parameters.AddWithValue("@idcomputo1", idcomputo);
-            command.Parameters.AddWithValue("@IDComputoClonato2", IDComputoClonato);
-            command.ExecuteNonQuery();
-
-            // solo per debug questa query
-            //command = connection.CreateCommand();
-            //command.CommandText = "SELECT mysql_affected_rows();";
-            //long quantesuddivisioniaggiornate = (long)command.ExecuteScalar();
+                // 2. Clona le suddivisioni A. duplica tutti i record, poi  B. aggiusta con una query gli idpadre
+                command = connection.CreateCommand();
+                command.CommandText = @"
+                    INSERT INTO suddivisione (idcomputo, descrizione, posizione, idsuddivisioneoriginaleclonato) 
+                    SELECT  @IDClonato, descrizione, posizione, id 
+                    FROM suddivisione 
+                    WHERE idcomputo = @idcomputo";
+                command.Parameters.AddWithValue("@IDClonato", IDComputoClonato);
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.ExecuteNonQuery();
 
 
+                /*questa è la select che elabora gli stessi record della update
+                select suddivisioneclonata.*, suddivisioneoriginale.idpadre as idpadrenelloriginale, suddivisioneclonata2.id as idpadreinclonata
+                from suddivisione as suddivisioneclonata
+                inner join suddivisione as suddivisioneoriginale on suddivisioneclonata.idsuddivisioneoriginaleclonato = suddivisioneoriginale.id and suddivisioneclonata.idcomputo = 42 and suddivisioneoriginale.idcomputo = 27 
+                inner join suddivisione suddivisioneclonata2 on suddivisioneoriginale.idpadre = suddivisioneclonata2.idsuddivisioneoriginaleclonato and suddivisioneclonata2.idcomputo = 42 
+                */
 
-            // 3. Clona le voci  A. duplica tutti i record, poi  B. aggiusta con una query gli idsuddivisione
-            command = connection.CreateCommand();
-            command.CommandText = @"
-                INSERT INTO voce (idcomputo, idvoceorigine, codice, titolo, descrizione, posizione, idvoceoriginaleclonata) 
-                SELECT @idcomputoclonato, idvoceorigine, codice, titolo, descrizione, posizione, id 
-                FROM voce
-                WHERE idcomputo = @idcomputooriginale";
-            command.Parameters.AddWithValue("@idcomputoclonato", IDComputoClonato);
-            command.Parameters.AddWithValue("@idcomputooriginale", idcomputo);
-            command.ExecuteNonQuery();
+                /*questa è la update
+                update suddivisione as suddivisioneclonata
+                inner join suddivisione as suddivisioneoriginale on suddivisioneclonata.idsuddivisioneoriginaleclonato = suddivisioneoriginale.id and suddivisioneclonata.idcomputo = @IDComputoClonato and suddivisioneoriginale.id = @idcomputo
+                inner join suddivisione suddivisioneclonata2 on suddivisioneoriginale.idpadre = suddivisioneclonata2.idsuddivisioneoriginaleclonato and suddivisioneclonata2.idcomputo = @IDComputoClonato 
+                set suddivisioneclonata.idpadre = suddivisioneclonata2.id
+                */
+
+                // aggiusta le suddivisioni: valorizza correttamente gli idpadre
+                command = connection.CreateCommand();
+                command.CommandText = @"
+                    update suddivisione as suddivisioneclonata 
+                        inner join suddivisione as suddivisioneoriginale on suddivisioneclonata.idsuddivisioneoriginaleclonato = suddivisioneoriginale.id and suddivisioneclonata.idcomputo = @IDComputoClonato1 and suddivisioneoriginale.idcomputo = @idcomputo1
+                        inner join suddivisione suddivisioneclonata2 on suddivisioneoriginale.idpadre = suddivisioneclonata2.idsuddivisioneoriginaleclonato and suddivisioneclonata2.idcomputo = @IDComputoClonato2 
+                    set suddivisioneclonata.idpadre = suddivisioneclonata2.id";
+                command.Parameters.AddWithValue("@IDComputoClonato1", IDComputoClonato);
+                command.Parameters.AddWithValue("@idcomputo1", idcomputo);
+                command.Parameters.AddWithValue("@IDComputoClonato2", IDComputoClonato);
+                command.ExecuteNonQuery();
+
+                // solo per debug questa query
+                //command = connection.CreateCommand();
+                //command.CommandText = "SELECT mysql_affected_rows();";
+                //long quantesuddivisioniaggiornate = (long)command.ExecuteScalar();
 
 
 
-            command = connection.CreateCommand();
-            command.CommandText = @"
-                update voce as voceclonata 
-                    inner join voce as voceoriginale on voceclonata.idvoceoriginaleclonata = voceoriginale.id and voceclonata.idcomputo = @IDComputoClonato1 and voceoriginale.idcomputo = @idcomputo1 
-                    inner join suddivisione as suddivisioneclonata on suddivisioneclonata.idsuddivisioneoriginaleclonato = voceoriginale.idsuddivisione and suddivisioneclonata.idcomputo = @IDComputoClonato2 
-                set voceclonata.idsuddivisione = suddivisioneclonata.id";
-            command.Parameters.AddWithValue("@IDComputoClonato1", IDComputoClonato);
-            command.Parameters.AddWithValue("@idcomputo1", idcomputo);
-            command.Parameters.AddWithValue("@IDComputoClonato2", IDComputoClonato);
-            command.ExecuteNonQuery();
-
-            // solo per debug questa query
-            //command = connection.CreateCommand();
-            //command.CommandText = "SELECT mysql_affected_rows()";
-            //int quantevociaggiornate = (int)command.ExecuteScalar();
+                // 3. Clona le voci  A. duplica tutti i record, poi  B. aggiusta con una query gli idsuddivisione
+                command = connection.CreateCommand();
+                command.CommandText = @"
+                    INSERT INTO voce (idcomputo, idvoceorigine, codice, titolo, descrizione, posizione, idvoceoriginaleclonata) 
+                    SELECT @idcomputoclonato, idvoceorigine, codice, titolo, descrizione, posizione, id 
+                    FROM voce
+                    WHERE idcomputo = @idcomputooriginale";
+                command.Parameters.AddWithValue("@idcomputoclonato", IDComputoClonato);
+                command.Parameters.AddWithValue("@idcomputooriginale", idcomputo);
+                command.ExecuteNonQuery();
 
 
-            // 3. Clona le misure  A. duplica tutti i record, poi  B. aggiusta con una query gli idvoce
 
-            command = connection.CreateCommand();
-            command.CommandText = @"
-                INSERT INTO misura (
-                    idvoce,
-                    idunitamisura, sottocodice, descrizione, 
-                    prezzounitario, 
-                    totalemisura,
-                    totaleimporto, 
-                    posizione, pathimmagine, nomeimmagine, idmisuraoriginaleclonata, idmisuraorigine) 
-                SELECT idvoce, idunitamisura, sottocodice, misura.descrizione as descrizione, 
-                    prezzounitario * (100 + @ricaricopercentuale) / 100, 
-                    totalemisura, 
-                    totaleimporto * (100 + @ricaricopercentuale) / 100, 
-                    misura.posizione, pathimmagine, nomeimmagine, misura.id as idmisuraoriginaleclonata, misura.id 
-                FROM misura inner join voce on misura.idvoce = voce.id 
-                WHERE voce.idcomputo = @idcomputo";
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.Parameters.AddWithValue("@ricaricopercentuale", ricaricopercentuale == null ? 0 : (double)ricaricopercentuale);
-            command.ExecuteNonQuery();
+                command = connection.CreateCommand();
+                command.CommandText = @"
+                    update voce as voceclonata 
+                        inner join voce as voceoriginale on voceclonata.idvoceoriginaleclonata = voceoriginale.id and voceclonata.idcomputo = @IDComputoClonato1 and voceoriginale.idcomputo = @idcomputo1 
+                        inner join suddivisione as suddivisioneclonata on suddivisioneclonata.idsuddivisioneoriginaleclonato = voceoriginale.idsuddivisione and suddivisioneclonata.idcomputo = @IDComputoClonato2 
+                    set voceclonata.idsuddivisione = suddivisioneclonata.id";
+                command.Parameters.AddWithValue("@IDComputoClonato1", IDComputoClonato);
+                command.Parameters.AddWithValue("@idcomputo1", idcomputo);
+                command.Parameters.AddWithValue("@IDComputoClonato2", IDComputoClonato);
+                command.ExecuteNonQuery();
 
-            //command = connection.CreateCommand();
-            //command.CommandText = @"
-            //    update misura as misuraclonata 
-            //        inner join misura as misuraoriginale on misuraclonata.idmisuraoriginaleclonata = misuraoriginale.id
-            //        inner join voce as voceclonata on voceclonata.idvoceoriginaleclonata = misuraoriginale.idvoce and voceclonata.idcomputo = @IDComputoClonato1 
-            //    set misuraclonata.idvoce = voceclonata.id";
-            //command.Parameters.AddWithValue("@IDComputoClonato1", IDComputoClonato);
-            //command.ExecuteNonQuery();
-            command = connection.CreateCommand();
-            command.CommandText = @"
-                UPDATE computo as computoclonato 
-                INNER JOIN voce as voceclonata on voceclonata.idcomputo =  computoclonato.id
-                INNER JOIN voce as voceoriginale on voceclonata.idvoceoriginaleclonata = voceoriginale.id AND voceoriginale.idcomputo = @idcomputo
-                INNER JOIN misura as misuraoriginale on misuraoriginale.idvoce = voceoriginale.id 
+                // solo per debug questa query
+                //command = connection.CreateCommand();
+                //command.CommandText = "SELECT mysql_affected_rows()";
+                //int quantevociaggiornate = (int)command.ExecuteScalar();
 
-                /* prendo la misura clonata che è ancora legata alla voce originale */
-                INNER JOIN misura as misuraclonata ON misuraclonata.idmisuraorigine = misuraoriginale.id AND misuraclonata.idvoce = voceoriginale.id
+
+                // 3. Clona le misure  A. duplica tutti i record, poi  B. aggiusta con una query gli idvoce
+
+                command = connection.CreateCommand();
+                command.CommandText = @"
+                    INSERT INTO misura (
+                        idvoce,
+                        idunitamisura, sottocodice, descrizione, 
+                        prezzounitario, 
+                        totalemisura,
+                        totaleimporto, 
+                        posizione, pathimmagine, nomeimmagine, idmisuraoriginaleclonata, idmisuraorigine) 
+                    SELECT idvoce, idunitamisura, sottocodice, misura.descrizione as descrizione, 
+                        prezzounitario * (100 + @ricaricopercentuale) / 100, 
+                        totalemisura, 
+                        totaleimporto * (100 + @ricaricopercentuale) / 100, 
+                        misura.posizione, pathimmagine, nomeimmagine, misura.id as idmisuraoriginaleclonata, misura.id 
+                    FROM misura inner join voce on misura.idvoce = voce.id 
+                    WHERE voce.idcomputo = @idcomputo";
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.Parameters.AddWithValue("@ricaricopercentuale", ricaricopercentuale == null ? 0 : (double)ricaricopercentuale);
+                command.ExecuteNonQuery();
+
+                //command = connection.CreateCommand();
+                //command.CommandText = @"
+                //    update misura as misuraclonata 
+                //        inner join misura as misuraoriginale on misuraclonata.idmisuraoriginaleclonata = misuraoriginale.id
+                //        inner join voce as voceclonata on voceclonata.idvoceoriginaleclonata = misuraoriginale.idvoce and voceclonata.idcomputo = @IDComputoClonato1 
+                //    set misuraclonata.idvoce = voceclonata.id";
+                //command.Parameters.AddWithValue("@IDComputoClonato1", IDComputoClonato);
+                //command.ExecuteNonQuery();
+                command = connection.CreateCommand();
+                command.CommandText = @"
+                    UPDATE computo as computoclonato 
+                    INNER JOIN voce as voceclonata on voceclonata.idcomputo =  computoclonato.id
+                    INNER JOIN voce as voceoriginale on voceclonata.idvoceoriginaleclonata = voceoriginale.id AND voceoriginale.idcomputo = @idcomputo
+                    INNER JOIN misura as misuraoriginale on misuraoriginale.idvoce = voceoriginale.id 
+
+                    /* prendo la misura clonata che è ancora legata alla voce originale */
+                    INNER JOIN misura as misuraclonata ON misuraclonata.idmisuraorigine = misuraoriginale.id AND misuraclonata.idvoce = voceoriginale.id
                    
-                SET misuraclonata.idvoce = voceclonata.id
-                where computoclonato.id = @IDComputoClonato";
-            command.Parameters.AddWithValue("@IDComputoClonato", IDComputoClonato);
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.ExecuteNonQuery();
+                    SET misuraclonata.idvoce = voceclonata.id
+                    where computoclonato.id = @IDComputoClonato";
+                command.Parameters.AddWithValue("@IDComputoClonato", IDComputoClonato);
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command.ExecuteNonQuery();
 
-            // solo per debug questa query
-            //command = connection.CreateCommand();
-            //command.CommandText = "SELECT mysql_affected_rows()";
-            //int quantemisureaggiornate = (int)command.ExecuteScalar();
+                // solo per debug questa query
+                //command = connection.CreateCommand();
+                //command.CommandText = "SELECT mysql_affected_rows()";
+                //int quantemisureaggiornate = (int)command.ExecuteScalar();
 
-            connection.Close();
-
+                connection.Close();
+                }
         } catch (Exception ex) {
             jsonString = "[{\"errore\":" + JsonConvert.SerializeObject(ex.Message + "\n" + ex.StackTrace) + "}]";
         }
@@ -388,80 +389,87 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            MySqlConnection connection2 = new MySqlConnection();
-            connection2.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection2.Open();
+                using (MySqlConnection connection2 = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+                {
+                    connection2.Open();
 
-            MySqlDataReader reader;
-            MySqlCommand command, command2;
+                    MySqlDataReader reader;
+                    MySqlCommand command, command2;
 
-            // a DB posso avere un int o DBNull. al primo giro eseguo una query per ottenere il padre di questa suddivisione
-            if (nuovasuddivisionepadre == null) {
-                command = connection.CreateCommand();
-                command.CommandText = "select idpadre from suddivisione where id = @idsuddivisione";
-                command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
-                nuovasuddivisionepadre = command.ExecuteScalar();
+                    // a DB posso avere un int o DBNull. al primo giro eseguo una query per ottenere il padre di questa suddivisione
+                    if (nuovasuddivisionepadre == null)
+                    {
+                        command = connection.CreateCommand();
+                        command.CommandText = "select idpadre from suddivisione where id = @idsuddivisione";
+                        command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
+                        nuovasuddivisionepadre = command.ExecuteScalar();
+                    }
+
+                    // 2. Clona la suddivisione
+                    command = connection.CreateCommand();
+                    command.CommandText = @"insert into suddivisione (idcomputo, idpadre, descrizione, posizione, idsuddivisioneoriginaleclonato) 
+                                            select idcomputo, @idnuovopadre, descrizione, posizione+1, id from suddivisione where id = @idsuddivisione";
+                    command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
+                    command.Parameters.AddWithValue("@idnuovopadre", nuovasuddivisionepadre);
+                    command.ExecuteNonQuery();
+
+                    int IDNuovaSuddivisione = (int)command.LastInsertedId;
+
+                    // rinormalizza la posizione delle suddivisioni
+                    rinormalizzaPosizioneSuddivisioni(idSuddivisione);
+
+                    // 3. Clona le voci
+                    command = connection.CreateCommand();
+                    command.CommandText = @"insert into voce (idcomputo, idsuddivisione, idvoceorigine, codice, titolo, descrizione, posizione, idvoceoriginaleclonata) 
+                                            select  idcomputo, @idnuovasuddivisione, idvoceorigine, codice, titolo, descrizione, posizione, id from voce where idsuddivisione = @idsuddivisione";
+                    command.Parameters.AddWithValue("@idnuovasuddivisione", IDNuovaSuddivisione);
+                    command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
+                    command.ExecuteNonQuery();
+
+                    // 3. Itera le voci clonate. Per ogni voce clonata, clona anche le misure
+                    command = connection.CreateCommand();
+                    command.CommandText = @"select id, idvoceoriginaleclonata from voce where voce.idSuddivisione = @idSuddivisione";
+                    command.Parameters.AddWithValue("@idSuddivisione", IDNuovaSuddivisione);
+                    reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int idNuovaVoce = (int)reader["id"];
+                        int idVecchiavoce = (int)reader["idvoceoriginaleclonata"];
+
+                        command2 = connection2.CreateCommand();
+                        command2.CommandText = @"
+                            insert into misura (idvoce,   idunitamisura, sottocodice, descrizione,        prezzounitario, totalemisura, totaleimporto, posizione,        pathimmagine, nomeimmagine, idmisuraoriginaleclonata, idmisuraorigine ) 
+                            select          @idnuovavoce, idunitamisura, sottocodice, misura.descrizione, prezzounitario, totalemisura, totaleimporto, misura.posizione, pathimmagine, nomeimmagine, misura.id, idmisuraorigine                 
+                            from misura
+                            where idvoce = @idvoce";
+                        command2.Parameters.AddWithValue("@idnuovavoce", idNuovaVoce);
+                        command2.Parameters.AddWithValue("@idvoce", idVecchiavoce);
+                        command2.ExecuteNonQuery();
+                    }
+                    reader.Close();
+
+                    // RICORSIONE SUI FIGLI
+                    command = connection.CreateCommand();
+                    command.CommandText = "select id from suddivisione where idpadre = @idsuddivisione";
+                    command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
+                    reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int idSuddivisioneFiglia = (int)reader["id"];
+                        duplicaSuddivisione(idSuddivisioneFiglia, IDNuovaSuddivisione);
+                    }
+                    reader.Close();
+
+                    connection2.Close();
+                }
+                connection.Close();
             }
-
-            // 2. Clona la suddivisione
-            command = connection.CreateCommand();
-            command.CommandText = @"insert into suddivisione (idcomputo, idpadre, descrizione, posizione, idsuddivisioneoriginaleclonato) 
-                                    select idcomputo, @idnuovopadre, descrizione, posizione+1, id from suddivisione where id = @idsuddivisione";
-            command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
-            command.Parameters.AddWithValue("@idnuovopadre", nuovasuddivisionepadre);
-            command.ExecuteNonQuery();
-
-            int IDNuovaSuddivisione = (int)command.LastInsertedId;
-
-            // rinormalizza la posizione delle suddivisioni
-            rinormalizzaPosizioneSuddivisioni(idSuddivisione);
-
-            // 3. Clona le voci
-            command = connection.CreateCommand();
-            command.CommandText = @"insert into voce (idcomputo, idsuddivisione, idvoceorigine, codice, titolo, descrizione, posizione, idvoceoriginaleclonata) 
-                                    select  idcomputo, @idnuovasuddivisione, idvoceorigine, codice, titolo, descrizione, posizione, id from voce where idsuddivisione = @idsuddivisione";
-            command.Parameters.AddWithValue("@idnuovasuddivisione", IDNuovaSuddivisione);
-            command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
-            command.ExecuteNonQuery();
-
-            // 3. Itera le voci clonate. Per ogni voce clonata, clona anche le misure
-            command = connection.CreateCommand();
-            command.CommandText = @"select id, idvoceoriginaleclonata from voce where voce.idSuddivisione = @idSuddivisione";
-            command.Parameters.AddWithValue("@idSuddivisione", IDNuovaSuddivisione);
-            reader = command.ExecuteReader();
-            while (reader.Read()) {
-                int idNuovaVoce = (int)reader["id"];
-                int idVecchiavoce = (int)reader["idvoceoriginaleclonata"];
-
-                command2 = connection2.CreateCommand();
-                command2.CommandText = @"insert into misura (idvoce,         idunitamisura, sottocodice, descrizione,         prezzounitario, totalemisura, totaleimporto, posizione,        pathimmagine, nomeimmagine, idmisuraoriginaleclonata, idmisuraorigine ) 
-                                                        select          @idnuovavoce,   idunitamisura, sottocodice, misura.descrizione,  prezzounitario, totalemisura, totaleimporto, misura.posizione, pathimmagine, nomeimmagine, misura.id, idmisuraorigine                 
-                                                        from misura
-                                                        where idvoce = @idvoce";
-                command2.Parameters.AddWithValue("@idnuovavoce", idNuovaVoce);
-                command2.Parameters.AddWithValue("@idvoce", idVecchiavoce);
-                command2.ExecuteNonQuery();
-            }
-            reader.Close();
-
-            // RICORSIONE SUI FIGLI
-            command = connection.CreateCommand();
-            command.CommandText = "select id from suddivisione where idpadre = @idsuddivisione";
-            command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
-            reader = command.ExecuteReader();
-            while (reader.Read()) {
-                int idSuddivisioneFiglia = (int)reader["id"];
-                duplicaSuddivisione(idSuddivisioneFiglia, IDNuovaSuddivisione);
-            }
-            reader.Close();
-
-            connection2.Close();
-            connection.Close();
 
         } catch (Exception ex) {
             jsonString = "[{\"errore\":" + JsonConvert.SerializeObject(ex.Message + "\n" + ex.StackTrace) + "}]";
@@ -556,61 +564,64 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            connection.Open();
+                MySqlCommand command; MySqlDataReader reader;
 
-            MySqlCommand command; MySqlDataReader reader;
-
-            // Fase 1: Raccogliere tutti gli ID di BOLLAFATTURA che hanno righe che si riferiscono a quel cantiere
-            command = connection.CreateCommand();
-            command.CommandText = "SELECT DISTINCT(idbollafattura) as 'idbollafattura' FROM costo WHERE idcantiere = @idcantiere AND idbollafattura > 0"; // (idbollafattura > 0 perchè ci sono dati sporchi, verificare)
-            command.Parameters.AddWithValue("@idcantiere", idcantiere);
-
-            List<int> listaBollaFattura = new List<int>();
-            reader = command.ExecuteReader();
-            while (reader.Read()) {
-                listaBollaFattura.Add((int)reader["idbollafattura"]);
-            }
-            reader.Close();
-
-
-            // SELECT idbollafattura FROM costo WHERE idcantiere = @idcantiere 
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM costo WHERE idcantiere = @idcantiere";
-            command.Parameters.AddWithValue("@idcantiere", idcantiere);
-
-            command.ExecuteNonQuery();
-
-            // Fase 2: Elimino le BOLLAFATTURA senza righe restringendomi agli ID raggruppati nel punto 1
-            for (int i = 0; i < listaBollaFattura.Count; i++) {
-                /*SELECT bollafattura.id
-                FROM bollafattura left join costo on bollafattura.id = costo.idbollafattura 
-                WHERE bollafattura.id = 45 AND costo.id IS NULL*/
-                // se si sono svuotate cancello la riga
-                int idbollafattura = listaBollaFattura[i];
+                // Fase 1: Raccogliere tutti gli ID di BOLLAFATTURA che hanno righe che si riferiscono a quel cantiere
                 command = connection.CreateCommand();
-                command.CommandText = "DELETE bollafattura "
-                                    + "FROM bollafattura left join costo on bollafattura.id = costo.idbollafattura "
-                                    + "WHERE bollafattura.id = @idbollafattura AND costo.id IS NULL";
-                command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
+                command.CommandText = "SELECT DISTINCT(idbollafattura) as 'idbollafattura' FROM costo WHERE idcantiere = @idcantiere AND idbollafattura > 0"; // (idbollafattura > 0 perchè ci sono dati sporchi, verificare)
+                command.Parameters.AddWithValue("@idcantiere", idcantiere);
+
+                List<int> listaBollaFattura = new List<int>();
+                reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    listaBollaFattura.Add((int)reader["idbollafattura"]);
+                }
+                reader.Close();
+
+
+                // SELECT idbollafattura FROM costo WHERE idcantiere = @idcantiere 
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM costo WHERE idcantiere = @idcantiere";
+                command.Parameters.AddWithValue("@idcantiere", idcantiere);
 
                 command.ExecuteNonQuery();
+
+                // Fase 2: Elimino le BOLLAFATTURA senza righe restringendomi agli ID raggruppati nel punto 1
+                for (int i = 0; i < listaBollaFattura.Count; i++)
+                {
+                    /*SELECT bollafattura.id
+                    FROM bollafattura left join costo on bollafattura.id = costo.idbollafattura 
+                    WHERE bollafattura.id = 45 AND costo.id IS NULL*/
+                    // se si sono svuotate cancello la riga
+                    int idbollafattura = listaBollaFattura[i];
+                    command = connection.CreateCommand();
+                    command.CommandText = "DELETE bollafattura "
+                                        + "FROM bollafattura left join costo on bollafattura.id = costo.idbollafattura "
+                                        + "WHERE bollafattura.id = @idbollafattura AND costo.id IS NULL";
+                    command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
+
+                    command.ExecuteNonQuery();
+                }
+
+                /*QUERY DI CONTROLLO: SELECT bollafattura.id
+                FROM bollafattura LEFT JOIN costo ON bollafattura.id = costo.idbollafattura 
+                WHERE costo.id IS NULL*/
+
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM cantiere WHERE id = @idcantiere";
+                command.Parameters.AddWithValue("@idcantiere", idcantiere);
+
+                command.ExecuteNonQuery();
+
+                connection.Close();
             }
-
-            /*QUERY DI CONTROLLO: SELECT bollafattura.id
-            FROM bollafattura LEFT JOIN costo ON bollafattura.id = costo.idbollafattura 
-            WHERE costo.id IS NULL*/
-
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM cantiere WHERE id = @idcantiere";
-            command.Parameters.AddWithValue("@idcantiere", idcantiere);
-
-            command.ExecuteNonQuery();
-
-            connection.Close();
 
         } catch (Exception ex) {
             jsonString = "[{\"errore\":" + JsonConvert.SerializeObject(ex.Message + "\n" + ex.StackTrace) + "}]";
@@ -641,6 +652,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
         // Int32 idcomputo = 0; ce l'ho già
         Int32 idsuddivisione = 0; // lo ottengo dopo l'insert del precedente
         Int32 idvoceorigine = 0;
+        int? idvocetemplate = 0;
         String codice = "";
         String titolo = "";
         String descrizionevoce = "";
@@ -653,6 +665,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
             if (nomeParametro == "idsuddivisione") idsuddivisione = Convert.ToInt32(valoreParametro);
             if (nomeParametro == "idvoceorigine") idvoceorigine = Convert.ToInt32(valoreParametro);
             if (nomeParametro == "codice") codice = valoreParametro.ToString();
+            if (nomeParametro == "idvocetemplate") idvocetemplate = valoreParametro == null ? null : (int?)Convert.ToInt32(valoreParametro);
             if (nomeParametro == "titolo") titolo = valoreParametro.ToString();
             if (nomeParametro == "descrizionevoce") descrizionevoce = valoreParametro.ToString();
             if (nomeParametro == "posizionevoce") posizionevoce = Convert.ToInt32(valoreParametro);
@@ -660,54 +673,59 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+            Int32 idVoce;
 
-            connection.Open();
-
-            // in caso di nuova suddivisione
-            if (descrizionesuddivisione != "")
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO suddivisione (idcomputo, idpadre, descrizione, posizione)" +
-                                      "VALUES (@idcomputo, @idpadre, @descrizione, @posizione)";
+                connection.Open();
 
-                command.Parameters.AddWithValue("@idcomputo", idcomputo);
-                if (idpadre == 0) // idpadre non deve essere inserito se non presente così diventa valore di root
-                    command.Parameters.AddWithValue("@idpadre", null);
-                else
-                    command.Parameters.AddWithValue("@idpadre", idpadre);
-                command.Parameters.AddWithValue("@descrizione", descrizionesuddivisione);
-                command.Parameters.AddWithValue("@posizione", posizionesuddivisione);
-                command.ExecuteNonQuery();
+                // in caso di nuova suddivisione
+                if (descrizionesuddivisione != "")
+                {
+                    MySqlCommand command = connection.CreateCommand();
+                    command.CommandText = "INSERT INTO suddivisione (idcomputo, idpadre, descrizione, posizione)" +
+                                          "VALUES (@idcomputo, @idpadre, @descrizione, @posizione)";
 
+                    command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                    if (idpadre == 0) // idpadre non deve essere inserito se non presente così diventa valore di root
+                        command.Parameters.AddWithValue("@idpadre", null);
+                    else
+                        command.Parameters.AddWithValue("@idpadre", idpadre);
+                    command.Parameters.AddWithValue("@descrizione", descrizionesuddivisione);
+                    command.Parameters.AddWithValue("@posizione", posizionesuddivisione);
+                    command.ExecuteNonQuery();
+
+
+                    // ottieni l'idsuddivisione dell'ultimo elemento inserito
+                    command.CommandText = "Select @@Identity";
+                    idsuddivisione = Convert.ToInt32(command.ExecuteScalar());
+
+                    // rinormalizza la posizione delle suddivisioni
+                    rinormalizzaPosizioneSuddivisioni(idsuddivisione);
+                }
+
+                MySqlCommand command2 = connection.CreateCommand();
+                command2.CommandText = @"
+                    INSERT INTO voce (idcomputo, idsuddivisione, idvoceorigine, codice, idvocetemplate, titolo, descrizione, posizione)
+                    VALUES (@idcomputo, @idsuddivisione, @idvoceorigine, @codice, @idvocetemplate, @titolo, @descrizione, @posizione)
+                ";
+
+                command2.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command2.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
+                command2.Parameters.AddWithValue("@idvoceorigine", idvoceorigine);
+                command2.Parameters.AddWithValue("@codice", codice);
+                command2.Parameters.AddWithValue("@idvocetemplate", idvocetemplate);
+                command2.Parameters.AddWithValue("@titolo", titolo);
+                command2.Parameters.AddWithValue("@descrizione", descrizionevoce);
+                command2.Parameters.AddWithValue("@posizione", posizionevoce);
+                command2.ExecuteNonQuery();
 
                 // ottieni l'idsuddivisione dell'ultimo elemento inserito
-                command.CommandText = "Select @@Identity";
-                idsuddivisione = Convert.ToInt32(command.ExecuteScalar());
+                command2.CommandText = "Select @@Identity";
+                idVoce = Convert.ToInt32(command2.ExecuteScalar());
 
-                // rinormalizza la posizione delle suddivisioni
-                rinormalizzaPosizioneSuddivisioni(idsuddivisione);
+                connection.Close();
             }
-
-            MySqlCommand command2 = connection.CreateCommand();
-            command2.CommandText = "INSERT INTO voce (idcomputo, idsuddivisione, idvoceorigine, codice, titolo, descrizione, posizione)" +
-                                   "VALUES (@idcomputo, @idsuddivisione, @idvoceorigine, @codice, @titolo, @descrizione, @posizione)";
-
-            command2.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command2.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
-            command2.Parameters.AddWithValue("@idvoceorigine", idvoceorigine);
-            command2.Parameters.AddWithValue("@codice", codice);
-            command2.Parameters.AddWithValue("@titolo", titolo);
-            command2.Parameters.AddWithValue("@descrizione", descrizionevoce);
-            command2.Parameters.AddWithValue("@posizione", posizionevoce);
-            command2.ExecuteNonQuery();
-
-            // ottieni l'idsuddivisione dell'ultimo elemento inserito
-            command2.CommandText = "Select @@Identity";
-            Int32 idVoce = Convert.ToInt32(command2.ExecuteScalar());
-
-            connection.Close();
 
             // rinormalizza la posizione delle voci
             rinormalizzaPosizioneVoci(idsuddivisione);
@@ -766,55 +784,55 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-
-            connection.Open();
-
-            // in caso di nuova suddivisione
-            if (descrizionesuddivisione != "")
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO suddivisione (idcomputo, idpadre, descrizione, posizione)" +
-                                      "VALUES (@idcomputo, @idpadre, @descrizione, @posizione)";
+                connection.Open();
 
-                command.Parameters.AddWithValue("@idcomputo", idcomputo);
-                if (idpadre == 0) // idpadre non deve essere inserito se non presente così diventa valore di root
-                    command.Parameters.AddWithValue("@idpadre", null);
-                else
-                    command.Parameters.AddWithValue("@idpadre", idpadre);
-                command.Parameters.AddWithValue("@descrizione", descrizionesuddivisione);
-                command.Parameters.AddWithValue("@posizione", posizione);
-                command.ExecuteNonQuery();
+                // in caso di nuova suddivisione
+                if (descrizionesuddivisione != "")
+                {
+                    MySqlCommand command = connection.CreateCommand();
+                    command.CommandText = "INSERT INTO suddivisione (idcomputo, idpadre, descrizione, posizione)" +
+                                          "VALUES (@idcomputo, @idpadre, @descrizione, @posizione)";
+
+                    command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                    if (idpadre == 0) // idpadre non deve essere inserito se non presente così diventa valore di root
+                        command.Parameters.AddWithValue("@idpadre", null);
+                    else
+                        command.Parameters.AddWithValue("@idpadre", idpadre);
+                    command.Parameters.AddWithValue("@descrizione", descrizionesuddivisione);
+                    command.Parameters.AddWithValue("@posizione", posizione);
+                    command.ExecuteNonQuery();
 
 
-                // ottieni l'idsuddivisione dell'ultimo elemento inserito
-                command.CommandText = "Select @@Identity";
-                idsuddivisione = Convert.ToInt32(command.ExecuteScalar());
+                    // ottieni l'idsuddivisione dell'ultimo elemento inserito
+                    command.CommandText = "Select @@Identity";
+                    idsuddivisione = Convert.ToInt32(command.ExecuteScalar());
+                }
+
+                MySqlCommand command2 = connection.CreateCommand();
+                command2.CommandText = "UPDATE voce " +
+                                       "SET idcomputo = @idcomputo, " +
+                                       "    idsuddivisione = @idsuddivisione, " +
+                                       "    idvoceorigine = @idvoceorigine, " +
+                                       "    codice = @codice, " +
+                                       "    titolo = @titolo, " +
+                                       "    descrizione = @descrizione, " +
+                                       "    posizione = @posizione " +
+                                       "WHERE id = @id";
+
+                command2.Parameters.AddWithValue("@idcomputo", idcomputo);
+                command2.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
+                command2.Parameters.AddWithValue("@idvoceorigine", idvoceorigine);
+                command2.Parameters.AddWithValue("@codice", codice);
+                command2.Parameters.AddWithValue("@titolo", titolo);
+                command2.Parameters.AddWithValue("@descrizione", descrizionevoce);
+                command2.Parameters.AddWithValue("@posizione", posizionevoce);
+                command2.Parameters.AddWithValue("@id", idvoce);
+                command2.ExecuteNonQuery();
+
+                connection.Close();
             }
-
-            MySqlCommand command2 = connection.CreateCommand();
-            command2.CommandText = "UPDATE voce " +
-                                   "SET idcomputo = @idcomputo, " +
-                                   "    idsuddivisione = @idsuddivisione, " +
-                                   "    idvoceorigine = @idvoceorigine, " +
-                                   "    codice = @codice, " +
-                                   "    titolo = @titolo, " +
-                                   "    descrizione = @descrizione, " +
-                                   "    posizione = @posizione " +
-                                   "WHERE id = @id";
-
-            command2.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command2.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
-            command2.Parameters.AddWithValue("@idvoceorigine", idvoceorigine);
-            command2.Parameters.AddWithValue("@codice", codice);
-            command2.Parameters.AddWithValue("@titolo", titolo);
-            command2.Parameters.AddWithValue("@descrizione", descrizionevoce);
-            command2.Parameters.AddWithValue("@posizione", posizionevoce);
-            command2.Parameters.AddWithValue("@id", idvoce);
-            command2.ExecuteNonQuery();
-
-            connection.Close();
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         }
@@ -833,70 +851,71 @@ public class WebServiceComputi : System.Web.Services.WebService {
         // duplicare una voce mantiene idcomputo, idsuddivisione, (assegna idvoceorigine), codice, titolo, descrizione, posizione+1, 
         // poi dovrò rigenerare la posizione delle voci
         // infine copio tutte le righe associate alla voce di partenza, quindi clono la riga con la sola modifica della colonna idvoce.
+        Int32 idvoce;
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        connection.Open();
+            MySqlCommand command;
+            MySqlDataReader reader;
 
-        MySqlCommand command;
-        MySqlDataReader reader;
-
-        // duplico la voce
-        command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO voce (idcomputo, idsuddivisione, idvoceorigine, codice, titolo, descrizione, posizione)
-            SELECT idcomputo, idsuddivisione, id, codice, titolo, descrizione, posizione+1
-            FROM voce
-            WHERE voce.id = @idvoceorigine";
-        command.Parameters.AddWithValue("@idvoceorigine", idvoceorigine);
-
-        command.ExecuteNonQuery();
-
-        // ottengo l'id della nuova voce appena inserita
-        /*command.CommandText = "Select @@Identity";
-        Int32 idvoce = Convert.ToInt32(command.ExecuteScalar());*/
-        Int32 idvoce = Convert.ToInt32(command.LastInsertedId);
-
-        // ottengo l'idsuddivisione della nuova voce appena inserita
-        command = connection.CreateCommand();
-        command.CommandText = "SELECT idsuddivisione FROM voce WHERE id = @idvoce";
-        command.Parameters.AddWithValue("@idvoce", idvoce);
-
-        // idsuddivisione mi risulta che sia sempre !DBNull
-        Int32 idsuddivisione = Convert.ToInt32(command.ExecuteScalar());
-
-        // rigenero le posizioni della voce
-        rinormalizzaPosizioneVoci(idsuddivisione);
-
-        // ottengo una lista di tutte le misure associate alla voce di origine
-        command = connection.CreateCommand();
-        command.CommandText = "SELECT id FROM misura WHERE idvoce = @idvoceorigine";
-        command.Parameters.AddWithValue("@idvoceorigine", idvoceorigine);
-
-        List<int> listaMisure = new List<int>();
-        reader = command.ExecuteReader();
-        while (reader.Read()) {
-            listaMisure.Add((int)reader["id"]);
-        }
-        reader.Close();
-
-        // copio tutte le righe appartenenti alla voce creata
-        for (int i = 0; i < listaMisure.Count; i++) {
-            int idmisuraorigine = listaMisure[i];
-
+            // duplico la voce
             command = connection.CreateCommand();
             command.CommandText = @"
-                INSERT INTO misura (idvoce, idunitamisura, sottocodice, descrizione, prezzounitario, totalemisura, totaleimporto, posizione, pathimmagine, nomeimmagine, idmisuraorigine)
-                SELECT @idvoce, idunitamisura, sottocodice, descrizione, prezzounitario, totalemisura, totaleimporto, posizione, pathimmagine, nomeimmagine, @idmisuraorigine
-                FROM misura
-                WHERE misura.id = @idmisuraorigine";
-            command.Parameters.AddWithValue("@idvoce", idvoce);
-            command.Parameters.AddWithValue("@idmisuraorigine", idmisuraorigine);
+                INSERT INTO voce (idcomputo, idsuddivisione, idvoceorigine, codice, titolo, descrizione, posizione)
+                SELECT idcomputo, idsuddivisione, id, codice, titolo, descrizione, posizione+1
+                FROM voce
+                WHERE voce.id = @idvoceorigine";
+            command.Parameters.AddWithValue("@idvoceorigine", idvoceorigine);
 
             command.ExecuteNonQuery();
-        }
 
-        connection.Close();
+            // ottengo l'id della nuova voce appena inserita
+            /*command.CommandText = "Select @@Identity";
+            Int32 idvoce = Convert.ToInt32(command.ExecuteScalar());*/
+            idvoce = Convert.ToInt32(command.LastInsertedId);
+
+            // ottengo l'idsuddivisione della nuova voce appena inserita
+            command = connection.CreateCommand();
+            command.CommandText = "SELECT idsuddivisione FROM voce WHERE id = @idvoce";
+            command.Parameters.AddWithValue("@idvoce", idvoce);
+
+            // idsuddivisione mi risulta che sia sempre !DBNull
+            Int32 idsuddivisione = Convert.ToInt32(command.ExecuteScalar());
+
+            // rigenero le posizioni della voce
+            rinormalizzaPosizioneVoci(idsuddivisione);
+
+            // ottengo una lista di tutte le misure associate alla voce di origine
+            command = connection.CreateCommand();
+            command.CommandText = "SELECT id FROM misura WHERE idvoce = @idvoceorigine";
+            command.Parameters.AddWithValue("@idvoceorigine", idvoceorigine);
+
+            List<int> listaMisure = new List<int>();
+            reader = command.ExecuteReader();
+            while (reader.Read()) {
+                listaMisure.Add((int)reader["id"]);
+            }
+            reader.Close();
+
+            // copio tutte le righe appartenenti alla voce creata
+            for (int i = 0; i < listaMisure.Count; i++) {
+                int idmisuraorigine = listaMisure[i];
+
+                command = connection.CreateCommand();
+                command.CommandText = @"
+                    INSERT INTO misura (idvoce, idunitamisura, sottocodice, descrizione, prezzounitario, totalemisura, totaleimporto, posizione, pathimmagine, nomeimmagine, idmisuraorigine)
+                    SELECT @idvoce, idunitamisura, sottocodice, descrizione, prezzounitario, totalemisura, totaleimporto, posizione, pathimmagine, nomeimmagine, @idmisuraorigine
+                    FROM misura
+                    WHERE misura.id = @idmisuraorigine";
+                command.Parameters.AddWithValue("@idvoce", idvoce);
+                command.Parameters.AddWithValue("@idmisuraorigine", idmisuraorigine);
+
+                command.ExecuteNonQuery();
+            }
+
+            connection.Close();
+        }
 
         return idvoce;
     }
@@ -904,58 +923,56 @@ public class WebServiceComputi : System.Web.Services.WebService {
     [WebMethod]
     public string trovaVoceSuccessiva(int idComputo)
     {
-        //STRINGA DI CONNESSIONE
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-
-        connection.Open();
-
-        MySqlCommand command = connection.CreateCommand();
-        command.CommandText = "SELECT codice FROM voce WHERE idComputo = @idComputo ORDER BY id desc LIMIT 1";
-        command.Parameters.AddWithValue("@idComputo", idComputo);
-
-        Object primoElemento = (Object)command.ExecuteScalar();
-        String codice = (primoElemento == null) ? "" : primoElemento.ToString();
-
-        if (codice.Contains("."))
+        string codice;
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
-            String[] valori = codice.Split('.');
-            if (valori.Length == 2)
+            connection.Open();
+
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT codice FROM voce WHERE idComputo = @idComputo ORDER BY id desc LIMIT 1";
+            command.Parameters.AddWithValue("@idComputo", idComputo);
+
+            Object primoElemento = (Object)command.ExecuteScalar();
+            codice = (primoElemento == null) ? "" : primoElemento.ToString();
+
+            if (codice.Contains("."))
             {
-                String stringa = valori[0];
-                Int32 numero = Convert.ToInt32(valori[1]);
-                codice = stringa + "." + (numero + 1).ToString();
+                String[] valori = codice.Split('.');
+                if (valori.Length == 2)
+                {
+                    String stringa = valori[0];
+                    Int32 numero = Convert.ToInt32(valori[1]);
+                    codice = stringa + "." + (numero + 1).ToString();
+                }
             }
+
+            connection.Close();
         }
 
-        connection.Close();
-
-        string jsonString = JsonConvert.SerializeObject(codice);
-
-        return jsonString;
+        return JsonConvert.SerializeObject(codice);
     }
 
     [WebMethod]
     public string trovaMisuraSuccessiva(int idVoce)
     {
         String jsonString = "";
-        try {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        try
+        {
+            int sottocodice;
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            connection.Open();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT sottocodice FROM misura WHERE idVoce = @idVoce ORDER BY id desc LIMIT 1";
+                command.Parameters.AddWithValue("@idVoce", idVoce);
 
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT sottocodice FROM misura WHERE idVoce = @idVoce ORDER BY id desc LIMIT 1";
-            command.Parameters.AddWithValue("@idVoce", idVoce);
+                Object primoElemento = (Object)command.ExecuteScalar();
+                sottocodice = (primoElemento == null) ? 0 : Convert.ToInt32(primoElemento);
+                sottocodice = sottocodice + 1;
 
-            Object primoElemento = (Object)command.ExecuteScalar();
-            int sottocodice = (primoElemento == null) ? 0 : Convert.ToInt32(primoElemento);
-            sottocodice = sottocodice + 1;
-
-            connection.Close();
-
+                connection.Close();
+            }
             jsonString = JsonConvert.SerializeObject(sottocodice);
         }
         catch (Exception ex)
@@ -1036,7 +1053,6 @@ public class WebServiceComputi : System.Web.Services.WebService {
             command.ExecuteNonQuery();
 
             connection.Close();
-
             jsonString = JsonConvert.SerializeObject(nomeFile);
         }
         catch (Exception ex)
@@ -1067,27 +1083,29 @@ public class WebServiceComputi : System.Web.Services.WebService {
         String jsonString = "";
         Int32 idvoce = 0;
 
-        try {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            //update misure set posizione = posizione - 11 where IDMisura = @IDMisuraDaSpostare
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "update misura set posizione = posizione + @spostamento where ID = @IDMisuraDaSpostare";
-            command.Parameters.AddWithValue("@spostamento", spostamento);
-            command.Parameters.AddWithValue("@IDMisuraDaSpostare", IDMisuraDaSpostare);
+                //update misure set posizione = posizione - 11 where IDMisura = @IDMisuraDaSpostare
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update misura set posizione = posizione + @spostamento where ID = @IDMisuraDaSpostare";
+                command.Parameters.AddWithValue("@spostamento", spostamento);
+                command.Parameters.AddWithValue("@IDMisuraDaSpostare", IDMisuraDaSpostare);
 
-            command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
 
-            //select IDVOCE from misure where IDMisuraDaSpostare = @IDMisuraDaSpostare
-            MySqlCommand command2 = connection.CreateCommand();
-            command2.CommandText = "select idvoce from misura where ID = @IDMisuraDaSpostare";
-            command2.Parameters.AddWithValue("@IDMisuraDaSpostare", IDMisuraDaSpostare);
+                //select IDVOCE from misure where IDMisuraDaSpostare = @IDMisuraDaSpostare
+                MySqlCommand command2 = connection.CreateCommand();
+                command2.CommandText = "select idvoce from misura where ID = @IDMisuraDaSpostare";
+                command2.Parameters.AddWithValue("@IDMisuraDaSpostare", IDMisuraDaSpostare);
 
-            idvoce = Convert.ToInt32(command2.ExecuteScalar());
+                idvoce = Convert.ToInt32(command2.ExecuteScalar());
 
-            connection.Close();
+                connection.Close();
+            }
         } catch (Exception ex) {
             jsonString = "[{\"errore\":" + JsonConvert.SerializeObject(ex.Message + "\n" + ex.StackTrace) + "}]";
         }
@@ -1104,41 +1122,43 @@ public class WebServiceComputi : System.Web.Services.WebService {
         String jsonString = "";
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-	        // select ID from misura where IDVoce = @IDVOCE order by posizione
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "select ID from misura where idvoce = @idvoce order by posizione";
-            command.Parameters.AddWithValue("@idvoce", idvoce);
+                // select ID from misura where IDVoce = @IDVOCE order by posizione
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select ID from misura where idvoce = @idvoce order by posizione";
+                command.Parameters.AddWithValue("@idvoce", idvoce);
 
-            int IDMisura = 0;
-            List<int> list = new List<int>();
-            MySqlDataReader reader = command.ExecuteReader();
-            while (reader.Read()) {
-                //nomeCampo = reader.GetName(i);
-                // valoreCampo = reader[i];
-                IDMisura = (int)reader["ID"];
-                list.Add(IDMisura);
+                int IDMisura = 0;
+                List<int> list = new List<int>();
+                MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    //nomeCampo = reader.GetName(i);
+                    // valoreCampo = reader[i];
+                    IDMisura = (int)reader["ID"];
+                    list.Add(IDMisura);
+                }
+                reader.Close();
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    int posizioneCalcolata = i * 10;
+                    int idmisura = list[i];
+
+                    // update misura set posizione = i where IDMISURA = @idmisura
+                    MySqlCommand command2 = connection.CreateCommand();
+                    command2.CommandText = "update misura set posizione = @posizioneCalcolata where id = @idmisura";
+                    command2.Parameters.AddWithValue("@posizioneCalcolata", posizioneCalcolata);
+                    command2.Parameters.AddWithValue("@idmisura", idmisura);
+
+                    command2.ExecuteNonQuery();
+                }
+
+                connection.Close();
             }
-            reader.Close();
-
-            for (int i = 0; i < list.Count; i++) {
-                int posizioneCalcolata = i * 10;
-                int idmisura = list[i];
-
-                // update misura set posizione = i where IDMISURA = @idmisura
-                MySqlCommand command2 = connection.CreateCommand();
-                command2.CommandText = "update misura set posizione = @posizioneCalcolata where id = @idmisura";
-                command2.Parameters.AddWithValue("@posizioneCalcolata", posizioneCalcolata);
-                command2.Parameters.AddWithValue("@idmisura", idmisura);
-
-                command2.ExecuteNonQuery();
-            }
-
-            connection.Close();
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         }
@@ -1171,49 +1191,53 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-
-            MySqlDataReader reader;
-            MySqlCommand command;
-
-            // ottengo tutte le suddivisioni delle voci che stanno venendo rimappate. Per ogni suddivisione trovata salvo le voci che rinormalizzerò dopo la rimappatura.
-            command = connection.CreateCommand();
-
-            String stringaParametri = "(";
-            for (int i = 0; i < listaParametri.Length; i++) {
-                stringaParametri += "@parametro" + i + ","; // preparo la stringa
-                command.Parameters.AddWithValue("@parametro" + i, Convert.ToInt32(listaParametri[i])); // aggiungo i parametri
-            }
-            stringaParametri = stringaParametri.Substring(0, stringaParametri.Length - 1) + ")"; // tolgo l'ultima virgola e aggiungo ")"
-
-            command.CommandText = "SELECT DISTINCT(idsuddivisione) FROM voce WHERE idSuddivisione <> @idSuddivisione AND id in " + stringaParametri;
-            command.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
-
             List<int> lista_idsuddivisione_rinormalizzaPosizioneVoci = new List<int>();
-            reader = command.ExecuteReader();
-            while (reader.Read()) {
-                lista_idsuddivisione_rinormalizzaPosizioneVoci.Add((int)reader["idsuddivisione"]);
-                //rinormalizzaPosizioneVoci((int)reader["idsuddivisione"]);
+
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
+
+                MySqlDataReader reader;
+                MySqlCommand command;
+
+                // ottengo tutte le suddivisioni delle voci che stanno venendo rimappate. Per ogni suddivisione trovata salvo le voci che rinormalizzerò dopo la rimappatura.
+                command = connection.CreateCommand();
+
+                String stringaParametri = "(";
+                for (int i = 0; i < listaParametri.Length; i++)
+                {
+                    stringaParametri += "@parametro" + i + ","; // preparo la stringa
+                    command.Parameters.AddWithValue("@parametro" + i, Convert.ToInt32(listaParametri[i])); // aggiungo i parametri
+                }
+                stringaParametri = stringaParametri.Substring(0, stringaParametri.Length - 1) + ")"; // tolgo l'ultima virgola e aggiungo ")"
+
+                command.CommandText = "SELECT DISTINCT(idsuddivisione) FROM voce WHERE idSuddivisione <> @idSuddivisione AND id in " + stringaParametri;
+                command.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
+
+                reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    lista_idsuddivisione_rinormalizzaPosizioneVoci.Add((int)reader["idsuddivisione"]);
+                    //rinormalizzaPosizioneVoci((int)reader["idsuddivisione"]);
+                }
+                reader.Close();
+
+                // rimappo le voci con la nuova suddivisione
+                command = connection.CreateCommand();
+                stringaParametri = "(";
+                for (int i = 0; i < listaParametri.Length; i++)
+                {
+                    stringaParametri += "@parametro" + i + ",";
+                    command.Parameters.AddWithValue("@parametro" + i, listaParametri[i].ToString());
+                }
+                stringaParametri = stringaParametri.Substring(0, stringaParametri.Length - 1) + ")"; // tolgo l'ultima virgola e aggiungo ")"
+
+                command.CommandText = "UPDATE voce SET idsuddivisione = @idsuddivisione, posizione = posizione+99999 WHERE id in" + stringaParametri;
+                command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
+                command.ExecuteNonQuery();
+
+                connection.Close();
             }
-            reader.Close();
-
-            // rimappo le voci con la nuova suddivisione
-            command = connection.CreateCommand();
-            stringaParametri = "(";
-            for (int i = 0; i < listaParametri.Length; i++) {
-                stringaParametri += "@parametro" + i + ",";
-                command.Parameters.AddWithValue("@parametro" + i, listaParametri[i].ToString());
-            }
-            stringaParametri = stringaParametri.Substring(0, stringaParametri.Length - 1) + ")"; // tolgo l'ultima virgola e aggiungo ")"
-
-            command.CommandText = "UPDATE voce SET idsuddivisione = @idsuddivisione, posizione = posizione+99999 WHERE id in" + stringaParametri;
-            command.Parameters.AddWithValue("@idsuddivisione", idSuddivisione);
-            command.ExecuteNonQuery();
-
-            connection.Close();
 
             // aggiungo all'elenco la nuova suddivisione
             lista_idsuddivisione_rinormalizzaPosizioneVoci.Add(idSuddivisione);
@@ -1254,35 +1278,36 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            connection.Open();
+                MySqlCommand command; object objTemp;
 
-            MySqlCommand command; object objTemp;
+                // ottengo il nome dell'immagine da cancellare
+                command = connection.CreateCommand();
+                command.CommandText = "SELECT pathimmagine FROM misura WHERE id = @id";
+                command.Parameters.AddWithValue("@id", idmisura);
 
-            // ottengo il nome dell'immagine da cancellare
-            command = connection.CreateCommand();
-            command.CommandText = "SELECT pathimmagine FROM misura WHERE id = @id";
-            command.Parameters.AddWithValue("@id", idmisura);
+                objTemp = command.ExecuteScalar();
+                String nomefile = objTemp == null ? "" : objTemp.ToString();
 
-            objTemp = command.ExecuteScalar();
-            String nomefile = objTemp == null ? "" : objTemp.ToString();
+                // ottengo il percorso del file dell'immagine
+                String percorsofile = Server.MapPath("~/" + System.Configuration.ConfigurationManager.AppSettings["percorsoUploadGestionaleScansioni"].ToString());
 
-            // ottengo il percorso del file dell'immagine
-            String percorsofile = Server.MapPath("~/" + System.Configuration.ConfigurationManager.AppSettings["percorsoUploadGestionaleScansioni"].ToString());
+                // elimino il file
+                if (nomefile != "")
+                    File.Delete(percorsofile + nomefile);
 
-            // elimino il file
-            if (nomefile != "")
-                File.Delete(percorsofile + nomefile);
+                command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM misura WHERE id = @id";
+                command.Parameters.AddWithValue("@id", idmisura);
+                command.ExecuteNonQuery();
 
-            command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM misura WHERE id = @id";
-            command.Parameters.AddWithValue("@id", idmisura);
-            command.ExecuteNonQuery();
-
-            connection.Close();
+                connection.Close();
+            }
 
             jsonString = rinormalizzaPosizioneMisure(idvoce);
 
@@ -1299,28 +1324,27 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-
-            connection.Open();
-
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = query;
-
-            if (parametri != "")
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
-                for (int i = 0; i < listaParametri.Length; i++)
-                {
-                    String parametroTemp = listaParametri[i].Split('=')[0];
-                    String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
-                    command.Parameters.AddWithValue(parametroTemp, valoreTemp);
-                }
-            }
-            command.ExecuteNonQuery();
+                connection.Open();
 
-            connection.Close();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = query;
+
+                if (parametri != "")
+                {
+                    String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
+                    for (int i = 0; i < listaParametri.Length; i++)
+                    {
+                        String parametroTemp = listaParametri[i].Split('=')[0];
+                        String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
+                        command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    }
+                }
+                command.ExecuteNonQuery();
+
+                connection.Close();
+            }
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         }
@@ -1341,47 +1365,48 @@ public class WebServiceComputi : System.Web.Services.WebService {
         Int32 idvoce = 0;
         try
         {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = query;
-
-            if (parametri != "")
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
-                for (int i = 0; i < listaParametri.Length; i++)
+                connection.Open();
+
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = query;
+
+                if (parametri != "")
                 {
-                    String parametroTemp = listaParametri[i].Split('=')[0];
-                    String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
-                    command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
+                    for (int i = 0; i < listaParametri.Length; i++)
+                    {
+                        String parametroTemp = listaParametri[i].Split('=')[0];
+                        String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
+                        command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                    }
                 }
+                command.ExecuteNonQuery();
+
+                // ottieni l'IDUtente dell'ultimo elemento inserito
+                command.CommandText = "Select @@Identity";
+                object obj = command.ExecuteScalar();
+                int idmisura = Convert.ToInt32(obj);
+
+                // numero abbastanza grande che l'ordinamento su quel campo lo veda come ultimo elemento
+                command.CommandText = "UPDATE misura SET posizione = 100000 WHERE id = @id";
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("@id", idmisura);
+                command.ExecuteNonQuery();
+
+                command.CommandText = "SELECT idvoce FROM misura WHERE id = @id";
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("@id", idmisura);
+                MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                { // nomeCampo = reader.GetName(i); valoreCampo = reader[i];
+                    idvoce = (int)reader["idvoce"];
+                }
+                reader.Close();
+
+                connection.Close();
             }
-            command.ExecuteNonQuery();
-
-            // ottieni l'IDUtente dell'ultimo elemento inserito
-            command.CommandText = "Select @@Identity";
-            object obj = command.ExecuteScalar();
-            int idmisura = Convert.ToInt32(obj);
-
-            // numero abbastanza grande che l'ordinamento su quel campo lo veda come ultimo elemento
-            command.CommandText = "UPDATE misura SET posizione = 100000 WHERE id = @id";
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@id", idmisura);
-            command.ExecuteNonQuery();
-
-            command.CommandText = "SELECT idvoce FROM misura WHERE id = @id";
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@id", idmisura);
-            MySqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            { // nomeCampo = reader.GetName(i); valoreCampo = reader[i];
-                idvoce = (int)reader["idvoce"];
-            }
-            reader.Close();
-
-            connection.Close();
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         }
@@ -1403,38 +1428,39 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM suddivisione WHERE idcomputo = @idcomputo";
-            command.Parameters.AddWithValue("@idComputo", idComputo);
-
-            // reader per leggere L'utente selezionato
-            MySqlDataReader reader = command.ExecuteReader();
-            List<Dictionary<String, object>> tabella = new List<Dictionary<String, object>>();
-            Dictionary<String, object> tempRiga;
-
-            while (reader.Read())
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                String nomeCampo = "";
-                Object valoreCampo = "";
-                tempRiga = new Dictionary<String, object>();
-                for (int i = 0; i < reader.FieldCount; ++i)
+                connection.Open();
+
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM suddivisione WHERE idcomputo = @idcomputo";
+                command.Parameters.AddWithValue("@idComputo", idComputo);
+
+                // reader per leggere L'utente selezionato
+                MySqlDataReader reader = command.ExecuteReader();
+                List<Dictionary<String, object>> tabella = new List<Dictionary<String, object>>();
+                Dictionary<String, object> tempRiga;
+
+                while (reader.Read())
                 {
-                    nomeCampo = reader.GetName(i);
-                    valoreCampo = reader[i];
-                    tempRiga.Add(nomeCampo, valoreCampo);
+                    String nomeCampo = "";
+                    Object valoreCampo = "";
+                    tempRiga = new Dictionary<String, object>();
+                    for (int i = 0; i < reader.FieldCount; ++i)
+                    {
+                        nomeCampo = reader.GetName(i);
+                        valoreCampo = reader[i];
+                        tempRiga.Add(nomeCampo, valoreCampo);
+                    }
+                    tabella.Add(tempRiga);
                 }
-                tabella.Add(tempRiga);
+                reader.Close();
+
+                // aggiorna jsonString
+                jsonString = JsonConvert.SerializeObject(tabella);
+
+                connection.Close();
             }
-            reader.Close();
-
-            // aggiorna jsonString
-            jsonString = JsonConvert.SerializeObject(tabella);
-
-            connection.Close();
         }
         catch (Exception ex)
         {
@@ -1456,45 +1482,46 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM suddivisione WHERE id = @id";
-            command.Parameters.AddWithValue("@id", idSuddivisione);
-            // reader per leggere L'utente selezionato
-            MySqlDataReader reader = command.ExecuteReader();
-            if (reader.Read())
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                idpadreDiQuestaRiga = reader["idpadre"] == null ? 0 : Convert.ToInt32(reader["idpadre"]);
-            }
-            reader.Close();
+                connection.Open();
 
-            if (idpadreDiQuestaRiga != 0)
-            {
-                MySqlCommand command2 = connection.CreateCommand();
-                command2.CommandText = "SELECT * FROM suddivisione WHERE id = @id";
-                command2.Parameters.AddWithValue("@id", idpadreDiQuestaRiga);
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM suddivisione WHERE id = @id";
+                command.Parameters.AddWithValue("@id", idSuddivisione);
                 // reader per leggere L'utente selezionato
-                MySqlDataReader reader2 = command2.ExecuteReader();
-                if (reader2.Read())
+                MySqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    idpadreDiRigaPadre = reader2["idpadre"] == DBNull.Value ? 0 : Convert.ToInt32(reader2["idpadre"]);
+                    idpadreDiQuestaRiga = reader["idpadre"] == null ? 0 : Convert.ToInt32(reader["idpadre"]);
                 }
-                reader2.Close();
+                reader.Close();
 
-                MySqlCommand command3 = connection.CreateCommand();
-                command3.CommandText = "UPDATE suddivisione SET idpadre = @idpadre, posizione = @posizione WHERE id = @id";
-                if (idpadreDiRigaPadre == 0)
-                    command3.Parameters.AddWithValue("@idpadre", DBNull.Value);
-                else
-                    command3.Parameters.AddWithValue("@idpadre", idpadreDiRigaPadre);
-                command3.Parameters.AddWithValue("@posizione", 100000);
-                command3.Parameters.AddWithValue("@id", idSuddivisione);
-                command3.ExecuteNonQuery();
+                if (idpadreDiQuestaRiga != 0)
+                {
+                    MySqlCommand command2 = connection.CreateCommand();
+                    command2.CommandText = "SELECT * FROM suddivisione WHERE id = @id";
+                    command2.Parameters.AddWithValue("@id", idpadreDiQuestaRiga);
+                    // reader per leggere L'utente selezionato
+                    MySqlDataReader reader2 = command2.ExecuteReader();
+                    if (reader2.Read())
+                    {
+                        idpadreDiRigaPadre = reader2["idpadre"] == DBNull.Value ? 0 : Convert.ToInt32(reader2["idpadre"]);
+                    }
+                    reader2.Close();
+
+                    MySqlCommand command3 = connection.CreateCommand();
+                    command3.CommandText = "UPDATE suddivisione SET idpadre = @idpadre, posizione = @posizione WHERE id = @id";
+                    if (idpadreDiRigaPadre == 0)
+                        command3.Parameters.AddWithValue("@idpadre", DBNull.Value);
+                    else
+                        command3.Parameters.AddWithValue("@idpadre", idpadreDiRigaPadre);
+                    command3.Parameters.AddWithValue("@posizione", 100000);
+                    command3.Parameters.AddWithValue("@id", idSuddivisione);
+                    command3.ExecuteNonQuery();
+                }
+                connection.Close();
             }
-            connection.Close();
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         }
@@ -1523,57 +1550,58 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM suddivisione WHERE id = @id";
-            command.Parameters.AddWithValue("@id", idSuddivisione);
-            // reader per leggere L'utente selezionato
-            MySqlDataReader reader = command.ExecuteReader();
-            if (reader.Read())
-            {
-                idcomputoDiQuestaRiga = reader["idcomputo"] == null ? 0 : Convert.ToInt32(reader["idcomputo"]);
-                idpadreDiQuestaRiga = reader["idpadre"] == DBNull.Value ? 0 : Convert.ToInt32(reader["idpadre"]);
-                posizioneDiQuestaRiga = reader["posizione"] == null ? 0 : Convert.ToInt32(reader["posizione"]);
-            }
-            reader.Close();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM suddivisione WHERE id = @id";
+                command.Parameters.AddWithValue("@id", idSuddivisione);
+                // reader per leggere L'utente selezionato
+                MySqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    idcomputoDiQuestaRiga = reader["idcomputo"] == null ? 0 : Convert.ToInt32(reader["idcomputo"]);
+                    idpadreDiQuestaRiga = reader["idpadre"] == DBNull.Value ? 0 : Convert.ToInt32(reader["idpadre"]);
+                    posizioneDiQuestaRiga = reader["posizione"] == null ? 0 : Convert.ToInt32(reader["posizione"]);
+                }
+                reader.Close();
 
-            MySqlCommand command2 = connection.CreateCommand();
-            if (idpadreDiQuestaRiga == 0)
-            {
-                command2.CommandText = "SELECT * FROM suddivisione WHERE idcomputo = @idcomputo AND idpadre is null AND posizione = @posizione";
-                command2.Parameters.AddWithValue("@idcomputo", idcomputoDiQuestaRiga);
-                command2.Parameters.AddWithValue("@posizione", posizioneDiQuestaRiga - 10);
-            }
-            else
-            {
-                command2.CommandText = "SELECT * FROM suddivisione WHERE idcomputo = @idcomputo AND idpadre = @idpadre AND posizione = @posizione";
-                command2.Parameters.AddWithValue("@idcomputo", idcomputoDiQuestaRiga);
-                command2.Parameters.AddWithValue("@idpadre", idpadreDiQuestaRiga);
-                command2.Parameters.AddWithValue("@posizione", posizioneDiQuestaRiga - 10);
-            }
-            // reader per leggere L'utente selezionato
-            MySqlDataReader reader2 = command2.ExecuteReader();
-            if (reader2.Read())
-            {
-                idDiRigaPadre = reader2["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader2["id"]);
-            }
-            reader2.Close();
+                MySqlCommand command2 = connection.CreateCommand();
+                if (idpadreDiQuestaRiga == 0)
+                {
+                    command2.CommandText = "SELECT * FROM suddivisione WHERE idcomputo = @idcomputo AND idpadre is null AND posizione = @posizione";
+                    command2.Parameters.AddWithValue("@idcomputo", idcomputoDiQuestaRiga);
+                    command2.Parameters.AddWithValue("@posizione", posizioneDiQuestaRiga - 10);
+                }
+                else
+                {
+                    command2.CommandText = "SELECT * FROM suddivisione WHERE idcomputo = @idcomputo AND idpadre = @idpadre AND posizione = @posizione";
+                    command2.Parameters.AddWithValue("@idcomputo", idcomputoDiQuestaRiga);
+                    command2.Parameters.AddWithValue("@idpadre", idpadreDiQuestaRiga);
+                    command2.Parameters.AddWithValue("@posizione", posizioneDiQuestaRiga - 10);
+                }
+                // reader per leggere L'utente selezionato
+                MySqlDataReader reader2 = command2.ExecuteReader();
+                if (reader2.Read())
+                {
+                    idDiRigaPadre = reader2["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader2["id"]);
+                }
+                reader2.Close();
 
-            if (idDiRigaPadre != 0)
-            {
-                MySqlCommand command3 = connection.CreateCommand();
-                // posizione va messo alla fine
-                command3.CommandText = "UPDATE suddivisione SET idpadre = @idpadre, posizione = @posizione WHERE id = @id";
-                command3.Parameters.AddWithValue("@idpadre", idDiRigaPadre);
-                command3.Parameters.AddWithValue("@posizione", 100000);
-                command3.Parameters.AddWithValue("@id", idSuddivisione);
-                command3.ExecuteNonQuery();
-            }
+                if (idDiRigaPadre != 0)
+                {
+                    MySqlCommand command3 = connection.CreateCommand();
+                    // posizione va messo alla fine
+                    command3.CommandText = "UPDATE suddivisione SET idpadre = @idpadre, posizione = @posizione WHERE id = @id";
+                    command3.Parameters.AddWithValue("@idpadre", idDiRigaPadre);
+                    command3.Parameters.AddWithValue("@posizione", 100000);
+                    command3.Parameters.AddWithValue("@id", idSuddivisione);
+                    command3.ExecuteNonQuery();
+                }
 
-            connection.Close();
+                connection.Close();
+            }
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         }
@@ -1611,25 +1639,26 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            //update misure set posizione = posizione - 11 where IDMisura = @IDMisuraDaSpostare
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "update suddivisione set posizione = posizione + @spostamento where id = @idSuddivisione";
-            command.Parameters.AddWithValue("@spostamento", spostamento);
-            command.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
+                //update misure set posizione = posizione - 11 where IDMisura = @IDMisuraDaSpostare
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update suddivisione set posizione = posizione + @spostamento where id = @idSuddivisione";
+                command.Parameters.AddWithValue("@spostamento", spostamento);
+                command.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
 
-            command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
 
-            MySqlCommand command2 = connection.CreateCommand();
-            command2.CommandText = "select idcomputo from suddivisione where id = @idSuddivisione";
-            command2.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
+                MySqlCommand command2 = connection.CreateCommand();
+                command2.CommandText = "select idcomputo from suddivisione where id = @idSuddivisione";
+                command2.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
 
-            idcomputo = Convert.ToInt32(command2.ExecuteScalar());
+                idcomputo = Convert.ToInt32(command2.ExecuteScalar());
 
-            connection.Close();
+                connection.Close();
+            }
         }
         catch (Exception ex)
         {
@@ -1647,21 +1676,22 @@ public class WebServiceComputi : System.Web.Services.WebService {
         object idpadre = null;
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "select idcomputo, idpadre from suddivisione where id = @idsuddivisione";
-            command.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
-            MySqlDataReader reader = command.ExecuteReader();
-            while (reader.Read()) {
-                idcomputo = (int)reader["idcomputo"];
-                if(reader["idpadre"] != DBNull.Value)
-                    idpadre = Convert.ToInt32(reader["idpadre"]);
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select idcomputo, idpadre from suddivisione where id = @idsuddivisione";
+                command.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
+                MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    idcomputo = (int)reader["idcomputo"];
+                    if (reader["idpadre"] != DBNull.Value)
+                        idpadre = Convert.ToInt32(reader["idpadre"]);
+                }
+                connection.Close();
             }
-            connection.Close();
         }
         catch (Exception ex)
         {
@@ -1674,49 +1704,52 @@ public class WebServiceComputi : System.Web.Services.WebService {
         String jsonString = "";
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-
-            // select ID from misura where IDVoce = @IDVOCE order by posizione
-            MySqlCommand command = connection.CreateCommand();
-            if (idpadre == null) {
-                command.CommandText = "select ID from suddivisione where idcomputo = @idcomputo AND idpadre is null order by posizione";
-                command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            } else {
-                command.CommandText = "select ID from suddivisione where idcomputo = @idcomputo AND idpadre = @idpadre order by posizione";
-                command.Parameters.AddWithValue("@idcomputo", idcomputo);
-                command.Parameters.AddWithValue("@idpadre", idpadre);
-            }
-
-            int idSuddivisione = 0;
-            List<int> list = new List<int>();
-            MySqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                //nomeCampo = reader.GetName(i);
-                // valoreCampo = reader[i];
-                idSuddivisione = (int)reader["ID"];
-                list.Add(idSuddivisione);
+                connection.Open();
+
+                // select ID from misura where IDVoce = @IDVOCE order by posizione
+                MySqlCommand command = connection.CreateCommand();
+                if (idpadre == null)
+                {
+                    command.CommandText = "select ID from suddivisione where idcomputo = @idcomputo AND idpadre is null order by posizione";
+                    command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                }
+                else
+                {
+                    command.CommandText = "select ID from suddivisione where idcomputo = @idcomputo AND idpadre = @idpadre order by posizione";
+                    command.Parameters.AddWithValue("@idcomputo", idcomputo);
+                    command.Parameters.AddWithValue("@idpadre", idpadre);
+                }
+
+                int idSuddivisione = 0;
+                List<int> list = new List<int>();
+                MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    //nomeCampo = reader.GetName(i);
+                    // valoreCampo = reader[i];
+                    idSuddivisione = (int)reader["ID"];
+                    list.Add(idSuddivisione);
+                }
+                reader.Close();
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    int posizioneCalcolata = i * 10;
+                    idSuddivisione = list[i];
+
+                    // update misura set posizione = i where IDMISURA = @idmisura
+                    MySqlCommand command2 = connection.CreateCommand();
+                    command2.CommandText = "update suddivisione set posizione = @posizioneCalcolata where id = @idSuddivisione";
+                    command2.Parameters.AddWithValue("@posizioneCalcolata", posizioneCalcolata);
+                    command2.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
+
+                    command2.ExecuteNonQuery();
+                }
+
+                connection.Close();
             }
-            reader.Close();
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                int posizioneCalcolata = i * 10;
-                idSuddivisione = list[i];
-
-                // update misura set posizione = i where IDMISURA = @idmisura
-                MySqlCommand command2 = connection.CreateCommand();
-                command2.CommandText = "update suddivisione set posizione = @posizioneCalcolata where id = @idSuddivisione";
-                command2.Parameters.AddWithValue("@posizioneCalcolata", posizioneCalcolata);
-                command2.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
-
-                command2.ExecuteNonQuery();
-            }
-
-            connection.Close();
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         }
@@ -1735,41 +1768,41 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-
-            // select ID from misura where IDVoce = @IDVOCE order by posizione
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM voce WHERE idsuddivisione = @idsuddivisione";
-            command.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
-
-            // reader per leggere L'utente selezionato
-            MySqlDataReader reader = command.ExecuteReader();
-            List<Dictionary<String, object>> tabella = new List<Dictionary<String, object>>();
-            Dictionary<String, object> tempRiga;
-
-            while (reader.Read())
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                String nomeCampo = "";
-                Object valoreCampo = "";
-                tempRiga = new Dictionary<String, object>();
-                for (int i = 0; i < reader.FieldCount; ++i)
+                connection.Open();
+
+                // select ID from misura where IDVoce = @IDVOCE order by posizione
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM voce WHERE idsuddivisione = @idsuddivisione";
+                command.Parameters.AddWithValue("@idSuddivisione", idSuddivisione);
+
+                // reader per leggere L'utente selezionato
+                MySqlDataReader reader = command.ExecuteReader();
+                List<Dictionary<String, object>> tabella = new List<Dictionary<String, object>>();
+                Dictionary<String, object> tempRiga;
+
+                while (reader.Read())
                 {
-                    // se ho "cliente.id" mi prende solo "id", come lo risolvo?
-                    nomeCampo = reader.GetName(i);
-                    valoreCampo = reader[i];
-                    tempRiga.Add(nomeCampo, valoreCampo);
+                    String nomeCampo = "";
+                    Object valoreCampo = "";
+                    tempRiga = new Dictionary<String, object>();
+                    for (int i = 0; i < reader.FieldCount; ++i)
+                    {
+                        // se ho "cliente.id" mi prende solo "id", come lo risolvo?
+                        nomeCampo = reader.GetName(i);
+                        valoreCampo = reader[i];
+                        tempRiga.Add(nomeCampo, valoreCampo);
+                    }
+                    tabella.Add(tempRiga);
                 }
-                tabella.Add(tempRiga);
+                reader.Close();
+
+                // aggiorna jsonString
+                jsonString = JsonConvert.SerializeObject(tabella);
+
+                connection.Close();
             }
-            reader.Close();
-
-            // aggiorna jsonString
-            jsonString = JsonConvert.SerializeObject(tabella);
-
-            connection.Close();
         }
         catch (Exception ex)
         {
@@ -1803,33 +1836,36 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-            MySqlDataReader reader;
-
-            // aggiorna la voce alla nuova posizione
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "UPDATE voce SET posizione = posizione + @spostamento WHERE id = @IDVoceDaSpostare";
-            command.Parameters.AddWithValue("@spostamento", spostamento);
-            command.Parameters.AddWithValue("@IDVoceDaSpostare", IDVoceDaSpostare);
-            command.ExecuteNonQuery();
-
-            command = connection.CreateCommand();
-            command.CommandText = "SELECT idcomputo, idsuddivisione FROM voce WHERE id = @IDVoceDaSpostare";
-            command.Parameters.AddWithValue("@IDVoceDaSpostare", IDVoceDaSpostare);
-
-            //int idcomputo = 0;
+        try
+        {
             int idsuddivisione = 0;
-            reader = command.ExecuteReader();
-            while (reader.Read()) {
-                //idcomputo = (int)reader["idcomputo"];
-                idsuddivisione = (int)reader["idsuddivisione"];
-            }
-            reader.Close();
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
+                MySqlDataReader reader;
 
-            connection.Close();
+                // aggiorna la voce alla nuova posizione
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "UPDATE voce SET posizione = posizione + @spostamento WHERE id = @IDVoceDaSpostare";
+                command.Parameters.AddWithValue("@spostamento", spostamento);
+                command.Parameters.AddWithValue("@IDVoceDaSpostare", IDVoceDaSpostare);
+                command.ExecuteNonQuery();
+
+                command = connection.CreateCommand();
+                command.CommandText = "SELECT idcomputo, idsuddivisione FROM voce WHERE id = @IDVoceDaSpostare";
+                command.Parameters.AddWithValue("@IDVoceDaSpostare", IDVoceDaSpostare);
+
+                //int idcomputo = 0;
+                reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    //idcomputo = (int)reader["idcomputo"];
+                    idsuddivisione = (int)reader["idsuddivisione"];
+                }
+                reader.Close();
+
+                connection.Close();
+            }
 
             // rinormalizza tutte le voci con un certo idcomputo e idsuddivisione
             jsonString = rinormalizzaPosizioneVoci(idsuddivisione);
@@ -1843,42 +1879,45 @@ public class WebServiceComputi : System.Web.Services.WebService {
     public string rinormalizzaPosizioneVoci(int idsuddivisione)
     {
         String jsonString = "";
-        try {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            // select ID from misura where IDVoce = @IDVOCE order by posizione
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT id FROM voce WHERE idsuddivisione = @idsuddivisione ORDER BY posizione";
-            command.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
+                // select ID from misura where IDVoce = @IDVOCE order by posizione
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT id FROM voce WHERE idsuddivisione = @idsuddivisione ORDER BY posizione";
+                command.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
 
-            // salvo in un array temporaneo tutte le voci con idcomputo e idsuddivisione passati come parametro
-            int idVoce = 0;
-            List<int> list = new List<int>();
-            MySqlDataReader reader = command.ExecuteReader();
-            while (reader.Read()) {
-                idVoce = (int)reader["ID"];
-                list.Add(idVoce);
+                // salvo in un array temporaneo tutte le voci con idcomputo e idsuddivisione passati come parametro
+                int idVoce = 0;
+                List<int> list = new List<int>();
+                MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    idVoce = (int)reader["ID"];
+                    list.Add(idVoce);
+                }
+                reader.Close();
+
+                // ricalcolo la posizione per ogni elemento
+                for (int i = 0; i < list.Count; i++)
+                {
+                    int posizioneCalcolata = i * 10;
+                    idVoce = list[i];
+
+                    // update misura set posizione = i where IDMISURA = @idmisura
+                    MySqlCommand command2 = connection.CreateCommand();
+                    command2.CommandText = "UPDATE voce SET posizione = @posizioneCalcolata WHERE id = @idVoce";
+                    command2.Parameters.AddWithValue("@posizioneCalcolata", posizioneCalcolata);
+                    command2.Parameters.AddWithValue("@idVoce", idVoce);
+
+                    command2.ExecuteNonQuery();
+                }
+
+                connection.Close();
             }
-            reader.Close();
-
-            // ricalcolo la posizione per ogni elemento
-            for (int i = 0; i < list.Count; i++) {
-                int posizioneCalcolata = i * 10;
-                idVoce = list[i];
-
-                // update misura set posizione = i where IDMISURA = @idmisura
-                MySqlCommand command2 = connection.CreateCommand();
-                command2.CommandText = "UPDATE voce SET posizione = @posizioneCalcolata WHERE id = @idVoce";
-                command2.Parameters.AddWithValue("@posizioneCalcolata", posizioneCalcolata);
-                command2.Parameters.AddWithValue("@idVoce", idVoce);
-
-                command2.ExecuteNonQuery();
-            }
-
-            connection.Close();
 
             jsonString = JsonConvert.SerializeObject("tutto ok");
         } catch (Exception ex) {
@@ -1923,33 +1962,34 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            MySqlCommand command;
+                MySqlCommand command;
 
-            for (int i = 0; i < suddivisioni.Length; i++) {
-                Int32 idsuddivisione = Convert.ToInt32(suddivisioni[i]);
+                for (int i = 0; i < suddivisioni.Length; i++)
+                {
+                    Int32 idsuddivisione = Convert.ToInt32(suddivisioni[i]);
+
+                    command = connection.CreateCommand();
+                    command.CommandText = "INSERT INTO suddivisionepdf (idcomputopdf, idsuddivisione) VALUES (@idcomputopdf, @idsuddivisione)";
+                    command.Parameters.AddWithValue("@idcomputopdf", idStampa);
+                    command.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
+
+                    command.ExecuteNonQuery();
+                }
 
                 command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO suddivisionepdf (idcomputopdf, idsuddivisione) VALUES (@idcomputopdf, @idsuddivisione)";
-                command.Parameters.AddWithValue("@idcomputopdf", idStampa);
-                command.Parameters.AddWithValue("@idsuddivisione", idsuddivisione);
-
+                command.CommandText = "UPDATE computo SET condizioniultimapagina = @condizioniultimapagina WHERE id = @idcomputo";
+                command.Parameters.AddWithValue("@condizioniultimapagina", condizioniultimapagina);
+                command.Parameters.AddWithValue("@idcomputo", idcomputo);
                 command.ExecuteNonQuery();
+
+                connection.Close();
             }
-
-            command = connection.CreateCommand();
-            command.CommandText = "UPDATE computo SET condizioniultimapagina = @condizioniultimapagina WHERE id = @idcomputo";
-            command.Parameters.AddWithValue("@condizioniultimapagina", condizioniultimapagina);
-            command.Parameters.AddWithValue("@idcomputo", idcomputo);
-            command.ExecuteNonQuery();
-
-            connection.Close();
-
         } catch (Exception ex) {
             jsonString = "[{\"errore\":" + JsonConvert.SerializeObject(ex.Message + "\n" + ex.StackTrace) + "}]";
         }
@@ -1961,39 +2001,40 @@ public class WebServiceComputi : System.Web.Services.WebService {
     [WebMethod]
     public void duplicaDatiPDFSuddivisioniEComputo(int idcomputopdf)
     {
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        connection.Open();
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        MySqlCommand command;
+            MySqlCommand command;
 
-        command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO computopdf (idcomputo, datacreazione, dataora, stampaprezzi, stampacopertina, stampasuddivisioni,
-                    stampamisure, stampatotalenellesuddivisioni, stampatotalefinale, titolocomputo, stampalogo, 
-                    stampanumeropagina, iva)
-            SELECT idcomputo, datacreazione, Now(), stampaprezzi, stampacopertina, stampasuddivisioni,
-                    stampamisure, stampatotalenellesuddivisioni, stampatotalefinale, titolocomputo, stampalogo, 
-                    stampanumeropagina, iva
-            FROM computopdf
-            WHERE id = @idcomputopdf";
-        command.Parameters.AddWithValue("@idcomputopdf", idcomputopdf);
-        command.ExecuteNonQuery();
+            command = connection.CreateCommand();
+            command.CommandText = @"
+                INSERT INTO computopdf (idcomputo, datacreazione, dataora, stampaprezzi, stampacopertina, stampasuddivisioni,
+                        stampamisure, stampatotalenellesuddivisioni, stampatotalefinale, titolocomputo, stampalogo, 
+                        stampanumeropagina, iva, indicaSoloTotale)
+                SELECT idcomputo, datacreazione, Now(), stampaprezzi, stampacopertina, stampasuddivisioni,
+                        stampamisure, stampatotalenellesuddivisioni, stampatotalefinale, titolocomputo, stampalogo, 
+                        stampanumeropagina, iva, indicaSoloTotale
+                FROM computopdf
+                WHERE id = @idcomputopdf";
+            command.Parameters.AddWithValue("@idcomputopdf", idcomputopdf);
+            command.ExecuteNonQuery();
 
-        long idcomputopdfnuovo = (long)command.LastInsertedId;
+            long idcomputopdfnuovo = (long)command.LastInsertedId;
 
 
-        command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO suddivisionepdf (idcomputopdf, idsuddivisione) 
-            SELECT @idcomputopdfnuovo, idsuddivisione
-            FROM suddivisionepdf
-            WHERE idcomputopdf = @idcomputopdf";
-        command.Parameters.AddWithValue("@idcomputopdf", idcomputopdf);
-        command.Parameters.AddWithValue("@idcomputopdfnuovo", idcomputopdfnuovo);
+            command = connection.CreateCommand();
+            command.CommandText = @"
+                INSERT INTO suddivisionepdf (idcomputopdf, idsuddivisione) 
+                SELECT @idcomputopdfnuovo, idsuddivisione
+                FROM suddivisionepdf
+                WHERE idcomputopdf = @idcomputopdf";
+            command.Parameters.AddWithValue("@idcomputopdf", idcomputopdf);
+            command.Parameters.AddWithValue("@idcomputopdfnuovo", idcomputopdfnuovo);
 
-        command.ExecuteNonQuery();
-        connection.Close();
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
     }
 
 
@@ -2011,46 +2052,47 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            MySqlCommand commandCount;
-            MySqlDataReader reader;
+                MySqlCommand commandCount;
+                MySqlDataReader reader;
 
-            // conto gli elementi con questa unita' di misura nella tabella misura
-            commandCount = connection.CreateCommand();
-            commandCount.CommandText = "SELECT COUNT(id) as 'risultato' FROM misura WHERE idunitamisura = @id";
-            commandCount.Parameters.AddWithValue("@id", id);
+                // conto gli elementi con questa unita' di misura nella tabella misura
+                commandCount = connection.CreateCommand();
+                commandCount.CommandText = "SELECT COUNT(id) as 'risultato' FROM misura WHERE idunitamisura = @id";
+                commandCount.Parameters.AddWithValue("@id", id);
 
-            reader = commandCount.ExecuteReader();
-            if (reader.Read())
-                elTrovati += Convert.ToInt32(reader["risultato"]);
-            reader.Close();
+                reader = commandCount.ExecuteReader();
+                if (reader.Read())
+                    elTrovati += Convert.ToInt32(reader["risultato"]);
+                reader.Close();
 
-            // conto gli elementi con questa unita' di misura nella tabella prodotto
-            commandCount = connection.CreateCommand();
-            commandCount.CommandText = "SELECT COUNT(id) as 'risultato' FROM prodotto WHERE idunitadimisura = @id";
-            commandCount.Parameters.AddWithValue("@id", id);
+                // conto gli elementi con questa unita' di misura nella tabella prodotto
+                commandCount = connection.CreateCommand();
+                commandCount.CommandText = "SELECT COUNT(id) as 'risultato' FROM prodotto WHERE idunitadimisura = @id";
+                commandCount.Parameters.AddWithValue("@id", id);
 
-            reader = commandCount.ExecuteReader();
-            if (reader.Read())
-                elTrovati += Convert.ToInt32(reader["risultato"]);
-            reader.Close();
+                reader = commandCount.ExecuteReader();
+                if (reader.Read())
+                    elTrovati += Convert.ToInt32(reader["risultato"]);
+                reader.Close();
 
-            // se non ho trovato righe con questa unita di misura posso cancellare questa riga
-            if (elTrovati == 0) {
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "DELETE FROM unitadimisura WHERE id = @id";
-                command.Parameters.AddWithValue("@id", id);
-                command.ExecuteNonQuery();
+                // se non ho trovato righe con questa unita di misura posso cancellare questa riga
+                if (elTrovati == 0)
+                {
+                    MySqlCommand command = connection.CreateCommand();
+                    command.CommandText = "DELETE FROM unitadimisura WHERE id = @id";
+                    command.Parameters.AddWithValue("@id", id);
+                    command.ExecuteNonQuery();
 
-                jsonString = "[{\"risultato\":" + 0 + "}]";
+                    jsonString = "[{\"risultato\":" + 0 + "}]";
+                }
+                jsonString = "[{\"risultato\":" + elTrovati.ToString() + "}]";
+
+                connection.Close();
             }
-            jsonString = "[{\"risultato\":" + elTrovati.ToString() + "}]";
-
-            connection.Close();
         }
         catch (Exception ex)
         {
@@ -2070,50 +2112,50 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-
-            MySqlDataReader reader;
-            MySqlCommand command;
-            command = connection.CreateCommand();
-            command.CommandText = "SELECT id FROM cantiere WHERE codice = @codice";
-            command.Parameters.AddWithValue("@codice", codice);
-
-            //bool trovato = command.ExecuteScalar() != DBNull.Value;
-            bool trovato = false;
-            reader = command.ExecuteReader();
-            if (reader.Read())
-                trovato = true;
-            reader.Close();
-
-            // ho trovato un codice già presente, ritorno il codice errore
-            if (trovato)
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                jsonString = "[{\"risultato\":\"Codice esistente\"}]";
-            }
-            else
-            {
-                // non ho trovato il codice, posso eseguire il regolare inserimento
+                connection.Open();
+
+                MySqlDataReader reader;
+                MySqlCommand command;
                 command = connection.CreateCommand();
-                command.CommandText = query;
+                command.CommandText = "SELECT id FROM cantiere WHERE codice = @codice";
+                command.Parameters.AddWithValue("@codice", codice);
 
-                if (parametri != "")
+                //bool trovato = command.ExecuteScalar() != DBNull.Value;
+                bool trovato = false;
+                reader = command.ExecuteReader();
+                if (reader.Read())
+                    trovato = true;
+                reader.Close();
+
+                // ho trovato un codice già presente, ritorno il codice errore
+                if (trovato)
                 {
-                    String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
-                    for (int i = 0; i < listaParametri.Length; i++)
-                    {
-                        String parametroTemp = listaParametri[i].Split('=')[0];
-                        String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
-                        command.Parameters.AddWithValue(parametroTemp, valoreTemp);
-                    }
+                    jsonString = "[{\"risultato\":\"Codice esistente\"}]";
                 }
-                command.ExecuteNonQuery();
-                jsonString = "[{\"risultato\":\"Inserimento effettuato\"}]";
-            }
+                else
+                {
+                    // non ho trovato il codice, posso eseguire il regolare inserimento
+                    command = connection.CreateCommand();
+                    command.CommandText = query;
 
-            connection.Close();
+                    if (parametri != "")
+                    {
+                        String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
+                        for (int i = 0; i < listaParametri.Length; i++)
+                        {
+                            String parametroTemp = listaParametri[i].Split('=')[0];
+                            String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
+                            command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                        }
+                    }
+                    command.ExecuteNonQuery();
+                    jsonString = "[{\"risultato\":\"Inserimento effettuato\"}]";
+                }
+
+                connection.Close();
+            }
         }
         catch (Exception ex)
         {
@@ -2134,51 +2176,50 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
         try
         {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
-
-            MySqlDataReader reader;
-            MySqlCommand command;
-            command = connection.CreateCommand();
-            command.CommandText = "SELECT id FROM cantiere WHERE codice = @codice AND id <> @id";
-            command.Parameters.AddWithValue("@codice", codice);
-            command.Parameters.AddWithValue("@id", idCantiere);
-
-            //bool trovato = command.ExecuteScalar() != DBNull.Value;
-            bool trovato = false;
-            reader = command.ExecuteReader();
-            if (reader.Read())
-                trovato = true;
-            reader.Close();
-
-            // ho trovato un codice già presente, ritorno il codice errore
-            if (trovato)
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
             {
-                jsonString = "[{\"risultato\":\"Codice esistente\"}]";
-            }
-            else
-            {
-                // non ho trovato il codice, posso eseguire il regolare inserimento
+                connection.Open();
+
+                MySqlDataReader reader;
+                MySqlCommand command;
                 command = connection.CreateCommand();
-                command.CommandText = query;
+                command.CommandText = "SELECT id FROM cantiere WHERE codice = @codice AND id <> @id";
+                command.Parameters.AddWithValue("@codice", codice);
+                command.Parameters.AddWithValue("@id", idCantiere);
 
-                if (parametri != "")
+                //bool trovato = command.ExecuteScalar() != DBNull.Value;
+                bool trovato = false;
+                reader = command.ExecuteReader();
+                if (reader.Read()) trovato = true;
+                reader.Close();
+
+                // ho trovato un codice già presente, ritorno il codice errore
+                if (trovato)
                 {
-                    String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
-                    for (int i = 0; i < listaParametri.Length; i++)
-                    {
-                        String parametroTemp = listaParametri[i].Split('=')[0];
-                        String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
-                        command.Parameters.AddWithValue(parametroTemp, valoreTemp);
-                    }
+                    jsonString = "[{\"risultato\":\"Codice esistente\"}]";
                 }
-                command.ExecuteNonQuery();
-                jsonString = "[{\"risultato\":\"Modifica effettuata\"}]";
-            }
+                else
+                {
+                    // non ho trovato il codice, posso eseguire il regolare inserimento
+                    command = connection.CreateCommand();
+                    command.CommandText = query;
 
-            connection.Close();
+                    if (parametri != "")
+                    {
+                        String[] listaParametri = parametri.Split(new string[] { "&&&" }, StringSplitOptions.None);
+                        for (int i = 0; i < listaParametri.Length; i++)
+                        {
+                            String parametroTemp = listaParametri[i].Split('=')[0];
+                            String valoreTemp = listaParametri[i].Replace(parametroTemp + "=", "");
+                            command.Parameters.AddWithValue(parametroTemp, valoreTemp);
+                        }
+                    }
+                    command.ExecuteNonQuery();
+                    jsonString = "[{\"risultato\":\"Modifica effettuata\"}]";
+                }
+
+                connection.Close();
+            }
         }
         catch (Exception ex)
         {
@@ -2213,31 +2254,33 @@ public class WebServiceComputi : System.Web.Services.WebService {
         }
 
         // verifico se tutte le righe sono state chiuse. Se vero, la bolla viene automaticamente chiusa
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        connection.Open();
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        MySqlCommand command; object objTemp;
+            MySqlCommand command; object objTemp;
 
-        command = connection.CreateCommand();
-        // conto le righe aperte
-        command.CommandText = "SELECT COUNT(*) "
-                            + "FROM costo LEFT JOIN costo as costoinfattura ON costoinfattura.idcostobollariferita = costo.id "
-                            + "WHERE costo.idbollafattura = @idbollafattura AND costo.idbollafattura <> 0 AND costoinfattura.id is null";
-        command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
-
-        objTemp = command.ExecuteScalar();
-        Int32 righeAperte = objTemp == null ? 0 : Convert.ToInt32(objTemp);
-
-        // chiudi la bolla
-        if (righeAperte == 0) {
             command = connection.CreateCommand();
-            command.CommandText = "UPDATE bollafattura SET chiusa = 1 WHERE id = @idbollafattura";
+            // conto le righe aperte
+            command.CommandText = "SELECT COUNT(*) "
+                                + "FROM costo LEFT JOIN costo as costoinfattura ON costoinfattura.idcostobollariferita = costo.id "
+                                + "WHERE costo.idbollafattura = @idbollafattura AND costo.idbollafattura <> 0 AND costoinfattura.id is null";
             command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
-            command.ExecuteNonQuery();
-        }
 
-        connection.Close();
+            objTemp = command.ExecuteScalar();
+            Int32 righeAperte = objTemp == null ? 0 : Convert.ToInt32(objTemp);
+
+            // chiudi la bolla
+            if (righeAperte == 0)
+            {
+                command = connection.CreateCommand();
+                command.CommandText = "UPDATE bollafattura SET chiusa = 1 WHERE id = @idbollafattura";
+                command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
+                command.ExecuteNonQuery();
+            }
+
+            connection.Close();
+        }
 
         return "[{\"risultato\":\"Modifica effettuata\"}]";
     }
@@ -2247,16 +2290,17 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
 
         // verifico se tutte le righe sono state chiuse. Se vero, la bolla viene automaticamente chiusa
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        connection.Open();
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        MySqlCommand command = connection.CreateCommand();
-        command.CommandText = "UPDATE bollafattura SET chiusa = 0 WHERE id = @idbollafattura";
-        command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
-        command.ExecuteNonQuery();
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "UPDATE bollafattura SET chiusa = 0 WHERE id = @idbollafattura";
+            command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
+            command.ExecuteNonQuery();
 
-        connection.Close();
+            connection.Close();
+        }
 
         return "[{\"risultato\":\"Modifica effettuata\"}]";
     }
@@ -2266,49 +2310,52 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            MySqlDataReader reader;
-            MySqlCommand command;
-
-            command = connection.CreateCommand();
-            command.CommandText = "SELECT id FROM cantiere WHERE stato = 'Aperto'";
-
-            List<int> listaIdCantiere = new List<int>();
-            reader = command.ExecuteReader();
-            while (reader.Read()) {
-                listaIdCantiere.Add((int)reader["id"]);
-            }
-            reader.Close();
-
-            // calcolo il singolo importo
-            double singoloimporto = importo/listaIdCantiere.Count;
-
-            for (int i = 0; i < listaIdCantiere.Count; i++) {
-                int idcantiere = listaIdCantiere[i];
-                DateTime datacosto = DateTime.Now;
+                MySqlDataReader reader;
+                MySqlCommand command;
 
                 command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO costo (idbollafattura, idprodotto, idcantiere, idcostobollariferita, quantita, prezzo, sconto1, sconto2, datacosto, descrizione)"
-                                    + "VALUES (@idbollafattura, @idprodotto, @idcantiere, 0, 1, @prezzo, 0, 0, @datacosto, @descrizione)";
+                command.CommandText = "SELECT id FROM cantiere WHERE stato = 'Aperto'";
 
-                command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
-                command.Parameters.AddWithValue("@idprodotto", idprodotto);
-                command.Parameters.AddWithValue("@idcantiere", idcantiere);
-                command.Parameters.AddWithValue("@prezzo", singoloimporto);
-                command.Parameters.AddWithValue("@datacosto", datacosto);
-                command.Parameters.AddWithValue("@descrizione", descrizione);
+                List<int> listaIdCantiere = new List<int>();
+                reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    listaIdCantiere.Add((int)reader["id"]);
+                }
+                reader.Close();
 
-                command.ExecuteNonQuery();
+                // calcolo il singolo importo
+                double singoloimporto = importo / listaIdCantiere.Count;
+
+                for (int i = 0; i < listaIdCantiere.Count; i++)
+                {
+                    int idcantiere = listaIdCantiere[i];
+                    DateTime datacosto = DateTime.Now;
+
+                    command = connection.CreateCommand();
+                    command.CommandText = "INSERT INTO costo (idbollafattura, idprodotto, idcantiere, idcostobollariferita, quantita, prezzo, sconto1, sconto2, datacosto, descrizione)"
+                                        + "VALUES (@idbollafattura, @idprodotto, @idcantiere, 0, 1, @prezzo, 0, 0, @datacosto, @descrizione)";
+
+                    command.Parameters.AddWithValue("@idbollafattura", idbollafattura);
+                    command.Parameters.AddWithValue("@idprodotto", idprodotto);
+                    command.Parameters.AddWithValue("@idcantiere", idcantiere);
+                    command.Parameters.AddWithValue("@prezzo", singoloimporto);
+                    command.Parameters.AddWithValue("@datacosto", datacosto);
+                    command.Parameters.AddWithValue("@descrizione", descrizione);
+
+                    command.ExecuteNonQuery();
+                }
+
+                jsonString = "[{\"risultato\":\"Modifica effettuata\"}]";
+
+                connection.Close();
             }
-
-            jsonString = "[{\"risultato\":\"Modifica effettuata\"}]";
-
-            connection.Close();
         } catch (Exception ex) {
             jsonString = "[{\"errore\":" + JsonConvert.SerializeObject(ex.Message + "\n" + ex.StackTrace) + "}]";
         }
@@ -2323,37 +2370,40 @@ public class WebServiceComputi : System.Web.Services.WebService {
     {
         String jsonString = "";
 
-        try {
-            //STRINGA DI CONNESSIONE
-            MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-            connection.ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-            connection.Open();
+        try
+        {
+            List<int> listaIdDocumentiDoppi = new List<int>();
 
-            MySqlCommand command;
-            MySqlDataReader reader;
+            using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+            {
+                connection.Open();
 
-            command = connection.CreateCommand();
-            command.CommandText = @"SELECT id 
+                MySqlCommand command;
+                MySqlDataReader reader;
+
+                command = connection.CreateCommand();
+                command.CommandText = @"SELECT id 
                                     FROM bollafattura 
                                     WHERE idfornitore = @idfornitore AND 
                                           DAY(databollafattura) = @giorno AND
                                           MONTH(databollafattura) = @mese AND 
                                           YEAR(databollafattura) = @anno AND 
                                           numero = @numero";
-            command.Parameters.AddWithValue("@idfornitore", idfornitore);
-            command.Parameters.AddWithValue("@giorno", giorno);
-            command.Parameters.AddWithValue("@mese", mese);
-            command.Parameters.AddWithValue("@anno", anno);
-            command.Parameters.AddWithValue("@numero", numero);
+                command.Parameters.AddWithValue("@idfornitore", idfornitore);
+                command.Parameters.AddWithValue("@giorno", giorno);
+                command.Parameters.AddWithValue("@mese", mese);
+                command.Parameters.AddWithValue("@anno", anno);
+                command.Parameters.AddWithValue("@numero", numero);
 
-            List<int> listaIdDocumentiDoppi = new List<int>();
-            reader = command.ExecuteReader();
-            while (reader.Read()) {
-                listaIdDocumentiDoppi.Add((int)reader["id"]); // lista, nell'eventualità che mi serva la lista di id
+                reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    listaIdDocumentiDoppi.Add((int)reader["id"]); // lista, nell'eventualità che mi serva la lista di id
+                }
+                reader.Close();
+
+                connection.Close();
             }
-            reader.Close();
-
-            connection.Close();
 
             jsonString = "[{\"risultato\":\"" + (listaIdDocumentiDoppi.Count > 0 ? "1" : "0") + "\"}]";
 
@@ -2448,7 +2498,6 @@ public class WebServiceComputi : System.Web.Services.WebService {
     [WebMethod]
     public void clonaComputo(int idcomputosorg) {
 
-        //string conn = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString;
         string p = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "Password");
         string stringaconnsorg = AppCode.GetDB.getDDBB(p);
         string stringaconndest = AppCode.GetDB.getDDBBasincrono(p);
@@ -2503,7 +2552,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
                 Dictionary<long, long> idcomputopdfsorgtodest = new Dictionary<long, long>();
                 long idcomputopdfsorg, idcomputopdfdest;
                 query = @"
-                    SELECT id, idcomputo, datacreazione, dataora, stampaprezzi, stampacopertina, stampasuddivisioni, stampamisure, stampatotalenellesuddivisioni,stampatotalefinale, titolocomputo, stampalogo, stampanumeropagina, iva
+                    SELECT id, idcomputo, datacreazione, dataora, stampaprezzi, stampacopertina, stampasuddivisioni, stampamisure, stampatotalenellesuddivisioni,stampatotalefinale, titolocomputo, stampalogo, stampanumeropagina, iva, indicaSoloTotale
                     FROM computopdf
                     WHERE idcomputo = @idcomputosorg";
                 parametriquery = new Dictionary<string, object>() {
@@ -2516,8 +2565,8 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
                     // Inserisco il record del computopdf destinazione
                     query = @"
-                        INSERT INTO computopdf (idcomputo, datacreazione, dataora, stampaprezzi, stampacopertina, stampasuddivisioni, stampamisure, stampatotalenellesuddivisioni, stampatotalefinale, titolocomputo, stampalogo, stampanumeropagina, iva)
-                        VALUES (@idcomputo, @datacreazione, @dataora, @stampaprezzi, @stampacopertina, @stampasuddivisioni, @stampamisure, @stampatotalenellesuddivisioni, @stampatotalefinale, @titolocomputo, @stampalogo, @stampanumeropagina, @iva)";
+                        INSERT INTO computopdf (idcomputo, datacreazione, dataora, stampaprezzi, stampacopertina, stampasuddivisioni, stampamisure, stampatotalenellesuddivisioni, stampatotalefinale, titolocomputo, stampalogo, stampanumeropagina, iva, indicaSoloTotale)
+                        VALUES (@idcomputo, @datacreazione, @dataora, @stampaprezzi, @stampacopertina, @stampasuddivisioni, @stampamisure, @stampatotalenellesuddivisioni, @stampatotalefinale, @titolocomputo, @stampalogo, @stampanumeropagina, @iva, @indicaSoloTotale)";
                     parametriquery = clonaDictionary(recordcomputopdfsorg);
                     parametriquery["idcomputo"] = idcomputodest; // sovrascrivo l'id con quello di destinazione
                     idcomputopdfdest = inserisciRecord(connDest, query, parametriquery);
@@ -2551,8 +2600,8 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
                 //    // Inserisco il record del suddivisionepdf destinazione
                 //    query = @"
-                //        INSERT INTO suddivisionepdf (idcomputo, datacreazione, dataora, stampaprezzi, stampacopertina, stampasuddivisioni, stampamisure, stampatotalenellesuddivisioni, stampatotalefinale, titolocomputo, stampalogo, stampanumeropagina, iva)
-                //        VALUES (@idcomputo, @datacreazione, @dataora, @stampaprezzi, @stampacopertina, @stampasuddivisioni, @stampamisure, @stampatotalenellesuddivisioni, @stampatotalefinale, @titolocomputo, @stampalogo, @stampanumeropagina, @iva)";
+                //        INSERT INTO suddivisionepdf (idcomputo, datacreazione, dataora, stampaprezzi, stampacopertina, stampasuddivisioni, stampamisure, stampatotalenellesuddivisioni, stampatotalefinale, titolocomputo, stampalogo, stampanumeropagina, iva, indicaSoloTotale)
+                //        VALUES (@idcomputo, @datacreazione, @dataora, @stampaprezzi, @stampacopertina, @stampasuddivisioni, @stampamisure, @stampatotalenellesuddivisioni, @stampatotalefinale, @titolocomputo, @stampalogo, @stampanumeropagina, @iva, @indicaSoloTotale)";
                 //    parametriquery = clonaDictionary(recordsuddivisionepdfsorg);
                 //    parametriquery["idcomputo"] = idcomputodest; // sovrascrivo l'id con quello di destinazione
                 //    parametriquery["idcomputo"] = idcomputodest; // sovrascrivo l'id con quello di destinazione
@@ -2765,9 +2814,8 @@ public class WebServiceComputi : System.Web.Services.WebService {
         string stato
         )
     {
-        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
-        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+
+        using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
             conn.Open();
 
@@ -2806,9 +2854,8 @@ public class WebServiceComputi : System.Web.Services.WebService {
         int idcomputo
         )
     {
-        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
-        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+
+        using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
             conn.Open();
 
@@ -2846,9 +2893,8 @@ public class WebServiceComputi : System.Web.Services.WebService {
     }
     [WebMethod] public void elencoComputi_popupTabellaComputiElimina_elimina(int idcomputo)
     {
-        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
-        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+
+        using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
             conn.Open();
 
@@ -2863,9 +2909,8 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
     [WebMethod] public void C0001popupInserimentoVoceTemplate_salva(string codice, string nome)
     {
-        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
-        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+
+        using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
             conn.Open();
 
@@ -2880,9 +2925,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
     }
     [WebMethod] public void C0001popupModificaVoceTemplate_salva(int idvocetemplate, string codice, string nome)
     {
-        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
-        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+        using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
             conn.Open();
 
@@ -2903,9 +2946,7 @@ public class WebServiceComputi : System.Web.Services.WebService {
     }
     [WebMethod] public void C0001popupEliminaVoceTemplate_conferma(int idvocetemplate)
     {
-        // MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);
-        string ConnectionString = Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString");
-        using (MySqlConnection conn = new MySqlConnection(ConnectionString))
+        using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
             conn.Open();
 

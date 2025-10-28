@@ -80,6 +80,7 @@
                     var cb_stampatotalenellesuddivisioni = iwebValutaParametroAjax("tabellaStampe_findfirstvalue_stampatotalenellesuddivisioni");
                     var cb_stampatotalefinale = iwebValutaParametroAjax("tabellaStampe_findfirstvalue_stampatotalefinale");
                     var cb_stampanumeropagina = iwebValutaParametroAjax("tabellaStampe_findfirstvalue_stampanumeropagina");
+                    var cb_indicaSoloTotale = iwebValutaParametroAjax("tabellaStampe_findfirstvalue_indicaSoloTotale");
                     var testo_titolocomputo = iwebValutaParametroAjax("tabellaStampe_findfirstvalue_titolocomputo");
 
                     document.getElementById("dataDiStampa").value = convertiData_AMG_in_GMA(testo_dataora);
@@ -91,6 +92,7 @@
                     document.getElementById("stampaTotaleNelleSuddivisioni").checked = cb_stampatotalenellesuddivisioni;
                     document.getElementById("stampaTotaleFinale").checked = cb_stampatotalefinale;
                     document.getElementById("stampaNumeroPagina").checked = cb_stampanumeropagina;
+                    document.getElementById("indicaSoloTotale").checked = cb_indicaSoloTotale;
                     document.getElementById("titoloComputo").value = testo_titolocomputo;
                 }
 

@@ -304,9 +304,12 @@ function iwebAUTOCOMPLETAMENTO_SelezionaEChiudi(el) {
 
 // GET e SET CHIAVE
 // console.log("chiave: " + iwebAUTOCOMPLETAMENTO_GetChiaveSelezionato("nuovoProdotto"));
-function iwebAUTOCOMPLETAMENTO_GetChiaveSelezionato(id_iwebAUTOCOMPLETAMENTO) {
+function iwebAUTOCOMPLETAMENTO_GetChiaveSelezionato(id_iwebAUTOCOMPLETAMENTO, tipodidato, limiteParametriQuestaFunzione) {
+    if (limiteParametriQuestaFunzione !== undefined) { alert("Errore nella chiamata alla funzione iwebAUTOCOMPLETAMENTO_GetChiaveSelezionato. Il metodo si aspetta al più 2 parametri, non 3."); }
     var elRicerca = document.getElementById(id_iwebAUTOCOMPLETAMENTO);
-    return elRicerca.getElementsByTagName("span")[1].innerHTML; // chiave
+    let valore = elRicerca.getElementsByTagName("span")[1].innerHTML;
+    if (tipodidato != null) valore = parseToType(valore, tipodidato);
+    return valore; // chiave
 }
 function iwebAUTOCOMPLETAMENTO_SetChiaveSelezionato(id_iwebAUTOCOMPLETAMENTO, chiave) {
     var elRicerca = document.getElementById(id_iwebAUTOCOMPLETAMENTO);
@@ -315,9 +318,12 @@ function iwebAUTOCOMPLETAMENTO_SetChiaveSelezionato(id_iwebAUTOCOMPLETAMENTO, ch
 
 // GET e SET VALORE
 // console.log("valore: " + iwebAUTOCOMPLETAMENTO_GetValoreSelezionato("nuovoProdotto"));
-function iwebAUTOCOMPLETAMENTO_GetValoreSelezionato(id_iwebAUTOCOMPLETAMENTO) {
+function iwebAUTOCOMPLETAMENTO_GetValoreSelezionato(id_iwebAUTOCOMPLETAMENTO, tipodidato, limiteParametriQuestaFunzione) {
+    if (limiteParametriQuestaFunzione !== undefined) { alert("Errore nella chiamata alla funzione iwebAUTOCOMPLETAMENTO_GetValoreSelezionato. Il metodo si aspetta al più 2 parametri, non 3."); }
     var elRicerca = document.getElementById(id_iwebAUTOCOMPLETAMENTO);
-    return elRicerca.getElementsByTagName("input")[0].value; // valore
+    let valore = elRicerca.getElementsByTagName("input")[0].value;
+    if (tipodidato != null) valore = parseToType(valore, tipodidato);
+    return valore; // valore
 }
 function iwebAUTOCOMPLETAMENTO_SetValoreSelezionato(id_iwebAUTOCOMPLETAMENTO, valore) { /* non ancora usato */
     var elRicerca = document.getElementById(id_iwebAUTOCOMPLETAMENTO);

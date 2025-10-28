@@ -89,7 +89,8 @@ public partial class modelli_generazione_pdf_genera_pdf : System.Web.UI.Page
 
     static PdfPTable tableComputo;
 
-    static Boolean stampaNumeroPagina = false;
+    static bool stampaNumeroPagina = false;
+    static bool indicaSoloTotale = false;
     //Y ATTUALE: USARLO PER POSIZIONARE ELEMENTI NELLA PAGINA IN MODO ASSOLUTO
     //LAVORA AL CONTRARIO (DA HEIGHT A 0)
     //AD OGNI OGGETTO AGGIUNTO VADO A SOTTRARLO DELLA DIMENSIONE DELL'OGGETTO.
@@ -126,6 +127,7 @@ public partial class modelli_generazione_pdf_genera_pdf : System.Web.UI.Page
     public static String generaPDF(String path, Suddivisione root, DatiComputo datiComputo, OpzioniStampa opzioniStampa, String pathImmagini_, String pathPublic_)
     {
         stampaNumeroPagina = opzioniStampa.stampaNumeroPagina;
+        indicaSoloTotale = opzioniStampa.indicaSoloTotale;
         pathImmagini = pathImmagini_;
         pathPublic = pathPublic_;
 
@@ -611,6 +613,7 @@ public partial class modelli_generazione_pdf_genera_pdf : System.Web.UI.Page
         } else {
             // stampa il totale della suddivisione corrente (opzione con o senza prezzo)
             PdfPCell cellaTotale;
+            /// IMPOSTARE QUI IF SU INDICA SOLO TOTALE  indicaSoloTotale: Nella stampa non deve essere specificato se l’importo è IMPONIBILE o IVA INCLUSA ma solo etichette con IMPORTO e TOTALE
             if (opzioniStampa.stampaPrezzi == true && opzioniStampa.stampaTotaleNelleSuddivisioni == true)
                 cellaTotale = creaCella(totaleSuddivisioneCorrente.ToString(formatoValutaMigliaia), ArialNormal, 4, 'r', false);
             else
@@ -1577,9 +1580,8 @@ public partial class modelli_generazione_pdf_genera_pdf : System.Web.UI.Page
     {
         public override void OnStartPage(PdfWriter writer, Document document)
         {
-            //GENERO IL FOOTER
-            if (stampaNumeroPagina)
-                generaFOOTER(document, writer);
+            // GENERO IL FOOTER
+            if (stampaNumeroPagina) generaFOOTER(document, writer);
 
             //RESETTO LA POSIZIONE Y ^_^
             modelli_generazione_pdf_genera_pdf.resettayperNuovoFoglio();

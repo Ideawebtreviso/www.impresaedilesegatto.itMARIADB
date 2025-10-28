@@ -8,7 +8,7 @@
 <%@ Register TagPrefix="gestioneComputo" TagName="tabellaMisure" Src="_gestione_computo_tabella_misure.ascx" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
-    <script src="gestione-computo7.js"></script>
+    <script src="gestione-computo8.js"></script>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder" Runat="Server">
     <span id="IDCOMPUTO" class="iwebNascosto"><asp:Literal ID="LiteralIDCOMPUTO" runat="server"></asp:Literal></span>

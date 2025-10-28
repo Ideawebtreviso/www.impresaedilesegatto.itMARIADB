@@ -41,42 +41,46 @@ public partial class gestionale_costi_gestione_rapportini : System.Web.UI.Page
     protected void RepeaterGiorniHeader_Load(object sender, EventArgs e)
     {
 
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);  connection.ConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString;
-        connection.Open();
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        MySqlCommand command = connection.CreateCommand();
-        command.CommandText = "SELECT giorno FROM calendario WHERE giorno >= @giornoDa AND giorno <= @giornoA";
-        command.Parameters.AddWithValue("@giornoDa", Convert.ToDateTime(TextBoxDataDa.Text));
-        command.Parameters.AddWithValue("@giornoA", Convert.ToDateTime(TextBoxDataA.Text));
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT giorno FROM calendario WHERE giorno >= @giornoDa AND giorno <= @giornoA";
+            command.Parameters.AddWithValue("@giornoDa", Convert.ToDateTime(TextBoxDataDa.Text));
+            command.Parameters.AddWithValue("@giornoA", Convert.ToDateTime(TextBoxDataA.Text));
 
-        //command.ExecuteNonQuery();
-        DataSet dsServer = new DataSet();
-        MySqlDataAdapter sda = new MySqlDataAdapter(command);
-        sda.Fill(dsServer);
-        RepeaterGiorniHeader.DataSource = dsServer;
-        RepeaterGiorniHeader.DataBind();
+            //command.ExecuteNonQuery();
+            DataSet dsServer = new DataSet();
+            MySqlDataAdapter sda = new MySqlDataAdapter(command);
+            sda.Fill(dsServer);
+            RepeaterGiorniHeader.DataSource = dsServer;
+            RepeaterGiorniHeader.DataBind();
 
-        connection.Close();
+            connection.Close();
+        }
     }
 
     protected void Repeater1_PreRender(object sender, EventArgs e)
     {
         Repeater repeater = (Repeater)sender;
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);  connection.ConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString;
-        connection.Open();
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        MySqlCommand command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM prodotto WHERE idfornitore = @idfornitore";
-        command.Parameters.AddWithValue("@idfornitore", Application["IDFORNITORESEGATTOMANODOPERA"].ToString());
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM prodotto WHERE idfornitore = @idfornitore";
+            command.Parameters.AddWithValue("@idfornitore", Application["IDFORNITORESEGATTOMANODOPERA"].ToString());
 
-        //command.ExecuteNonQuery();
-        DataSet dsServer = new DataSet();
-        MySqlDataAdapter sda = new MySqlDataAdapter(command);
-        sda.Fill(dsServer);
-        repeater.DataSource = dsServer;
-        repeater.DataBind();
+            //command.ExecuteNonQuery();
+            DataSet dsServer = new DataSet();
+            MySqlDataAdapter sda = new MySqlDataAdapter(command);
+            sda.Fill(dsServer);
+            repeater.DataSource = dsServer;
+            repeater.DataBind();
 
-        connection.Close();
+            connection.Close();
+        }
     }
     protected void Repeater2_PreRender(object sender, EventArgs e)
     {
@@ -87,30 +91,32 @@ public partial class gestionale_costi_gestione_rapportini : System.Web.UI.Page
         DateTime dataDa = Convert.ToDateTime(TextBoxDataDa.Text);
         DateTime dataA = Convert.ToDateTime(TextBoxDataA.Text);
 
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);  connection.ConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString;
-        connection.Open();
-/*
-        MySqlCommand command = connection.CreateCommand();
-        command.CommandText = "SELECT costo.* "
-                            + "FROM costo LEFT JOIN prodotto ON costo.idprodotto = prodotto.id "
-                            + "WHERE idprodotto = @idprodotto AND datacosto >= @giornoDa AND datacosto <= @giornoA";
-        command.Parameters.AddWithValue("@idprodotto", idprodotto);
-        command.Parameters.AddWithValue("@giornoDa", dataDa);
-        command.Parameters.AddWithValue("@giornoA", dataA);
-*/
-        MySqlCommand command = connection.CreateCommand();
-        command.CommandText = "SELECT giorno FROM calendario WHERE giorno >= @giornoDa AND giorno <= @giornoA";
-        command.Parameters.AddWithValue("@giornoDa", Convert.ToDateTime(TextBoxDataDa.Text));
-        command.Parameters.AddWithValue("@giornoA", Convert.ToDateTime(TextBoxDataA.Text));
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
+            /*
+                    MySqlCommand command = connection.CreateCommand();
+                    command.CommandText = "SELECT costo.* "
+                                        + "FROM costo LEFT JOIN prodotto ON costo.idprodotto = prodotto.id "
+                                        + "WHERE idprodotto = @idprodotto AND datacosto >= @giornoDa AND datacosto <= @giornoA";
+                    command.Parameters.AddWithValue("@idprodotto", idprodotto);
+                    command.Parameters.AddWithValue("@giornoDa", dataDa);
+                    command.Parameters.AddWithValue("@giornoA", dataA);
+            */
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT giorno FROM calendario WHERE giorno >= @giornoDa AND giorno <= @giornoA";
+            command.Parameters.AddWithValue("@giornoDa", Convert.ToDateTime(TextBoxDataDa.Text));
+            command.Parameters.AddWithValue("@giornoA", Convert.ToDateTime(TextBoxDataA.Text));
 
-        //command.ExecuteNonQuery();
-        DataSet dsServer = new DataSet();
-        MySqlDataAdapter sda = new MySqlDataAdapter(command);
-        sda.Fill(dsServer);
-        repeater.DataSource = dsServer;
-        repeater.DataBind();
+            //command.ExecuteNonQuery();
+            DataSet dsServer = new DataSet();
+            MySqlDataAdapter sda = new MySqlDataAdapter(command);
+            sda.Fill(dsServer);
+            repeater.DataSource = dsServer;
+            repeater.DataBind();
 
-        connection.Close();
+            connection.Close();
+        }
     }
     protected void LabelIDProdotto_PreRender(object sender, EventArgs e)
     {
@@ -127,29 +133,31 @@ public partial class gestionale_costi_gestione_rapportini : System.Web.UI.Page
         Int32 idprodotto = LabelIDProdotto.Text == "" ? 0 : Convert.ToInt32(LabelIDProdotto.Text);
         DateTime giorno = Convert.ToDateTime(LabelGiorno.Text);
 
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString);  connection.ConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString;
-        connection.Open();
+        using (MySqlConnection connection = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            connection.Open();
 
-        MySqlCommand command = connection.CreateCommand();
-        //                    + "       costo.datacosto, costo.descrizione as 'costodescrizione', "
-        command.CommandText = "SELECT costo.id, costo.quantita, costo.prezzo, "
-                            + "       cantiere.descrizione as 'cantieredescrizione', cantiere.codice as 'cantierecodice', "
-                            + "       unitadimisura.codice as 'unitadimisuracodice' "
-                            + "FROM costo LEFT JOIN prodotto ON costo.idprodotto = prodotto.id "
-                            + "           LEFT JOIN cantiere on costo.idcantiere = cantiere.id "
-                            + "           LEFT JOIN unitadimisura on prodotto.idunitadimisura = unitadimisura.id "
-                            + "WHERE idprodotto = @idprodotto AND datacosto = @datacosto";
-        command.Parameters.AddWithValue("@idprodotto", idprodotto);
-        command.Parameters.AddWithValue("@datacosto", giorno);
+            MySqlCommand command = connection.CreateCommand();
+            //                    + "       costo.datacosto, costo.descrizione as 'costodescrizione', "
+            command.CommandText = "SELECT costo.id, costo.quantita, costo.prezzo, "
+                                + "       cantiere.descrizione as 'cantieredescrizione', cantiere.codice as 'cantierecodice', "
+                                + "       unitadimisura.codice as 'unitadimisuracodice' "
+                                + "FROM costo LEFT JOIN prodotto ON costo.idprodotto = prodotto.id "
+                                + "           LEFT JOIN cantiere on costo.idcantiere = cantiere.id "
+                                + "           LEFT JOIN unitadimisura on prodotto.idunitadimisura = unitadimisura.id "
+                                + "WHERE idprodotto = @idprodotto AND datacosto = @datacosto";
+            command.Parameters.AddWithValue("@idprodotto", idprodotto);
+            command.Parameters.AddWithValue("@datacosto", giorno);
 
-        //command.ExecuteNonQuery();
-        DataSet dsServer = new DataSet();
-        MySqlDataAdapter sda = new MySqlDataAdapter(command);
-        sda.Fill(dsServer);
-        repeater.DataSource = dsServer;
-        repeater.DataBind();
+            //command.ExecuteNonQuery();
+            DataSet dsServer = new DataSet();
+            MySqlDataAdapter sda = new MySqlDataAdapter(command);
+            sda.Fill(dsServer);
+            repeater.DataSource = dsServer;
+            repeater.DataBind();
 
-        connection.Close();
+            connection.Close();
+        }
     }
 
     protected void ButtonFiltra_Command(object sender, CommandEventArgs e)

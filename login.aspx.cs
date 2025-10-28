@@ -20,48 +20,49 @@ public partial class login : System.Web.UI.Page {
         String userData = "";
 
         //STRINGA DI CONNESSIONE
-        MySqlConnection connection = new MySqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringMySQL"].ConnectionString); 
-        connection.ConnectionString = AppCode.GetDB.getDDBB(UserPass.Text);
-        connection.Open();
+        using (MySqlConnection connection = new MySqlConnection(AppCode.GetDB.getDDBB(UserPass.Text)))
+        {
+            connection.Open();
 
-        MySqlCommand command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM utente WHERE email = @email";
-        command.Parameters.AddWithValue("@email", UserEmail.Text);
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM utente WHERE email = @email";
+            command.Parameters.AddWithValue("@email", UserEmail.Text);
 
-        MySqlDataReader reader = command.ExecuteReader();
-        if (reader.Read()) {
-            String password = reader["password"].ToString();
-            if (password == UserPass.Text) {
-                String ruolo = (String)reader["ruolo"];
-                int IDUTENTE = (int)reader["ID"];
-                userData = "Email=[" + UserEmail.Text + "] ID=[" + IDUTENTE + "] Ruolo=[" + ruolo + "] ConnectionString=[" + AppCode.GetDB.getDDBB(UserPass.Text) + "] Password=[" + UserPass.Text + "]";
-                bool ispersistent = true;
-                Int32 timeout = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["timeoutInSecondiFormsAuthenticationTicket"]);
-                //  DateTime.Now.AddSeconds(timeout), // Durata
-                FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(1, // la versione
-                  UserEmail.Text, // Questo è il nome del ticket
-                  DateTime.Now,
-                  DateTime.Now.AddSeconds(timeout), // Durata
-                  ispersistent,
-                  userData,
-                  FormsAuthentication.FormsCookiePath);
+            MySqlDataReader reader = command.ExecuteReader();
+            if (reader.Read()) {
+                String password = reader["password"].ToString();
+                if (password == UserPass.Text) {
+                    String ruolo = (String)reader["ruolo"];
+                    int IDUTENTE = (int)reader["ID"];
+                    userData = "Email=[" + UserEmail.Text + "] ID=[" + IDUTENTE + "] Ruolo=[" + ruolo + "] ConnectionString=[" + AppCode.GetDB.getDDBB(UserPass.Text) + "] Password=[" + UserPass.Text + "]";
+                    bool ispersistent = true;
+                    Int32 timeout = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["timeoutInSecondiFormsAuthenticationTicket"]);
+                    //  DateTime.Now.AddSeconds(timeout), // Durata
+                    FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(1, // la versione
+                      UserEmail.Text, // Questo è il nome del ticket
+                      DateTime.Now,
+                      DateTime.Now.AddSeconds(timeout), // Durata
+                      ispersistent,
+                      userData,
+                      FormsAuthentication.FormsCookiePath);
 
-                // Encrypt the ticket.
-                string encTicket = FormsAuthentication.Encrypt(ticket);
+                    // Encrypt the ticket.
+                    string encTicket = FormsAuthentication.Encrypt(ticket);
 
-                // Create the cookie. FormsAuthentication.FormsCookieName il NAME è probabilmente quello definito nel WEB CONFIG
-                Response.Cookies.Add(new HttpCookie(FormsAuthentication.FormsCookieName, encTicket));
+                    // Create the cookie. FormsAuthentication.FormsCookieName il NAME è probabilmente quello definito nel WEB CONFIG
+                    Response.Cookies.Add(new HttpCookie(FormsAuthentication.FormsCookieName, encTicket));
 
-                // Redirect back to original URL.
-                Response.Redirect(FormsAuthentication.GetRedirectUrl(UserEmail.Text, ispersistent));
+                    // Redirect back to original URL.
+                    Response.Redirect(FormsAuthentication.GetRedirectUrl(UserEmail.Text, ispersistent));
+                } else {
+                    Msg.Text = "Password errata.";
+                }
             } else {
-                Msg.Text = "Password errata.";
+                Msg.Text = "Utente non presente.";
             }
-        } else {
-            Msg.Text = "Utente non presente.";
-        }
 
-        connection.Close();
+            connection.Close();
+        }
     }
 
 

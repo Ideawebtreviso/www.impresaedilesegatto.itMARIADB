@@ -530,9 +530,10 @@
                                     tabindex="2">Inserisci + Nuova misura</div>
 
                                 <span class="iwebSQLINSERT">
-                                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                                        "INSERT INTO misura (idvoce, sottocodice, idunitamisura, prezzounitario, descrizione, totalemisura, totaleimporto, posizione) " +
-                                        "VALUES (@idvoce, @sottocodice, @idunitamisura, @prezzounitario, @descrizione, @totalemisura, @totaleimporto, @posizione)") %></span>
+                                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                                        INSERT INTO misura (idvoce, sottocodice, idunitamisura, prezzounitario, descrizione, totalemisura, totaleimporto, posizione)
+                                        VALUES (@idvoce, @sottocodice, @idunitamisura, @prezzounitario, @descrizione, @totalemisura, @totaleimporto, @posizione)
+                                    ") %></span>
                                     <span class="iwebPARAMETRO">@idvoce = tabellaVoci_selectedValue_voce.id</span>
 	                                <span class="iwebPARAMETRO">@sottocodice = popupTabellaMisureInserimento_findValue_sottocodice</span>
 	                                <span class="iwebPARAMETRO">@idunitamisura = popupTabellaMisureInserimento_findValue_unitadimisura.id</span>

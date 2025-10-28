@@ -185,12 +185,17 @@ function gestioneComputo_popupTabellaVociInserimento_confermaInserimento(idPopup
 
         // parametriQuery2
         var codice = elPopup.getElementsByClassName("iwebCAMPO_voce.codice")[0].value;
+        var idvocetemplate = iwebAUTOCOMPLETAMENTO_GetChiaveSelezionato("iwebAUTOCOMPLETAMENTOTitoloInserimento", "int?");
         var titolo = iwebAUTOCOMPLETAMENTO_GetValoreSelezionato("iwebAUTOCOMPLETAMENTOTitoloInserimento");
+        console.log(titolo.split("[[["));
+        titolo = titolo.split("[[[")[0];
+        console.log(titolo);
         var descrizionevoce = elPopup.getElementsByClassName("iwebCAMPO_voce.descrizione")[0].value;
         var posizionevoce = elPopup.getElementsByClassName("iwebCAMPO_voce.posizione")[0].innerHTML;
         var parametriQuery2 = {
             idcomputo: idcomputo,
             codice: codice,
+            idvocetemplate: idvocetemplate,
             titolo: titolo,
             descrizionevoce: descrizionevoce,
             posizionevoce: posizionevoce,
@@ -368,14 +373,7 @@ function preCaricaCodiceVoce() {
             var jsonRisultatoQuery = JSON.parse(xmlhttp.responseText);
             jsonRisultatoQuery = JSON.parse(jsonRisultatoQuery.d);
 
-            if (jsonRisultatoQuery[0].errore == null) {
-                // codice qui
-
-                document.getElementById(idPopup).getElementsByClassName("iwebCAMPO_voce.codice")[0].value = jsonRisultatoQuery;
-
-            } else {
-                console.log("errore json " + jsonRisultatoQuery[0].errore);
-            }
+            document.getElementById(idPopup).getElementsByClassName("iwebCAMPO_voce.codice")[0].value = jsonRisultatoQuery;
         }
     }
 
@@ -618,17 +616,17 @@ function gestioneComputo_aggiornaMisuraEAggiornaElementiAssociati_aggiorna() {
     iwebTABELLA_CalcoloTotaleColonne('tabellaMisure'); // non viene modificato il resto della tabella. solo la riga aggiornata e il totale.
 }
 
-function gestioneComputo_inserisciMisuraEAggiorna() {
+function gestioneComputo_inserisciMisuraEAggiorna(testoPulsante) {
     var idvoce = document.getElementById("tabellaVoci").getElementsByTagName("tbody")[1].getElementsByClassName("iwebRigaSelezionata")[0].getElementsByClassName("iwebCAMPO_voce.id")[0].innerHTML;
     iwebTABELLA_ConfermaAggiungiRecordInPopup(
         'popupTabellaMisureInserimento',
         'tabellaMisure',
         '',
         true,
-        function () { gestioneComputo_rinormalizzaPosizioneMisure(idvoce); gestioneComputo_inserisciMisuraEAggiorna_aggiorna(); });
+        function () { gestioneComputo_rinormalizzaPosizioneMisure(idvoce); gestioneComputo_inserisciMisuraEAggiorna_aggiorna(testoPulsante); });
 }
 
-function gestioneComputo_inserisciMisuraEAggiorna_poiRiproponiNuovaMisura() {
+function gestioneComputo_inserisciMisuraEAggiorna_poiRiproponiNuovaMisura(testoPulsante) {
     var idvoce = document.getElementById("tabellaVoci").getElementsByTagName("tbody")[1].getElementsByClassName("iwebRigaSelezionata")[0].getElementsByClassName("iwebCAMPO_voce.id")[0].innerHTML;
     iwebTABELLA_ConfermaAggiungiRecordInPopup(
         'popupTabellaMisureInserimento',
@@ -637,7 +635,7 @@ function gestioneComputo_inserisciMisuraEAggiorna_poiRiproponiNuovaMisura() {
         true,
         function () {
             gestioneComputo_rinormalizzaPosizioneMisure(idvoce);
-            gestioneComputo_inserisciMisuraEAggiorna_aggiorna();
+            gestioneComputo_inserisciMisuraEAggiorna_aggiorna(testoPulsante);
 
             /* riproponi l'inserimento di una nuova misura*/
             setTimeout(function () {
@@ -674,10 +672,21 @@ function gestioneComputo_rinormalizzaPosizioneMisure(idvoce) {
     var jsonAsString = JSON.stringify(jsonAsObject);
     xmlhttp.send(jsonAsString);
 }
-function gestioneComputo_inserisciMisuraEAggiorna_aggiorna() {
-    // iwebTABELLA_Carica(idTabella, 0, true) -> contenuto nell'inserimento
-    iwebAggiornaRigaSelezionataIwebTABELLA('tabellaVoci');
-    iwebTABELLA_CalcoloTotaleColonne('tabellaVoci');
+function gestioneComputo_inserisciMisuraEAggiorna_aggiorna(testoPulsante) {
+    // azzero i filtri se testoPulsante = "Inserisci"
+    if (testoPulsante == "Inserisci") {
+        var listaElInput = document.getElementById('tabellaVoci').getElementsByTagName("thead")[0].getElementsByTagName("tr")[1].getElementsByTagName("input");
+        for (var i = 0; i < listaElInput.length; i++) {
+            if (listaElInput[i].type == "text")
+                listaElInput[i].value = "";
+        }
+        //iwebCaricaElemento('tabellaVoci');
+    } else {
+        // iwebTABELLA_Carica(idTabella, 0, true) -> contenuto nell'inserimento
+        iwebAggiornaRigaSelezionataIwebTABELLA('tabellaVoci');
+        iwebTABELLA_CalcoloTotaleColonne('tabellaVoci');
+    }
+
 }
 function gestioneComputo_eliminaMisuraEAggiorna() {
     // specifica per questa pagina
@@ -915,7 +924,8 @@ function gestioneComputo_iwebTABELLA_ConfermaEliminaRigaInPopup_tabellaVoci(IdPo
             chiudiPopupType2B(popupAssociato);
 
             // ricarica la tabella
-            iwebTABELLA_Carica(idTabella, 0, true);
+            //iwebTABELLA_Carica(idTabella, 0, true);
+            aggiungiClasseAElemento(iwebTABELLA_GetRigaSelezionata("tabellaVoci"), "iwebNascosto");
 
             // rimappa le voci
             rimappaVociDellaSuddivisione(idSuddivisione);
@@ -1047,7 +1057,63 @@ function modificaImmagine_mostraDatiVoce() {
 }
 
 
-function gestioneComputo_duplicaRigaTabellaVoci(el) {
+function gestioneComputo_duplicaRigaERelativeMisureTabellaVoci(el) {
+    var idvoce = el.parentElement.parentElement.getElementsByClassName("iwebCAMPO_voce.id")[0].innerHTML;
+    var attesaRispostaServer = true;
+
+    if (attesaRispostaServer)
+        iwebMostraCaricamentoAjax();
+
+    var xmlhttp; if (window.XMLHttpRequest) {/* code for IE7+, Firefox, Chrome, Opera, Safari*/ xmlhttp = new XMLHttpRequest(); } else {/* code for IE6, IE5*/ xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); }
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            // elaborazione terminata, riempi la tabella con jsonRisultatoQuery
+            var jsonRisultatoQuery = JSON.parse(xmlhttp.responseText);
+            jsonRisultatoQuery = JSON.parse(jsonRisultatoQuery.d);
+            var idnuovavoce = jsonRisultatoQuery;
+
+            if (attesaRispostaServer)
+                iwebNascondiCaricamentoAjax();
+
+            // devo ricaricare questa tabella e l'elementoConITab.
+
+            // applico il filtro alla tabella e carico l'elemento tabella
+            document.getElementById("tabellaVoci").getElementsByTagName("thead")[0].getElementsByClassName("iwebCAMPO_voce.id")[0].getElementsByTagName("input")[0].value = idnuovavoce;
+            iwebCaricaElemento("tabellaVoci", true, function () {
+
+                // seleziono l'unica riga
+                document.getElementById("tabellaVoci").getElementsByTagName("tbody")[1].getElementsByTagName("tr")[0].className = "iwebRigaSelezionata";
+
+                // seleziono il primo iwebTABFIGLIO (tab "Voce")
+                var elementiTab = document.getElementById("elementoConITab").getElementsByClassName("headerTab")[0].getElementsByClassName("iwebTABFIGLIO");
+                iwebTABFIGLIO_Aggiorna(elementiTab[0]);
+
+                // Al termine del caricamento dell'elemento con i tab, apro il popup di modifica
+                iwebCaricaElemento("dettaglioAnagrafica", true, function () {
+
+                    // apro il dettaglio
+                    iwebApriPopupModificaiwebDETTAGLIO('dettaglioAnagrafica', 'popupModificaAnagraficaVoce');
+
+                });
+
+            });
+
+        }
+    }
+
+
+    // versione WebService.asmx/sparaQueryReader
+    xmlhttp.open("POST", getRootPath() + "/WebServiceComputi.asmx/duplicaVoce", true);
+    var jsonAsObject = {
+        idvoceorigine: idvoce
+    };
+
+    //console.log(jsonAsObject);
+    xmlhttp.setRequestHeader("Content-type", "application/json");
+    var jsonAsString = JSON.stringify(jsonAsObject);
+    xmlhttp.send(jsonAsString);
+}
+function BUTTA(){
     var attesaRispostaServer = true
 
     var elTr = el.parentElement.parentElement;
