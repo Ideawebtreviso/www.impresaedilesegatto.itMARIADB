@@ -45,6 +45,28 @@
                                 <td><input type="text" class="iwebCAMPO_cantiere.indirizzo iwebTIPOCAMPO_varchar" /></td>
                             </tr>
                             <tr>
+                                <td>Data inizio</td>
+                                <td>
+                                    <input type="text" maxlength="10" placeholder="gg/mm/aaaa"
+                                        class="iwebCAMPO_cantiere.cantdatainizio iwebTIPOCAMPO_date"
+                                        onfocus="scwLanguage='it'; scwShow(this, event);"
+                                        onkeydown="if (event.keyCode == 9) scwHide(this, event)"
+                                        onclick="scwLanguage = 'it'; scwShow(this, event);"
+                                        />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Data inizio</td>
+                                <td>
+                                    <input type="text" maxlength="10" placeholder="gg/mm/aaaa"
+                                        class="iwebCAMPO_cantiere.cantdatafine iwebTIPOCAMPO_date"
+                                        onfocus="scwLanguage='it'; scwShow(this, event);"
+                                        onkeydown="if (event.keyCode == 9) scwHide(this, event)"
+                                        onclick="scwLanguage = 'it'; scwShow(this, event);"
+                                        />
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Descrizione</td>
                                 <td><input type="text" class="iwebCAMPO_cantiere.descrizione iwebTIPOCAMPO_varchar" /></td>
                             </tr>
@@ -67,9 +89,10 @@
                     </div>
                     <div class="popupFooter">
                         <div class="btn btn-warning" onclick="chiudiPopupType2()" >Annulla</div>
-                        <div class="btn btn-success" onclick="elencoCantieri_iwebBindPopupModificaiwebDETTAGLIO('popupModificaAnagraficaCantiere')">Aggiorna</div>
+                        <div class="btn btn-success" onclick="popupModificaAnagraficaCantiere_conferma()">Aggiorna</div>
+                        <%--<div class="btn btn-success" onclick="elencoCantieri_iwebBindPopupModificaiwebDETTAGLIO('popupModificaAnagraficaCantiere')">Aggiorna</div>--%>
                     </div>
-                    <div class="iwebSQLUPDATE">
+                    <%--<div class="iwebSQLUPDATE">
 	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
                             UPDATE cantiere
                             SET
@@ -86,7 +109,38 @@
 	                    <span class="iwebPARAMETRO">@descrizione = popupModificaAnagraficaCantiere_findValue_cantiere.descrizione</span>
 	                    <span class="iwebPARAMETRO">@stato = popupModificaAnagraficaCantiere_findValue_cantiere.stato</span>
 	                    <span class="iwebPARAMETRO">@id = popupModificaAnagraficaCantiere_findValue_cantiere.id</span>
-                    </div>
+                    </div>--%>
+                    <script>
+                        function popupModificaAnagraficaCantiere_conferma() {
+                            let idcliente = iwebValutaParametroAjax("popupModificaAnagraficaCantiere_findValue_cliente.id");
+                            let codice = iwebValutaParametroAjax("popupModificaAnagraficaCantiere_findValue_cantiere.codice");
+                            let indirizzo = iwebValutaParametroAjax("popupModificaAnagraficaCantiere_findvalue_cantiere.indirizzo");
+                            let cantdatainizio = iwebValutaParametroAjax("popupModificaAnagraficaCantiere_findvalue_cantiere.cantdatainizio", null, "DateTime?");
+                            let cantdatafine = iwebValutaParametroAjax("popupModificaAnagraficaCantiere_findvalue_cantiere.cantdatafine", null, "DateTime?");
+                            let descrizione = iwebValutaParametroAjax("popupModificaAnagraficaCantiere_findvalue_cantiere.descrizione");
+                            let stato = iwebValutaParametroAjax("popupModificaAnagraficaCantiere_findValue_cantiere.stato");
+                            let idcantiere = iwebValutaParametroAjax("popupModificaAnagraficaCantiere_findValue_cantiere.id", null, "int?");
+
+                            let parametri = {
+                                idcliente: idcliente,
+                                codice: codice,
+                                indirizzo: indirizzo,
+                                cantdatainizio: cantdatainizio,
+                                cantdatafine: cantdatafine,
+                                descrizione: descrizione,
+                                stato: stato,
+                                idcantiere: idcantiere
+                            };
+                            iwebMostraCaricamentoAjax();
+                            ajax2024("/WebServiceComputi.asmx/popupModificaAnagraficaCantiere_conferma", parametri, function () {
+
+                                iwebCaricaElemento("tabellaCantieri");
+                                chiudiPopupType2B("popupModificaAnagraficaCantiere");
+
+                                iwebNascondiCaricamentoAjax();
+                            });
+                        }
+                    </script>
                 </div>
             </div>
         </div>
@@ -128,11 +182,19 @@
                     </tr>
                     <tr>
                         <td>Codice</td>
-                        <td><span class="iwebCAMPO_cantiere.codice iwebCodice"></span></td>
+                        <td><span class="iwebCAMPO_cantiere.codice"></span></td>
                     </tr>
                     <tr>
                         <td>Indirizzo</td>
                         <td><span class="iwebCAMPO_cantiere.indirizzo iwebDescrizione iwebTroncaCrtsAt_1000"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Data inizio</td>
+                        <td><span class="iwebCAMPO_cantiere.cantdatainizio iwebData"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Data fine</td>
+                        <td><span class="iwebCAMPO_cantiere.cantdatafine iwebData"></span></td>
                     </tr>
                     <tr>
                         <td>Descrizione</td>
@@ -153,6 +215,8 @@
                         cantiere.id as 'cantiere.id',
                         cantiere.codice as 'cantiere.codice',
                         cantiere.indirizzo as 'cantiere.indirizzo',
+                        cantiere.cantdatainizio as 'cantiere.cantdatainizio',
+                        cantiere.cantdatafine as 'cantiere.cantdatafine',
                         cantiere.descrizione as 'cantiere.descrizione',
                         cantiere.stato as 'cantiere.stato'
                     FROM cantiere LEFT JOIN cliente ON cantiere.idcliente = cliente.id

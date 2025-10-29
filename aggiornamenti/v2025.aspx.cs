@@ -67,7 +67,12 @@ public partial class aggiornamenti_v2025 : System.Web.UI.Page
 
 
         // punto 5 (gestione di indirizzo su cantiere)
-        utility.AggiungiColonna(connection, "cantiere", "indirizzo", "VARCHAR(250)");
+        utility.AggiungiColonna(connection, "cantiere", "indirizzo", "VARCHAR(250) AFTER codice");
+
+
+        // punto 6 (data inizio e fine su cantiere)
+        utility.AggiungiColonna(connection, "cantiere", "cantdatainizio", "DATETIME AFTER indirizzo");
+        utility.AggiungiColonna(connection, "cantiere", "cantdatafine", "DATETIME AFTER cantdatainizio");
 
 
 

@@ -22,10 +22,12 @@
         Elenco cantieri
     </div>
 
-    <elencoCantieri:tabellaCantieri runat="server" ID="controlloFattura_tabellaCantieri" />
+    <div class="iwebTABELLAWrapper l" style="width:975px">
+        <elencoCantieri:tabellaCantieri runat="server" ID="controlloFattura_tabellaCantieri" />
+    </div>
 
     <%-- elemento con i tab a destra --%>
-    <div id="elementoConITab" class="iwebTABPADRE width610 r">
+    <div id="elementoConITab" class="iwebTABPADRE r" style="width:560px">
         <div class="headerTab"></div>
         <div class="corpoTab">
             <%-- tab 1 --%>

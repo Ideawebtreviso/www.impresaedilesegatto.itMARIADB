@@ -92,19 +92,22 @@
             </tfoot>
         </table>
         <span class="iwebSQLSELECT">
-	        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL("SELECT cliente.id as 'cliente.id', " +
-                                                        "cliente.nominativo, " +
-                                                        "computo.id as 'computo.id', " +
-                                                        "computo.codice, " +
-                                                        "computo.titolo, " +
-                                                        "computo.descrizione, " +
-                                                        "computo.stato, " +
-                                                        "computo.tipo, " +
-                                                        "computo.datadiconsegna, " +
-                                                        "computo.condizioniprimapagina, " +
-                                                        "computo.condizioniultimapagina " +
-                                                        "FROM computo INNER JOIN cliente ON cliente.id = computo.idcliente " +
-                                                        "WHERE computo.id = @idcomputo") %></span>
+	        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                SELECT
+                    cliente.id as 'cliente.id', 
+                    cliente.nominativo, 
+                    computo.id as 'computo.id', 
+                    computo.codice, 
+                    computo.titolo, 
+                    computo.descrizione, 
+                    computo.stato, 
+                    computo.tipo, 
+                    computo.datadiconsegna, 
+                    computo.condizioniprimapagina, 
+                    computo.condizioniultimapagina 
+                FROM computo INNER JOIN cliente ON cliente.id = computo.idcliente 
+                WHERE computo.id = @idcomputo
+            ") %></span>
 	        <span class="iwebPARAMETRO">@idcomputo = IDCOMPUTO_value</span>
         </span>
     </div><%-- fine tabella in alto --%>

@@ -1,7 +1,6 @@
 ﻿<%@ Control Language="C#" ClassName="_elenco_cantieri_tabella_cantieri" %>
 
 
-    <div class="iwebTABELLAWrapper width915 l">
         <div class="r iwebTABELLAAzioniPerSelezionati">
             <span></span>
             <select disabled>
@@ -36,6 +35,8 @@
                         <div class="b"></div>
                     </th>
                     <th>Indirizzo</th>
+                    <th>Data inizio/fine</th>
+                    <th>Indirizzo</th>
                     <th>Descrizione</th>
                     <th>Stato</th>
                     <th>Report</th>
@@ -65,6 +66,9 @@
                         </div>
                     </th>
                     <th>
+                        <%-- filtro di testo sul campo data inizio/fine --%>
+                    </th>
+                    <th>
                         <%-- filtro di testo sul campo descrizione --%>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.descrizione">
                             <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
@@ -77,13 +81,16 @@
                                 <option value="">Tutti</option>
                                 <option value="0" selected>Aperto</option>
                                 <option value="1">Chiuso</option>
-                            </select>--%>                            <select id="tabellaCantieriStato" class="iwebCAMPO_cantiere.stato" multiple="multiple"
+                            </select>--%>
+                            <select id="tabellaCantieriStato" class="iwebCAMPO_cantiere.stato" multiple="multiple"
                                 onchange="iwebTABELLA_Carica(cercaTablePadreRicors().id, 0, true)">
                                 <option value="">Tutti</option>
                                 <option value="Aperto" selected="selected">Aperto</option>
                                 <option value="Da firmare" selected="selected">Da firmare</option>
                                 <option value="Chiuso">Chiuso</option>
-                            </select>                        </div>                    </th>
+                            </select>
+                        </div>
+                    </th>
                     <th></th>
                     <th></th><%-- ALTRO --%>
                 </tr>
@@ -103,10 +110,14 @@
                         <span class="iwebCAMPO_cliente.nominativo iwebDescrizione"></span>
                     </td>
                     <td>
-                        <span class="iwebCAMPO_cantiere.codice iwebCodice"></span>
+                        <span class="iwebCAMPO_cantiere.codice"></span>
                     </td>
                     <td>
                         <span class="iwebCAMPO_cantiere.indirizzo iwebDescrizione"></span>
+                    </td>
+                    <td>
+                        <span class="iwebCAMPO_cantiere.cantdatainizio iwebData"></span>
+                        <span class="iwebCAMPO_cantiere.cantdatafine iwebData"></span>
                     </td>
                     <td>
                         <span class="iwebCAMPO_cantiere.descrizione iwebDescrizione"></span>
@@ -138,10 +149,6 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                 </tr>
                 <tr><td><div class="iwebTABELLAFooterPaginazione">
                     <div>Pagina</div>
@@ -162,6 +169,8 @@
                     cantiere.id as 'cantiere.id',
                     cantiere.codice as 'cantiere.codice',
                     cantiere.indirizzo as 'cantiere.indirizzo',
+                    cantiere.cantdatainizio as 'cantiere.cantdatainizio',
+                    cantiere.cantdatafine as 'cantiere.cantdatafine',
                     cantiere.descrizione as 'cantiere.descrizione',
                     cantiere.stato as 'cantiere.stato',
                     cantiere.id as 'LINKIDCANTIERE'
@@ -231,6 +240,28 @@
                             <td><input id="popupTabellaCantieriInserimentoIndirizzo" type="text" class="iwebCAMPO_cantiere.indirizzo iwebTIPOCAMPO_varchar" /></td>
                         </tr>
                         <tr>
+                            <td>Data inizio</td>
+                            <td>
+                                <input type="text" maxlength="10" placeholder="gg/mm/aaaa"
+                                    class="iwebCAMPO_cantiere.cantdatainizio iwebTIPOCAMPO_date"
+                                    onfocus="scwLanguage='it'; scwShow(this, event);"
+                                    onkeydown="if (event.keyCode == 9) scwHide(this, event)"
+                                    onclick="scwLanguage = 'it'; scwShow(this, event);"
+                                    />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Data inizio</td>
+                            <td>
+                                <input type="text" maxlength="10" placeholder="gg/mm/aaaa"
+                                    class="iwebCAMPO_cantiere.cantdatafine iwebTIPOCAMPO_date"
+                                    onfocus="scwLanguage='it'; scwShow(this, event);"
+                                    onkeydown="if (event.keyCode == 9) scwHide(this, event)"
+                                    onclick="scwLanguage = 'it'; scwShow(this, event);"
+                                    />
+                            </td>
+                        </tr>
+                        <tr>
                             <td>Descrizione</td>
                             <td><input id="popupTabellaCantieriInserimentoDescrizione" type="text" class="iwebCAMPO_cantiere.descrizione iwebTIPOCAMPO_varchar" /></td>
                         </tr>
@@ -239,7 +270,8 @@
 
                 <div class="popupFooter">
                     <div class="btn btn-warning" onclick="chiudiPopupType2()" >Annulla</div>
-                    <div class="btn btn-success" onclick="elencoCantieri_iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaCantieriInserimento', 'tabellaCantieri', '', true)">Inserisci</div>
+                    <div class="btn btn-success" onclick="popupTabellaCantieriInserimento_conferma()">Inserisci</div>
+                    <%--<div class="btn btn-success" onclick="elencoCantieri_iwebTABELLA_ConfermaAggiungiRecordInPopup('popupTabellaCantieriInserimento', 'tabellaCantieri', '', true)">Inserisci</div>
                     <span class="iwebSQLINSERT">
                         <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
                             INSERT INTO cantiere (idcliente, codice, indirizzo, descrizione, stato)
@@ -249,7 +281,34 @@
                         <span class="iwebPARAMETRO">@codice = popupTabellaCantieriInserimento_findvalue_cantiere.codice</span>
                         <span class="iwebPARAMETRO">@indirizzo = popupTabellaCantieriInserimento_findvalue_cantiere.indirizzo</span>
                         <span class="iwebPARAMETRO">@descrizione = popupTabellaCantieriInserimento_findvalue_cantiere.descrizione</span>
-                    </span>
+                    </span>--%>
+                    <script>
+                        function popupTabellaCantieriInserimento_conferma() {
+                            let codice = iwebValutaParametroAjax("popupTabellaCantieriInserimento_findvalue_cantiere.codice");
+                            let indirizzo = iwebValutaParametroAjax("popupTabellaCantieriInserimento_findvalue_cantiere.indirizzo");
+                            let cantdatainizio = iwebValutaParametroAjax("popupTabellaCantieriInserimento_findvalue_cantiere.cantdatainizio", null, "DateTime?");
+                            let cantdatafine = iwebValutaParametroAjax("popupTabellaCantieriInserimento_findvalue_cantiere.cantdatafine", null, "DateTime?");
+                            let descrizione = iwebValutaParametroAjax("popupTabellaCantieriInserimento_findvalue_cantiere.descrizione");
+                            let idcliente = iwebValutaParametroAjax("popupTabellaCantieriInserimento_findvalue_cliente.id", null, "int?");
+
+                            let parametri = {
+                                idcliente: idcliente,
+                                codice: codice,
+                                indirizzo: indirizzo,
+                                cantdatainizio: cantdatainizio,
+                                cantdatafine: cantdatafine,
+                                descrizione: descrizione
+                            };
+                            iwebMostraCaricamentoAjax();
+                            ajax2024("/WebServiceComputi.asmx/popupTabellaCantieriInserimento_conferma", parametri, function () {
+
+                                iwebCaricaElemento("tabellaCantieri");
+                                chiudiPopupType2B("popupTabellaCantieriInserimento");
+
+                                iwebNascondiCaricamentoAjax();
+                            });
+                        }
+                    </script>
                 </div>
             </div>
         </div>
@@ -300,5 +359,3 @@
                 </div>
             </div>
         </div>
-    </div>
-

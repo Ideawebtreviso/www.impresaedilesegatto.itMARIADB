@@ -2909,7 +2909,6 @@ public class WebServiceComputi : System.Web.Services.WebService {
 
     [WebMethod] public void C0001popupInserimentoVoceTemplate_salva(string codice, string nome)
     {
-
         using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
             conn.Open();
@@ -2953,6 +2952,64 @@ public class WebServiceComputi : System.Web.Services.WebService {
             MySqlCommand command = conn.CreateCommand();
             command.CommandText = @"DELETE vocetemplate FROM vocetemplate WHERE vocetemplate.id = @idvocetemplate";
             command.Parameters.AddWithValue("@idvocetemplate", idvocetemplate);
+            command.ExecuteNonQuery();
+
+            conn.Close();
+        }
+    }
+
+
+    [WebMethod] public void popupTabellaCantieriInserimento_conferma(
+        int idcliente, string codice, string indirizzo, DateTime? cantdatainizio, DateTime? cantdatafine, string descrizione)
+    {
+        using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            conn.Open();
+
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = @"
+                INSERT INTO cantiere (idcliente, codice, indirizzo, cantdatainizio, cantdatafine, descrizione, stato)
+                VALUES (@idcliente, @codice, @indirizzo, @cantdatainizio, @cantdatafine, @descrizione, 'Da firmare')";
+            command.Parameters.AddWithValue("@idcliente", idcliente);
+            command.Parameters.AddWithValue("@codice", codice);
+            command.Parameters.AddWithValue("@indirizzo", indirizzo);
+            command.Parameters.AddWithValue("@cantdatainizio", cantdatainizio);
+            command.Parameters.AddWithValue("@cantdatafine", cantdatafine);
+            command.Parameters.AddWithValue("@descrizione", descrizione);
+            command.ExecuteNonQuery();
+
+            conn.Close();
+        }
+    }
+    [WebMethod] public void popupModificaAnagraficaCantiere_conferma(
+        int idcliente, string codice, string indirizzo, DateTime? cantdatainizio, DateTime? cantdatafine, string descrizione, string stato,
+        int idcantiere)
+    {
+        using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
+        {
+            conn.Open();
+
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = @"
+                UPDATE cantiere
+                SET
+                    idcliente = @idcliente,
+                    codice = @codice,
+                    indirizzo = @indirizzo,
+                    cantdatainizio = @cantdatainizio,
+                    cantdatafine = @cantdatafine,
+                    descrizione = @descrizione,
+                    stato = @stato
+                WHERE id = @idcantiere
+            ";
+            command.Parameters.AddWithValue("@idcliente", idcliente);
+            command.Parameters.AddWithValue("@codice", codice);
+            command.Parameters.AddWithValue("@indirizzo", indirizzo);
+            command.Parameters.AddWithValue("@cantdatainizio", cantdatainizio);
+            command.Parameters.AddWithValue("@cantdatafine", cantdatafine);
+            command.Parameters.AddWithValue("@descrizione", descrizione);
+            command.Parameters.AddWithValue("@stato", stato);
+            command.Parameters.AddWithValue("@idcantiere", idcantiere);
             command.ExecuteNonQuery();
 
             conn.Close();

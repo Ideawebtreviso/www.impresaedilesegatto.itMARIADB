@@ -12,7 +12,7 @@
     <script src="/gestionale/js/popup-02.js"></script>
 
     <%-- Ajax --%>
-    <link rel="stylesheet" type="text/css" href="/gestionale/css/iweb-stylesheet-03.css" />
+    <link rel="stylesheet" type="text/css" href="/gestionale/css/iweb-stylesheet-04.css" />
     <script src="/gestionale/js/Costanti.js"></script>
     <script src="/gestionale/js/iweb-ajax-09.js"></script>
     <script src="/gestionale/js/iweb-ddl-03.js"></script>

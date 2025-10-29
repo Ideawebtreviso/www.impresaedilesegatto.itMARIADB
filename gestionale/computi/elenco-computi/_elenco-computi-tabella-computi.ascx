@@ -28,6 +28,7 @@
                     <th style="width:50px">Duplica</th>
                     <th>Cliente</th>
                     <th>Cantiere</th>
+                    <th>Indirizzo cantiere</th>
                     <th>Codice computo</th>
                     <th>Titolo</th>
                     <th>Descrizione</th>
@@ -51,6 +52,11 @@
                     </th>
                     <th>
                         <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.codice">
+                            <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)" />
+                        </div>
+                    </th>
+                    <th>
+                        <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_cantiere.indirizzo">
                             <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)" />
                         </div>
                     </th>
@@ -147,9 +153,9 @@
                     <td>
                         <span class="iwebCAMPO_cantiere.id iwebNascosto"></span>
                         <span class="iwebCAMPO_cantiere.codice"></span>
-                        <div>
-                            <span class="iwebCAMPO_cantiere.indirizzo" style="font-style:italic"></span>
-                        </div>
+                    </td>
+                    <td>
+                        <span class="iwebCAMPO_cantiere.indirizzo"></span>
                     </td>
                     <td>
                         <span class="iwebCAMPO_computo.codice iwebCodice"></span>

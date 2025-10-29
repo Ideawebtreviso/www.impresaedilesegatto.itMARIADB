@@ -12,6 +12,7 @@
                     <th class="iwebNascosto">ID</th>
                     <th>Cliente</th>
                     <th>Cantiere</th>
+                    <th>Indirizzo cantiere</th>
                     <th>Codice computo</th>
                     <th>Titolo</th>
                     <th>Descrizione</th>
@@ -24,6 +25,7 @@
                 <tr class="iwebNascosto">
                     <th class="iwebNascosto"></th><%-- CHECKBOX --%>
                     <th><%-- AZIONI --%></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -48,10 +50,10 @@
                     <td>
                         <span class="iwebCAMPO_cantiere.id iwebNascosto"></span>
                         <span class="iwebCAMPO_cantiere.codice"></span>
-                        <div>
-                            <span class="iwebCAMPO_cantiere.indirizzo" style="font-style:italic"></span>
-                        </div>
                         <%--<span class="iwebCAMPO_cantiere.descrizione"></span>--%>
+                    </td>
+                    <td>
+                        <span class="iwebCAMPO_cantiere.indirizzo"></span>
                     </td>
                     <td>
                         <span class="iwebCAMPO_codice iwebCodice"></span>

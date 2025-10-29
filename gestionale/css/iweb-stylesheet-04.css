@@ -76,8 +76,8 @@ table.iwebTABELLA tbody > tr:hover {
     background-color: rgb(238, 238, 238);
 }
 table.iwebTABELLA th, table.iwebTABELLA td, table.iwebDETTAGLIO th, table.iwebDETTAGLIO td {
-    border:solid 1px #dddddd;
-    padding:5px 10px 5px 10px;
+    border:solid 1px #E0E0E0;
+    padding:3px 8px 3px 8px; /* padding:5px 10px 5px 10px; */
 }
 
 table.iwebTABELLA > tbody > tr.iwebRigaSelezionata{
@@ -311,6 +311,7 @@ input[type=checkbox].iwebCheckbox {
 }*/
 .iwebAUTOCOMPLETAMENTO {
     display:inline-block;
+    position:relative;
 }
 
 .iwebAUTOCOMPLETAMENTO input{ /* immagine lente di sfondo all'input */
@@ -340,4 +341,5 @@ input[type=checkbox].iwebCheckbox {
 }
 .iwebAUTOCOMPLETAMENTO .iwebAUTOCOMPLETAMENTO_risultatiRicerca {
     position:absolute;
+    width:300px;
 }
