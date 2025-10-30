@@ -25,32 +25,37 @@ namespace AppCode {
 
         }
 
-        public static string getDDBB(string pwd){
+        public static string getDDBB(string pwd) {
 
-            // Utility utility = new Utility();
-            // utility.SonoInLocale()
             string fullpathname = HttpContext.Current.Request.Url.Authority.ToLower();
             bool sonoinlocale = fullpathname.Contains("localhost");
             if (sonoinlocale) {
                  if (pwd == "24680ABC") return conn2locale;
                  else return conn1locale;
-   
             }
             else { 
                  if (pwd == "24680ABC") return conn2;
                  else return conn1;
-   
             }
-            
         }
 
-        public static string getDDBBasincrono(string pwd){
+        // getDDBBasincrono al momento scambia solo gli 1 con i 2
+        public static string getDDBBasincrono(string pwd) {
             string fullpathname = HttpContext.Current.Request.Url.Authority.ToLower();
             bool sonoinlocale = fullpathname.Contains("localhost");
-            
-            if (sonoinlocale)  return pwd == "24680ABC" ? conn1locale : conn2locale;
-            else return pwd == "24680ABC" ? conn2 : conn1;
-
+            if (sonoinlocale)
+            {
+                if (pwd == "24680ABC") return conn1locale;
+                else return conn2locale;
+            }
+            else
+            {
+                if (pwd == "24680ABC") return conn1;
+                else return conn2;
+            }
+            // vecchio codice:
+            //if (sonoinlocale) return pwd == "24680ABC" ? conn1locale : conn2locale;
+            //else return pwd == "24680ABC" ? conn2 : conn1;
         }
 
     }

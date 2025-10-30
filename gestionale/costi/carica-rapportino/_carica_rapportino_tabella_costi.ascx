@@ -24,7 +24,8 @@
                         <%--<div class="glyphicon glyphicon-plus iwebCliccabile" title="Aggiungi" 
                             onclick="iwebTABELLA_AggiungiRigaInPopup('popupTabellaCostiInserimento');"></div>--%>
                     </th>
-                    <th>Ore</th>
+                    <th>Ore Da Fatturare</th>
+                    <th>Ore Mastrino</th>
                     <%--<th>Prezzo</th>--%>
                     <th>Data costo</th>
                     <th>Codice cantiere</th>
@@ -37,6 +38,7 @@
                     </th>
                     <th class="iwebNascosto"></th>
                     <%--<th></th>--%>
+                    <th></th>
                     <th></th>
                     <th>
                         <%--maggiore uguale di--%>
@@ -77,6 +79,9 @@
                     <td>
                         <span class="iwebCAMPO_costo.quantita r"></span>
                     </td>
+                    <td>
+                        <span class="iwebCAMPO_costo.qtaoremastrino r"></span>
+                    </td>
                     <%--<td>
                         <span class="iwebCAMPO_costo.prezzo iwebValuta"></span>
                     </td>--%>
@@ -85,7 +90,7 @@
                     </td>
                     <td>
                         <span class="iwebCAMPO_cantiere.id iwebNascosto"></span>
-                        <span class="iwebCAMPO_cantiere.codice iwebCodice"></span>
+                        <span class="iwebCAMPO_cantiere.codice"></span>
                     </td>
                     <td>
                         <span class="iwebCAMPO_costo.descrizione iwebDescrizione iwebTroncaCrtsAt_500"></span>
@@ -123,14 +128,20 @@
             </tfoot>
         </table>
         <span class="iwebSQLSELECT">
-	        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                "SELECT costo.id as 'costo.id', costo.quantita as 'costo.quantita', costo.prezzo as 'costo.prezzo', "
-              + "       costo.datacosto as 'costo.datacosto', costo.descrizione as 'costo.descrizione', " 
-              + "       cantiere.id as 'cantiere.id', cantiere.codice as 'cantiere.codice' "
-              + "FROM costo LEFT JOIN cantiere ON costo.idcantiere = cantiere.id " 
-              + "WHERE costo.idprodotto = @idmanodopera "
-              + "ORDER BY costo.datacosto DESC"
-            ) %></span>
+	        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                SELECT
+                    costo.id as 'costo.id',
+                    costo.quantita as 'costo.quantita',
+                    costo.prezzo as 'costo.prezzo',
+                    costo.datacosto as 'costo.datacosto',
+                    costo.descrizione as 'costo.descrizione',
+                    cantiere.id as 'cantiere.id',
+                    cantiere.codice as 'cantiere.codice'
+
+                FROM costo LEFT JOIN cantiere ON costo.idcantiere = cantiere.id
+                WHERE costo.idprodotto = @idmanodopera 
+                ORDER BY costo.datacosto DESC
+            ") %></span>
             <span class="iwebPARAMETRO">@idmanodopera = IDMANODOPERA_value</span>
         </span>
 

@@ -75,6 +75,10 @@ public partial class aggiornamenti_v2025 : System.Web.UI.Page
         utility.AggiungiColonna(connection, "cantiere", "cantdatafine", "DATETIME AFTER cantdatainizio");
 
 
+        // punto 8 del preventivo
+        utility.AggiungiColonna(connection, "costo", "qtaoremastrino", "DECIMAL(10,3) AFTER sconto2");
+
+
 
     } // chiudo il metodo aggiornamentiSpecifici
 

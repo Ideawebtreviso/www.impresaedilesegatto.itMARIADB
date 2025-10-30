@@ -34,6 +34,7 @@
                 <th>Prezzo</th>
                 <th>Sc.1</th>
                 <th>Sc.2</th>
+                <th>U.M.</th>
                 <th>Qta</th>
                 <th>Importo</th>
                 <th>N° bolla</th>
@@ -102,6 +103,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
                 <%-- protocollobolla in visualizzazione, ma come filtro lo applico a bolla.protocollo --%>
                 <%--<th>
                     <div class="iwebFILTRO iwebFILTROTestoSemplice iwebFILTROUgualaA iwebCAMPO_bolla.protocollo">
@@ -155,6 +157,9 @@
                 <td>
                     <%-- sovrascrivo la larghezza intervenendo sulla colonna che di default è più larga --%>
                     <span class="iwebCAMPO_costo.sconto2 iwebQuantita" style="width:30px;"></span>
+                </td>
+                <td>
+                    <span class="iwebCAMPO_unitadimisura.codice iwebCodice"></span>
                 </td>
                 <td>
                     <span class="iwebCAMPO_costo.quantita iwebQuantita"></span>
@@ -255,6 +260,8 @@
              SELECT costo.id as 'costo.id', 
                     costo.idcostobollariferita as 'costo.idcostobollariferita', 
                     costofatturariferita.id as 'idcostofatturachechiude', 
+                    /* unitadimisura.id as 'unitadimisura.id',  */
+                    unitadimisura.codice as 'unitadimisura.codice', 
                     costo.quantita as 'costo.quantita', 
                     costo.prezzo as 'costo.prezzo', 
                     costo.sconto1 as 'costo.sconto1', 
@@ -292,6 +299,7 @@
             
                         LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id  /* mi serve come tabella intermedia per ottenere il numero bolla */
                         LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id  /* da qui ottengo il numero bolla */
+                        LEFT JOIN unitadimisura ON prodotto.idunitadimisura = unitadimisura.id
             
              WHERE costofatturariferita.id is NULL AND 
                         (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND 
