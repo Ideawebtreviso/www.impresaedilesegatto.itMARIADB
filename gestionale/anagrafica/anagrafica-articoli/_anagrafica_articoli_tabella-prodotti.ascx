@@ -97,6 +97,8 @@
                     <td><input type="checkbox" class="iwebCBSELEZIONABILE" onchange="iwebTABELLA_AggiornaConteggioSelezionati()"/></td>
                     <td>
                         <div class="iwebCliccabile glyphicon glyphicon-pencil" title="Modifica" onclick="iwebTABELLA_ModificaRigaInPopup('popupTabellaProdottiModifica'); iwebTABELLA_SelezionaRigaComeUnica(); iwebBind('tabellaProdotti');"></div>
+                        <div class="iwebCliccabile glyphicon glyphicon-tasks" title="Aggiornamento costo dipendente" onclick="iwebTABELLA_SelezionaRigaComeUnica(this); apriPopupAggiornamentoCostoDipendente()"></div>
+
                         <div class="glyphicon glyphicon-hand-right iwebCliccabile" title="Seleziona" onclick="iwebTABELLA_SelezionaRigaComeUnica(); iwebBind('tabellaProdotti');"></div>
                     </td>
                     <td class="iwebNascosto">
@@ -510,3 +512,11 @@
             </div>
         </div>
     </div>
+
+<script>
+    function apriPopupAggiornamentoCostoDipendente() {
+        alert("Aggiornamento Costo Dipendente in sviluppo"); return;
+        let idprodotto = iwebValutaParametroAjax("tabellaProdotti_selectedValue_prodotto.id", null, "int?");
+        let listino = iwebValutaParametroAjax("tabellaProdotti_selectedValue_prodotto.listino", null, "double?");
+    }
+</script>

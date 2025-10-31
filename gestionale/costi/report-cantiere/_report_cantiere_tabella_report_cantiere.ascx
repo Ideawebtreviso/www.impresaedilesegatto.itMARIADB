@@ -37,6 +37,8 @@
                 <th>U.M.</th>
                 <th>Qta</th>
                 <th>Importo</th>
+                <th>Qta/M</th>
+                <th>Importo/M</th>
                 <th>N° bolla</th>
                 <th>Fatt. acc.</th>
                 <th>N° fattura</th>
@@ -94,6 +96,8 @@
                         <input type="text" onkeyup="iwebTABELLA_VerificaAutocompletamento(this)"/>
                     </div>
                 </td>
+                <td></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -168,6 +172,12 @@
                     <span class="iwebCAMPO_costo.importo iwebQuantita"></span>
                 </td>
                 <td>
+                    <span class="iwebCAMPO_costo.qtaoremastrino iwebQuantita"></span>
+                </td>
+                <td>
+                    <span class="iwebCAMPO_costoimportoqtaoremastrino iwebQuantita"></span>
+                </td>
+                <td>
                     <span class="iwebCAMPO_bollafattura.numero iwebNascosto"></span>
                     <span class="iwebCAMPO_numerobolla"></span>
                 </td>
@@ -185,32 +195,30 @@
                 </td>
             </tr>
         </tbody>
-        <tbody>
-            <%-- il codice viene generato automaticamente qui --%>
-        </tbody>
+        <tbody><%-- il codice viene generato automaticamente qui --%></tbody>
         <tfoot>
             <tr>
-                <td colspan="8" style="text-align:right"><b>Totale:</b></td>
+                <td colspan="9" style="text-align:right"><b>Totale:</b></td>
                 <td>
                     <!-- uso i filtri della tabella, ma eseguo una query diversa -->
                     <span id="Span1" class="iwebTOTALE iwebUSAFILTRI iwebQuantita"></span>
                     <span class="iwebSQLSELECT iwebNascosto">
-	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                            "SELECT SUM(costo.quantita) as 'TOTALE' "
-                          + "FROM costo INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere) "
-                          + "           LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita) " 
-                          + "           INNER JOIN prodotto ON costo.idprodotto = prodotto.id "
-                          + "           LEFT JOIN bollafattura ON costo.idbollafattura = bollafattura.id "
-                          + "           INNER JOIN fornitore ON ((bollafattura.id is null AND prodotto.idfornitore = fornitore.id) OR bollafattura.idfornitore = fornitore.id) "
+	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                             SELECT SUM(costo.quantita) as 'TOTALE'
+                             FROM costo
+                                INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere)
+                                LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita)
+                                INNER JOIN prodotto ON costo.idprodotto = prodotto.id
+                                LEFT JOIN bollafattura ON costo.idbollafattura = bollafattura.id
+                                INNER JOIN fornitore ON ((bollafattura.id is null AND prodotto.idfornitore = fornitore.id) OR bollafattura.idfornitore = fornitore.id)
 
-                          + "           LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id " /* mi serve come tabella intermedia per ottenere il numero bolla */
-                          + "           LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id " /* da qui ottengo il numero bolla */
+                                LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id /* mi serve come tabella intermedia per ottenere il numero bolla */
+                                LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id /* da qui ottengo il numero bolla */
 
-                          + "WHERE costofatturariferita.id is NULL AND "
-                          + "      (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND "
-                          + "      (@dataA = '' OR ((bolla.databollafattura is null AND costo.datacosto <= @dataA) OR (bolla.databollafattura is not null AND bolla.databollafattura <= @dataA))) "
-
-                        )%></span>
+                             WHERE costofatturariferita.id is NULL AND
+                                   (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND
+                                   (@dataA = '' OR ((bolla.databollafattura is null AND costo.datacosto <= @dataA) OR (bolla.databollafattura is not null AND bolla.databollafattura <= @dataA)))
+                        ")%></span>
 	                    <span class="iwebPARAMETRO">@idcantiere = IDCANTIERE_value</span>
                         <span class="iwebPARAMETRO">@dataDa = datacostoodatabollaDA_value</span>
                         <span class="iwebPARAMETRO">@dataA = datacostoodatabollaA_value</span>
@@ -220,23 +228,71 @@
                     <!-- uso i filtri della tabella, ma eseguo una query diversa -->
                     <span id="Span2" class="iwebTOTALE iwebUSAFILTRI iwebQuantita"></span>
                     <span class="iwebSQLSELECT iwebNascosto">
-	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                            "SELECT SUM(costo.quantita * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000)) as 'TOTALE' "
+	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                            SELECT SUM(costo.quantita * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000)) as 'TOTALE'
+                            FROM costo
+                                INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere)
+                                LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita)
+                                INNER JOIN prodotto ON costo.idprodotto = prodotto.id
+                                LEFT JOIN bollafattura ON costo.idbollafattura = bollafattura.id
+                                INNER JOIN fornitore ON ((bollafattura.id is null AND prodotto.idfornitore = fornitore.id) OR bollafattura.idfornitore = fornitore.id)
+                                LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id /* mi serve come tabella intermedia per ottenere il numero bolla */
+                                LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id /* da qui ottengo il numero bolla */
 
-                          + "FROM costo INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere) "
-                          + "           LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita) " 
-                          + "           INNER JOIN prodotto ON costo.idprodotto = prodotto.id "
-                          + "           LEFT JOIN bollafattura ON costo.idbollafattura = bollafattura.id "
-                          + "           INNER JOIN fornitore ON ((bollafattura.id is null AND prodotto.idfornitore = fornitore.id) OR bollafattura.idfornitore = fornitore.id) "
+                            WHERE costofatturariferita.id is NULL AND
+                                  (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND
+                                  (@dataA = '' OR ((bolla.databollafattura is null AND costo.datacosto <= @dataA) OR (bolla.databollafattura is not null AND bolla.databollafattura <= @dataA)))
+                        ") %></span>
+	                    <span class="iwebPARAMETRO">@idcantiere = IDCANTIERE_value</span>
+                        <span class="iwebPARAMETRO">@dataDa = datacostoodatabollaDA_value</span>
+                        <span class="iwebPARAMETRO">@dataA = datacostoodatabollaA_value</span>
+                    </span>
+                </td>
 
-                          + "           LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id " /* mi serve come tabella intermedia per ottenere il numero bolla */
-                          + "           LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id " /* da qui ottengo il numero bolla */
+                <td>
+                    <!-- uso i filtri della tabella, ma eseguo una query diversa -->
+                    <span id="Span3" class="iwebTOTALE iwebUSAFILTRI iwebQuantita"></span>
+                    <span class="iwebSQLSELECT iwebNascosto">
+	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                             SELECT SUM(costo.quantita) as 'TOTALE'
+                             FROM costo
+                                INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere)
+                                LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita)
+                                INNER JOIN prodotto ON costo.idprodotto = prodotto.id
+                                LEFT JOIN bollafattura ON costo.idbollafattura = bollafattura.id
+                                INNER JOIN fornitore ON ((bollafattura.id is null AND prodotto.idfornitore = fornitore.id) OR bollafattura.idfornitore = fornitore.id)
 
-                          + "WHERE costofatturariferita.id is NULL AND "
-                          + "      (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND "
-                          + "      (@dataA = '' OR ((bolla.databollafattura is null AND costo.datacosto <= @dataA) OR (bolla.databollafattura is not null AND bolla.databollafattura <= @dataA))) "
+                                LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id /* mi serve come tabella intermedia per ottenere il numero bolla */
+                                LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id /* da qui ottengo il numero bolla */
 
-                        )%></span>
+                             WHERE costofatturariferita.id is NULL AND
+                                   (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND
+                                   (@dataA = '' OR ((bolla.databollafattura is null AND costo.datacosto <= @dataA) OR (bolla.databollafattura is not null AND bolla.databollafattura <= @dataA)))
+                        ")%></span>
+	                    <span class="iwebPARAMETRO">@idcantiere = IDCANTIERE_value</span>
+                        <span class="iwebPARAMETRO">@dataDa = datacostoodatabollaDA_value</span>
+                        <span class="iwebPARAMETRO">@dataA = datacostoodatabollaA_value</span>
+                    </span>
+                </td>
+                <td>
+                    <!-- uso i filtri della tabella, ma eseguo una query diversa -->
+                    <span id="Span4" class="iwebTOTALE iwebUSAFILTRI iwebQuantita"></span>
+                    <span class="iwebSQLSELECT iwebNascosto">
+	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                            SELECT SUM(costo.quantita * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000)) as 'TOTALE'
+                            FROM costo
+                                INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere)
+                                LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita)
+                                INNER JOIN prodotto ON costo.idprodotto = prodotto.id
+                                LEFT JOIN bollafattura ON costo.idbollafattura = bollafattura.id
+                                INNER JOIN fornitore ON ((bollafattura.id is null AND prodotto.idfornitore = fornitore.id) OR bollafattura.idfornitore = fornitore.id)
+                                LEFT JOIN costo as rigacostobolla ON costo.idcostobollariferita = rigacostobolla.id /* mi serve come tabella intermedia per ottenere il numero bolla */
+                                LEFT JOIN bollafattura as bolla ON rigacostobolla.idbollafattura = bolla.id /* da qui ottengo il numero bolla */
+
+                            WHERE costofatturariferita.id is NULL AND
+                                  (@dataDa = '' OR ((bolla.databollafattura is null AND costo.datacosto >= @dataDa) OR (bolla.databollafattura is not null AND bolla.databollafattura >= @dataDa))) AND
+                                  (@dataA = '' OR ((bolla.databollafattura is null AND costo.datacosto <= @dataA) OR (bolla.databollafattura is not null AND bolla.databollafattura <= @dataA)))
+                        ") %></span>
 	                    <span class="iwebPARAMETRO">@idcantiere = IDCANTIERE_value</span>
                         <span class="iwebPARAMETRO">@dataDa = datacostoodatabollaDA_value</span>
                         <span class="iwebPARAMETRO">@dataA = datacostoodatabollaA_value</span>
@@ -262,15 +318,19 @@
                     costofatturariferita.id as 'idcostofatturachechiude', 
                     /* unitadimisura.id as 'unitadimisura.id',  */
                     unitadimisura.codice as 'unitadimisura.codice', 
-                    costo.quantita as 'costo.quantita', 
                     costo.prezzo as 'costo.prezzo', 
                     costo.sconto1 as 'costo.sconto1', 
                     costo.sconto2 as 'costo.sconto2', 
                     IF (bolla.isddt = true, bolla.databollafattura, costo.datacosto) as 'datacostoodatabolla', 
             
+                    costo.quantita as 'costo.quantita', 
                     (costo.quantita * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000)) as 'costo.importo', 
-                    IF (bollafattura.isfattura && bollafattura.isddt = false, rigacostobolla.descrizione, costo.descrizione) as 'costo.descrizione', 
             
+                    costo.qtaoremastrino as 'costo.qtaoremastrino', 
+                    (costo.qtaoremastrino * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000)) as 'costoimportoqtaoremastrino', 
+
+                    IF (bollafattura.isfattura && bollafattura.isddt = false, rigacostobolla.descrizione, costo.descrizione) as 'costo.descrizione', 
+
                     prodotto.id as 'prodotto.id', 
                     prodotto.descrizione as 'prodotto.descrizione', 
                     prodotto.listino as 'prodotto.listino', 
@@ -290,6 +350,7 @@
                     IF (bollafattura.isfattura && bollafattura.isddt = false, bollafattura.protocollo, '') as 'protocollofattura', 
             
                     (bollafattura.isfattura && bollafattura.isddt) as 'bollafattura.isfattura' 
+
 
              FROM costo INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere) 
                         LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita)

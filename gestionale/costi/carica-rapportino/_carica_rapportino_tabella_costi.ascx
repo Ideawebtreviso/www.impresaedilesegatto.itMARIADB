@@ -109,12 +109,6 @@
                 <%-- eventualmente va messo display:none --%>
                 <tr class="iwebNascosto">
                     <td></td>
-                    <td></td>
-                    <%--<td></td>--%>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                 </tr>
                 <tr><td><div class="iwebTABELLAFooterPaginazione">
                     <div>Pagina</div>
@@ -134,6 +128,7 @@
                     costo.quantita as 'costo.quantita',
                     costo.prezzo as 'costo.prezzo',
                     costo.datacosto as 'costo.datacosto',
+                    costo.qtaoremastrino as 'costo.qtaoremastrino',
                     costo.descrizione as 'costo.descrizione',
                     cantiere.id as 'cantiere.id',
                     cantiere.codice as 'cantiere.codice'
@@ -161,8 +156,13 @@
                             <td><span class="iwebCAMPO_costo.id"></span></td>
                         </tr>
                         <tr>
-                            <td>Ore</td>
+                            <td>Ore Da Fatturare</td>
                             <td><input type="text" class="iwebCAMPO_costo.quantita iwebCAMPOOBBLIGATORIO iwebTIPOCAMPO_varchar" 
+                                    onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)" /></td>
+                        </tr>
+                        <tr>
+                            <td>Ore Mastrino</td>
+                            <td><input type="text" class="iwebCAMPO_costo.qtaoremastrino iwebCAMPOOBBLIGATORIO iwebTIPOCAMPO_varchar" 
                                     onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)" /></td>
                         </tr>
                         <tr>
@@ -185,8 +185,7 @@
                                         onchange="iwebTABELLA_VerificaCampiObbligatori(this.parentElement)">
                                     </select>
                                     <span class="iwebSQLSELECT">
-                                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-                                            "SELECT codice as NOME, id as VALORE FROM cantiere ORDER BY codice") %>
+                                        <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"SELECT codice as NOME, id as VALORE FROM cantiere ORDER BY codice") %>
                                         </span>
                                     </span>
                                 </div>
@@ -198,9 +197,14 @@
                     <div class="btn btn-warning" onclick="chiudiPopupType2()" >Annulla</div>
                     <div class="btn btn-success" onclick="iwebTABELLA_ConfermaModificaRigaInPopup('popupTabellaCostiModifica', 'tabellaCosti', 'costo.idcantiere, costo.quantita, costo.datacosto, costo.descrizione', 'costo.id', true);">Aggiorna</div>
                     <span class="iwebSQLUPDATE">
-	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL("UPDATE costo SET idcantiere = @idcantiere, quantita = @quantita, datacosto = @datacosto, descrizione = @descrizione WHERE id = @id") %></span>
+	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+                            UPDATE costo
+                            SET idcantiere = @idcantiere, quantita = @quantita, qtaoremastrino = @qtaoremastrino, datacosto = @datacosto, descrizione = @descrizione
+                            WHERE id = @id
+                        ") %></span>
 	                    <span class="iwebPARAMETRO">@idcantiere = popupTabellaCostiModifica_findValue_cantiere.id</span>
 	                    <span class="iwebPARAMETRO">@quantita = popupTabellaCostiModifica_findValue_costo.quantita</span>
+	                    <span class="iwebPARAMETRO">@qtaoremastrino = popupTabellaCostiModifica_findValue_costo.qtaoremastrino</span>
 	                    <span class="iwebPARAMETRO">@datacosto = popupTabellaCostiModifica_findValue_costo.datacosto</span>
 	                    <span class="iwebPARAMETRO">@descrizione = popupTabellaCostiModifica_findValue_costo.descrizione</span>
 	                    <span class="iwebPARAMETRO">@id = popupTabellaCostiModifica_findValue_costo.id</span>
@@ -231,8 +235,12 @@
                             <td><span class="iwebCAMPO_costo.datacosto"></span></td>
                         </tr>
                         <tr>
-                            <td>Ore</td>
+                            <td>Ore Da Fatturare</td>
                             <td><span class="iwebCAMPO_costo.quantita"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Ore Mastrino</td>
+                            <td><span class="iwebCAMPO_costo.qtaoremastrino"></span></td>
                         </tr>
                         <tr>
                             <td>Codice cantiere</td>
