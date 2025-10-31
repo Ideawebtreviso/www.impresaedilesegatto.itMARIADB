@@ -61,6 +61,9 @@ public partial class aggiornamenti_v2025 : System.Web.UI.Page
         utility.AggiungiColonna(connection, "misura", "idvocetemplate", "INT");
         utility.AggiungiColonna(connection, "voce", "idvocetemplate", "INT"); // per traccia quando inserisco una voce. Non ha effetto nel programma, lo teniamo solo per informazione accessoria di storico.
 
+        utility.RimuoviColonna(connection, "vocetemplate", "nome"); // nome era errato, cambiato in due colonne: titolo e descrizione
+        utility.AggiungiColonna(connection, "vocetemplate", "titolo", "TEXT");
+        utility.AggiungiColonna(connection, "vocetemplate", "descrizione", "TEXT");
 
         // punto 4 (stampa pdf)
         utility.AggiungiColonna(connection, "computopdf", "indicaSoloTotale", "BOOLEAN NOT NULL DEFAULT FALSE");

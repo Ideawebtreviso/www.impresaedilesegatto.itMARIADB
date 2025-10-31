@@ -267,7 +267,8 @@
                         <tr>
                             <td>Descrizione</td>
                             <td>
-                                <textarea class="iwebCAMPO_voce.descrizione iwebTIPOCAMPO_memo" tabindex="1"></textarea>
+                                <textarea class="iwebCAMPO_voce.descrizione iwebTIPOCAMPO_memo" tabindex="1"
+                                    id="popupTabellaVociInserimentoVoceDescrizione"></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -320,9 +321,11 @@
                 // iwebElaboraCampo("C0001inputAAA", aaa);
 
                 // parametri di output
-                C0001PopupASCX_chiudi = function (idvocetemplate, codice, nome) {
+                C0001PopupASCX_chiudi = function (idvocetemplate, codice, titolo, descrizione) {
                     iwebAUTOCOMPLETAMENTO_SetChiaveSelezionato("iwebAUTOCOMPLETAMENTOTitoloInserimento", idvocetemplate);
-                    iwebAUTOCOMPLETAMENTO_SetValoreSelezionato("iwebAUTOCOMPLETAMENTOTitoloInserimento", nome);
+                    iwebAUTOCOMPLETAMENTO_SetValoreSelezionato("iwebAUTOCOMPLETAMENTOTitoloInserimento", titolo);
+
+                    document.getElementById("popupTabellaVociInserimentoVoceDescrizione").value = descrizione; // non funziona iwebElaboraCampo qui
                 }
 
                 let livelloPopup = getLivelloNuovoPopup("popupTabellaVociInserimento");

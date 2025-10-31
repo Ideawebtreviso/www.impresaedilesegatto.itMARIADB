@@ -2907,22 +2907,23 @@ public class WebServiceComputi : System.Web.Services.WebService {
         }
     }
 
-    [WebMethod] public void C0001popupInserimentoVoceTemplate_salva(string codice, string nome)
+    [WebMethod] public void C0001popupInserimentoVoceTemplate_salva(string codice, string titolo, string descrizione)
     {
         using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
             conn.Open();
 
             MySqlCommand command = conn.CreateCommand();
-            command.CommandText = @"INSERT INTO vocetemplate (codice, nome) VALUES (@codice, @nome)";
+            command.CommandText = @"INSERT INTO vocetemplate (codice, titolo, descrizione) VALUES (@codice, @titolo, @descrizione)";
             command.Parameters.AddWithValue("@codice", codice);
-            command.Parameters.AddWithValue("@nome", nome);
+            command.Parameters.AddWithValue("@titolo", titolo);
+            command.Parameters.AddWithValue("@descrizione", descrizione);
             command.ExecuteNonQuery();
 
             conn.Close();
         }
     }
-    [WebMethod] public void C0001popupModificaVoceTemplate_salva(int idvocetemplate, string codice, string nome)
+    [WebMethod] public void C0001popupModificaVoceTemplate_salva(int idvocetemplate, string codice, string titolo, string descrizione)
     {
         using (MySqlConnection conn = new MySqlConnection(Utility.getProprietaDaTicketAutenticazione(((FormsIdentity)Context.User.Identity).Ticket, "ConnectionString")))
         {
@@ -2933,10 +2934,12 @@ public class WebServiceComputi : System.Web.Services.WebService {
                 UPDATE vocetemplate
                 SET
                     vocetemplate.codice = @codice,
-                    vocetemplate.nome = @nome
+                    vocetemplate.titolo = @titolo,
+                    vocetemplate.descrizione = @descrizione
                 WHERE vocetemplate.id = @idvocetemplate";
             command.Parameters.AddWithValue("@codice", codice);
-            command.Parameters.AddWithValue("@nome", nome);
+            command.Parameters.AddWithValue("@titolo", titolo);
+            command.Parameters.AddWithValue("@descrizione", descrizione);
             command.Parameters.AddWithValue("@idvocetemplate", idvocetemplate);
             command.ExecuteNonQuery();
 

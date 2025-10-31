@@ -13,7 +13,8 @@
 <span class="iwebNascosto">
     <span id="C0001EsportaIdvocetemplate"></span>
     <span id="C0001EsportaCodice"></span>
-    <span id="C0001EsportaNome"></span>
+    <span id="C0001EsportaTitolo"></span>
+    <span id="C0001EsportaDescrizione"></span>
 </span>
 
 <script>
@@ -58,14 +59,29 @@
                                         "></div>
                                 </th>
                                 <th>Codice</th>
-                                <th>Testo</th>
+                                <th>Titolo</th>
+                                <th>Descrizione</th>
                                 <th></th>
                             </tr>
-                            <tr class="iwebNascosto">
+                            <tr>
                                 <th class="iwebNascosto"></th><%-- CHECKBOX --%>
                                 <th class="iwebNascosto"></th>
                                 <th></th>
-                                <th></th>
+                                <th>
+                                    <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_vocetemplate.codice">
+                                        <input type="text" onkeyup="iwebTABELLA_Carica(cercaTablePadreRicors().id, 0, true)">
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_vocetemplate.titolo">
+                                        <input type="text" onkeyup="iwebTABELLA_Carica(cercaTablePadreRicors().id, 0, true)">
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="iwebFILTRO iwebFILTROTestoSemplice iwebCAMPO_vocetemplate.descrizione">
+                                        <input type="text" onkeyup="iwebTABELLA_Carica(cercaTablePadreRicors().id, 0, true)">
+                                    </div>
+                                </th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -78,7 +94,10 @@
                                 </td>
                                 <td>
                                     <div class="glyphicon glyphicon-hand-right iwebCliccabile" title="Seleziona"
-                                        onclick="iwebTABELLA_SelezionaRigaComeUnica(this); C0001popupPickingVoceTemplate_conferma()"></div>
+                                        onclick="
+                                            iwebTABELLA_SelezionaRigaComeUnica(this);
+                                            C0001popupPickingVoceTemplate_conferma();
+                                        "></div>
 
                                     <div class="iwebCliccabile glyphicon glyphicon-pencil" title="Modifica"
                                         onclick="
@@ -93,7 +112,10 @@
                                     <span class="iwebCAMPO_vocetemplate.codice iwebCodice"></span>
                                 </td>
                                 <td>
-                                    <span class="iwebCAMPO_vocetemplate.nome iwebCodice"></span>
+                                    <span class="iwebCAMPO_vocetemplate.titolo"></span>
+                                </td>
+                                <td>
+                                    <span class="iwebCAMPO_vocetemplate.descrizione iwebDescrizione"></span>
                                 </td>
                                 <td>
                                     <div class="iwebCliccabile glyphicon glyphicon-trash" title="Elimina"
@@ -131,7 +153,8 @@
                             SELECT
                                 vocetemplate.id as 'vocetemplate.id',
                                 vocetemplate.codice as 'vocetemplate.codice',
-                                vocetemplate.nome as 'vocetemplate.nome'
+                                vocetemplate.titolo as 'vocetemplate.titolo',
+                                vocetemplate.descrizione as 'vocetemplate.descrizione'
                             FROM vocetemplate
                         ") %></span>
                         <%--WHERE vocetemplate.id = @idvocetemplate
@@ -161,8 +184,12 @@
                             <td><input type="text" class="iwebCAMPO_vocetemplate.codice iwebTIPOCAMPO_varchar" /></td>
                         </tr>
                         <tr>
-                            <td>Testo</td>
-                            <td><textarea class="iwebCAMPO_vocetemplate.nome iwebTIPOCAMPO_memo"></textarea></td>
+                            <td>Titolo</td>
+                            <td><input type="text" class="iwebCAMPO_vocetemplate.titolo iwebTIPOCAMPO_varchar" /></td>
+                        </tr>
+                        <tr>
+                            <td>Descrizione</td>
+                            <td><textarea class="iwebCAMPO_vocetemplate.descrizione iwebTIPOCAMPO_memo"></textarea></td>
                         </tr>
                     </table>
                 </div>
@@ -176,13 +203,15 @@
             function C0001popupInserimentoVoceTemplate_salva() {
 
                 let codice = iwebValutaParametroAjax("C0001popupInserimentoVoceTemplate_findValue_vocetemplate.codice");
-                let nome = iwebValutaParametroAjax("C0001popupInserimentoVoceTemplate_findValue_vocetemplate.nome");
+                let titolo = iwebValutaParametroAjax("C0001popupInserimentoVoceTemplate_findValue_vocetemplate.titolo");
+                let descrizione = iwebValutaParametroAjax("C0001popupInserimentoVoceTemplate_findValue_vocetemplate.descrizione");
 
                 if (codice == "" && nome == "") { alert("Compilare almeno un campo"); return; }
 
                 let parametri = {
                     codice: codice,
-                    nome: nome
+                    titolo: titolo,
+                    descrizione: descrizione
                 };
                 iwebMostraCaricamentoAjax();
                 ajax2024("/WebServiceComputi.asmx/C0001popupInserimentoVoceTemplate_salva", parametri, function () {
@@ -219,8 +248,12 @@
                             <td><input type="text" class="iwebCAMPO_vocetemplate.codice iwebTIPOCAMPO_varchar" /></td>
                         </tr>
                         <tr>
-                            <td>Testo</td>
-                            <td><textarea class="iwebCAMPO_vocetemplate.nome iwebTIPOCAMPO_memo"></textarea></td>
+                            <td>Titolo</td>
+                            <td><input type="text" class="iwebCAMPO_vocetemplate.titolo iwebTIPOCAMPO_varchar" /></td>
+                        </tr>
+                        <tr>
+                            <td>Descrizione</td>
+                            <td><textarea class="iwebCAMPO_vocetemplate.descrizione iwebTIPOCAMPO_memo"></textarea></td>
                         </tr>
                     </table>
                 </div>
@@ -235,14 +268,16 @@
 
                 let idvocetemplate = iwebValutaParametroAjax("C0001popupModificaVoceTemplate_findValue_vocetemplate.id", null, "int?");
                 let codice = iwebValutaParametroAjax("C0001popupModificaVoceTemplate_findValue_vocetemplate.codice");
-                let nome = iwebValutaParametroAjax("C0001popupModificaVoceTemplate_findValue_vocetemplate.nome");
+                let titolo = iwebValutaParametroAjax("C0001popupModificaVoceTemplate_findValue_vocetemplate.titolo");
+                let descrizione = iwebValutaParametroAjax("C0001popupModificaVoceTemplate_findValue_vocetemplate.descrizione");
 
                 if (codice == "" && nome == "") { alert("Compilare almeno un campo"); return; }
 
                 let parametri = {
                     idvocetemplate: idvocetemplate,
                     codice: codice,
-                    nome: nome
+                    titolo: titolo,
+                    descrizione: descrizione
                 };
                 iwebMostraCaricamentoAjax();
                 ajax2024("/WebServiceComputi.asmx/C0001popupModificaVoceTemplate_salva", parametri, function () {
@@ -280,8 +315,12 @@
                             <td><input type="text" class="iwebCAMPO_vocetemplate.codice iwebTIPOCAMPO_varchar" /></td>
                         </tr>
                         <tr>
-                            <td>Testo</td>
-                            <td><textarea class="iwebCAMPO_vocetemplate.nome iwebTIPOCAMPO_memo"></textarea></td>
+                            <td>Titolo</td>
+                            <td><input type="text" class="iwebCAMPO_vocetemplate.titolo iwebTIPOCAMPO_varchar" /></td>
+                        </tr>
+                        <tr>
+                            <td>Descrizione</td>
+                            <td><textarea class="iwebCAMPO_vocetemplate.descrizione iwebTIPOCAMPO_memo"></textarea></td>
                         </tr>
                     </table>
                 </div>
@@ -317,14 +356,16 @@
         // preparo i parametri da esportare
         let idvocetemplate = iwebValutaParametroAjax("C0001tabellaVoceTemplate_selectedValue_vocetemplate.id", null, "int?");
         let codice = iwebValutaParametroAjax("C0001tabellaVoceTemplate_selectedValue_vocetemplate.codice");
-        let nome = iwebValutaParametroAjax("C0001tabellaVoceTemplate_selectedValue_vocetemplate.nome");
+        let titolo = iwebValutaParametroAjax("C0001tabellaVoceTemplate_selectedValue_vocetemplate.titolo");
+        let descrizione = iwebValutaParametroAjax("C0001tabellaVoceTemplate_selectedValue_vocetemplate.descrizione");
 
         // esporto i parametri che potrebbero servirmi più tardi
         iwebElaboraCampo("C0001EsportaIdvocetemplate", idvocetemplate);
         iwebElaboraCampo("C0001EsportaCodice", codice);
-        iwebElaboraCampo("C0001EsportaNome", nome);
+        iwebElaboraCampo("C0001EsportaTitolo", titolo);
+        iwebElaboraCampo("C0001EsportaDescrizione", descrizione);
 
-        C0001PopupASCX_chiudi(idvocetemplate, codice, nome); // restituisco il risultato chiamando la funzione preparata
+        C0001PopupASCX_chiudi(idvocetemplate, codice, titolo, descrizione); // restituisco il risultato chiamando la funzione preparata
         chiudiPopupType2B("C0001popupPickingVoceTemplate"); // Questo controllo è un popup. Lo chiudo.
     }
 </script>

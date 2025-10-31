@@ -70,23 +70,24 @@
                 <div class="iwebPAGENUMBER"><input type="text" value="1" onchange="iwebTABELLA_FooterVaiPaginaSpec()" /></div>
                 <div class="iwebCliccabile" onclick="iwebTABELLA_FooterVaiPaginaSucc()"><span class="glyphicon glyphicon-chevron-right"></span></div><div>di</div>
                 <div class="iwebTOTPAGINE">1</div><div>|</div><div>Vedi</div>
-                <div class="iwebPAGESIZE"><select id="Select1" onchange="iwebTABELLA_FooterCambiaPageSize()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="10000">Tutti</option></select></div><div>righe</div><div>|</div>
+                <div class="iwebPAGESIZE"><select id="Select1ALSDKJ44" onchange="iwebTABELLA_FooterCambiaPageSize()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="10000">Tutti</option></select></div><div>righe</div><div>|</div>
                 <div class="iwebTOTRECORD">Trovate 0 righe</div>
             </div></td></tr>
         </tfoot>
     </table>
     <span class="iwebSQLSELECT">
-	    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(
-            "SELECT bollafattura.id as 'bollafattura.id', "
-          + "       bollafattura.numero as 'bollafattura.numero', "
-          + "       bollafattura.databollafattura as 'bollafattura.databollafattura', "
-          + "       fornitore.ragionesociale as 'fornitore.ragionesociale', "
-          + "       fornitore.id as 'fornitore.id', "
-          + "       bollafattura.importo as 'bollafattura.importo', "
-          + "       bollafattura.chiusa as 'bollafattura.chiusa', "
-          + "   IF (bollafattura.isfattura, 'Bolla accompagnatoria', 'Bolla') as 'tipo' " 
-          + "FROM bollafattura INNER JOIN fornitore ON bollafattura.idfornitore = fornitore.id "
-          + "WHERE bollafattura.id = @idbolla") %></span>
+	    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
+             SELECT bollafattura.id as 'bollafattura.id',
+                    bollafattura.numero as 'bollafattura.numero',
+                    bollafattura.databollafattura as 'bollafattura.databollafattura',
+                    fornitore.ragionesociale as 'fornitore.ragionesociale',
+                    fornitore.id as 'fornitore.id',
+                    bollafattura.importo as 'bollafattura.importo',
+                    bollafattura.chiusa as 'bollafattura.chiusa',
+                IF (bollafattura.isfattura, 'Bolla accompagnatoria', 'Bolla') as 'tipo'
+             FROM bollafattura INNER JOIN fornitore ON bollafattura.idfornitore = fornitore.id
+             WHERE bollafattura.id = @idbolla
+        ") %></span>
 	    <span class="iwebPARAMETRO">@idbolla = IDBOLLA_value</span>
     </span>
 

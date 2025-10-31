@@ -19,21 +19,21 @@
 <script>
     function C0002PopupASCX_apri(livelloPopup) {
         // in base al livello del popup viene modificato lo stile specifico
-        let elPopup = document.getElementById("C0002popupPickingVoceTemplate");
+        let elPopup = document.getElementById("C0002popupPickingAggiornamentoCostoDipendente");
         setLivelloNuovoPopup(elPopup, livelloPopup);
 
         // codice qui..
         iwebMostraCaricamentoAjax();
-        iwebCaricaElemento("C0002tabellaVoceTemplate", false, function () {
-            apriPopupType2("C0002popupPickingVoceTemplate");
+        iwebCaricaElemento("C0002tabellaAggiornamentoCostoDipendente", false, function () {
+            apriPopupType2("C0002popupPickingAggiornamentoCostoDipendente");
             iwebNascondiCaricamentoAjax();
         });
     }
 </script>
 
 
-        <%-- C0002popupPickingVoceTemplate --%>
-        <div id="C0002popupPickingVoceTemplate" class="popup popupType2" style="display:none">
+        <%-- C0002popupPickingAggiornamentoCostoDipendente --%>
+        <div id="C0002popupPickingAggiornamentoCostoDipendente" class="popup popupType2" style="display:none">
             <div>
                 <div class="popupHeader">
                     <div class="glyphicon glyphicon-remove iwebCliccabile r" onclick="chiudiPopupType2()" ></div>
@@ -43,7 +43,7 @@
                 <div class="iwebTABELLA_ContenitoreParametri"></div>
                 <div class="popupCorpo">
 
-                    <table id="C0002tabellaVoceTemplate" class="iwebTABELLA iwebCHIAVE__vocetemplate.id">
+                    <table id="C0002tabellaAggiornamentoCostoDipendente" class="iwebTABELLA iwebCHIAVE__vocetemplate.id">
                         <thead>
                             <tr>
                                 <%-- il primo è il checkbox di selezione --%>
@@ -52,9 +52,9 @@
                                 <th>
                                     <div class="glyphicon glyphicon-plus iwebCliccabile" title="Aggiungi" tabindex="1"
                                         onclick="
-                                        let livelloPopup = getLivelloNuovoPopup('C0002popupPickingVoceTemplate');
-                                        setLivelloNuovoPopup('C0002popupInserimentoVoceTemplate', livelloPopup);
-                                        apriPopupType2('C0002popupInserimentoVoceTemplate');
+                                        let livelloPopup = getLivelloNuovoPopup('C0002popupPickingAggiornamentoCostoDipendente');
+                                        setLivelloNuovoPopup('C0002popupInserimentoAggiornamentoCostoDipendente', livelloPopup);
+                                        apriPopupType2('C0002popupInserimentoAggiornamentoCostoDipendente');
                                         "></div>
                                 </th>
                                 <th>Codice</th>
@@ -78,14 +78,14 @@
                                 </td>
                                 <td>
                                     <div class="glyphicon glyphicon-hand-right iwebCliccabile" title="Seleziona"
-                                        onclick="iwebTABELLA_SelezionaRigaComeUnica(this); C0002popupPickingVoceTemplate_conferma()"></div>
+                                        onclick="iwebTABELLA_SelezionaRigaComeUnica(this); C0002popupPickingAggiornamentoCostoDipendente_conferma()"></div>
 
                                     <div class="iwebCliccabile glyphicon glyphicon-pencil" title="Modifica"
                                         onclick="
                                             iwebTABELLA_SelezionaRigaComeUnica(this);
-                                            let livelloPopup = getLivelloNuovoPopup('C0002popupPickingVoceTemplate');
-                                            setLivelloNuovoPopup('C0002popupModificaVoceTemplate', livelloPopup);
-                                            iwebTABELLA_ModificaRigaInPopup('C0002popupModificaVoceTemplate');
+                                            let livelloPopup = getLivelloNuovoPopup('C0002popupPickingAggiornamentoCostoDipendente');
+                                            setLivelloNuovoPopup('C0002popupModificaAggiornamentoCostoDipendente', livelloPopup);
+                                            iwebTABELLA_ModificaRigaInPopup('C0002popupModificaAggiornamentoCostoDipendente');
                                         "></div>
 
                                 </td>
@@ -99,9 +99,9 @@
                                     <div class="iwebCliccabile glyphicon glyphicon-trash" title="Elimina"
                                         onclick="
                                             iwebTABELLA_SelezionaRigaComeUnica(this);
-                                            let livelloPopup = getLivelloNuovoPopup('C0002popupPickingVoceTemplate');
-                                            setLivelloNuovoPopup('C0002popupEliminaVoceTemplate', livelloPopup);
-                                            iwebTABELLA_EliminaRigaInPopup('C0002popupEliminaVoceTemplate');
+                                            let livelloPopup = getLivelloNuovoPopup('C0002popupPickingAggiornamentoCostoDipendente');
+                                            setLivelloNuovoPopup('C0002popupEliminaAggiornamentoCostoDipendente', livelloPopup);
+                                            iwebTABELLA_EliminaRigaInPopup('C0002popupEliminaAggiornamentoCostoDipendente');
                                         "></div>
                                 </td>
                             </tr>
@@ -146,8 +146,8 @@
         </div>
 
 
-        <%-- C0002popupInserimentoVoceTemplate -> INSERIMENTO --%>
-        <div id="C0002popupInserimentoVoceTemplate" class="popup popupType2" style="display:none">
+        <%-- C0002popupInserimentoAggiornamentoCostoDipendente -> INSERIMENTO --%>
+        <div id="C0002popupInserimentoAggiornamentoCostoDipendente" class="popup popupType2" style="display:none">
             <div>
                 <div class="popupHeader">
                     <div class="glyphicon glyphicon-remove iwebCliccabile r" onclick="chiudiPopupType2()" ></div>
@@ -168,15 +168,15 @@
                 </div>
                 <div class="popupFooter">
                     <div class="btn btn-warning" onclick="chiudiPopupType2(this)" >Annulla</div>
-                    <div class="btn btn-success" onclick="C0002popupInserimentoVoceTemplate_salva();">Inserisci</div>
+                    <div class="btn btn-success" onclick="C0002popupInserimentoAggiornamentoCostoDipendente_salva();">Inserisci</div>
                 </div>
             </div>
         </div>
         <script>
-            function C0002popupInserimentoVoceTemplate_salva() {
+            function C0002popupInserimentoAggiornamentoCostoDipendente_salva() {
 
-                let codice = iwebValutaParametroAjax("C0002popupInserimentoVoceTemplate_findValue_vocetemplate.codice");
-                let nome = iwebValutaParametroAjax("C0002popupInserimentoVoceTemplate_findValue_vocetemplate.nome");
+                let codice = iwebValutaParametroAjax("C0002popupInserimentoAggiornamentoCostoDipendente_findValue_vocetemplate.codice");
+                let nome = iwebValutaParametroAjax("C0002popupInserimentoAggiornamentoCostoDipendente_findValue_vocetemplate.nome");
 
                 if (codice == "" && nome == "") { alert("Compilare almeno un campo"); return; }
 
@@ -185,10 +185,10 @@
                     nome: nome
                 };
                 iwebMostraCaricamentoAjax();
-                ajax2024("/WebServiceComputi.asmx/C0002popupInserimentoVoceTemplate_salva", parametri, function () {
+                ajax2024("/WebServiceComputi.asmx/C0002popupInserimentoAggiornamentoCostoDipendente_salva", parametri, function () {
 
-                    iwebCaricaElemento("C0002tabellaVoceTemplate");
-                    chiudiPopupType2B("C0002popupInserimentoVoceTemplate");
+                    iwebCaricaElemento("C0002tabellaAggiornamentoCostoDipendente");
+                    chiudiPopupType2B("C0002popupInserimentoAggiornamentoCostoDipendente");
 
                     iwebNascondiCaricamentoAjax();
                 });
@@ -197,8 +197,8 @@
 
 
 
-        <%-- C0002popupModificaVoceTemplate -> MODIFICA --%>
-        <div id="C0002popupModificaVoceTemplate" class="popup popupType2" style="display:none">
+        <%-- C0002popupModificaAggiornamentoCostoDipendente -> MODIFICA --%>
+        <div id="C0002popupModificaAggiornamentoCostoDipendente" class="popup popupType2" style="display:none">
             <div>
                 <div class="popupHeader">
                     <div class="glyphicon glyphicon-remove iwebCliccabile r" onclick="chiudiPopupType2()" ></div>
@@ -226,16 +226,16 @@
                 </div>
                 <div class="popupFooter">
                     <div class="btn btn-warning" onclick="chiudiPopupType2(this)" >Annulla</div>
-                    <div class="btn btn-success" onclick="C0002popupModificaVoceTemplate_salva();">Salva</div>
+                    <div class="btn btn-success" onclick="C0002popupModificaAggiornamentoCostoDipendente_salva();">Salva</div>
                 </div>
             </div>
         </div>
         <script>
-            function C0002popupModificaVoceTemplate_salva() {
+            function C0002popupModificaAggiornamentoCostoDipendente_salva() {
 
-                let idvocetemplate = iwebValutaParametroAjax("C0002popupModificaVoceTemplate_findValue_vocetemplate.id", null, "int?");
-                let codice = iwebValutaParametroAjax("C0002popupModificaVoceTemplate_findValue_vocetemplate.codice");
-                let nome = iwebValutaParametroAjax("C0002popupModificaVoceTemplate_findValue_vocetemplate.nome");
+                let idvocetemplate = iwebValutaParametroAjax("C0002popupModificaAggiornamentoCostoDipendente_findValue_vocetemplate.id", null, "int?");
+                let codice = iwebValutaParametroAjax("C0002popupModificaAggiornamentoCostoDipendente_findValue_vocetemplate.codice");
+                let nome = iwebValutaParametroAjax("C0002popupModificaAggiornamentoCostoDipendente_findValue_vocetemplate.nome");
 
                 if (codice == "" && nome == "") { alert("Compilare almeno un campo"); return; }
 
@@ -245,10 +245,10 @@
                     nome: nome
                 };
                 iwebMostraCaricamentoAjax();
-                ajax2024("/WebServiceComputi.asmx/C0002popupModificaVoceTemplate_salva", parametri, function () {
+                ajax2024("/WebServiceComputi.asmx/C0002popupModificaAggiornamentoCostoDipendente_salva", parametri, function () {
 
-                    iwebCaricaElemento("C0002tabellaVoceTemplate");
-                    chiudiPopupType2B("C0002popupModificaVoceTemplate");
+                    iwebCaricaElemento("C0002tabellaAggiornamentoCostoDipendente");
+                    chiudiPopupType2B("C0002popupModificaAggiornamentoCostoDipendente");
 
                     iwebNascondiCaricamentoAjax();
                 });
@@ -258,8 +258,8 @@
 
 
 
-        <%-- C0002popupEliminaVoceTemplate -> ELIMINA --%>
-        <div id="C0002popupEliminaVoceTemplate" class="popup popupType2" style="display:none">
+        <%-- C0002popupEliminaAggiornamentoCostoDipendente -> ELIMINA --%>
+        <div id="C0002popupEliminaAggiornamentoCostoDipendente" class="popup popupType2" style="display:none">
             <div>
                 <div class="popupHeader">
                     <div class="glyphicon glyphicon-remove iwebCliccabile r" onclick="chiudiPopupType2()" ></div>
@@ -287,23 +287,23 @@
                 </div>
                 <div class="popupFooter">
                     <div class="btn btn-warning" onclick="chiudiPopupType2(this)" >Annulla</div>
-                    <div class="btn btn-danger" onclick="C0002popupEliminaVoceTemplate_conferma();">Elimina</div>
+                    <div class="btn btn-danger" onclick="C0002popupEliminaAggiornamentoCostoDipendente_conferma();">Elimina</div>
                 </div>
             </div>
         </div>
         <script>
-            function C0002popupEliminaVoceTemplate_conferma() {
+            function C0002popupEliminaAggiornamentoCostoDipendente_conferma() {
 
-                let idvocetemplate = iwebValutaParametroAjax("C0002popupEliminaVoceTemplate_findValue_vocetemplate.id", null, "int?");
+                let idvocetemplate = iwebValutaParametroAjax("C0002popupEliminaAggiornamentoCostoDipendente_findValue_vocetemplate.id", null, "int?");
 
                 let parametri = {
                     idvocetemplate: idvocetemplate
                 };
                 iwebMostraCaricamentoAjax();
-                ajax2024("/WebServiceComputi.asmx/C0002popupEliminaVoceTemplate_conferma", parametri, function () {
+                ajax2024("/WebServiceComputi.asmx/C0002popupEliminaAggiornamentoCostoDipendente_conferma", parametri, function () {
 
-                    iwebCaricaElemento("C0002tabellaVoceTemplate");
-                    chiudiPopupType2B("C0002popupEliminaVoceTemplate");
+                    iwebCaricaElemento("C0002tabellaAggiornamentoCostoDipendente");
+                    chiudiPopupType2B("C0002popupEliminaAggiornamentoCostoDipendente");
 
                     iwebNascondiCaricamentoAjax();
                 });
@@ -313,11 +313,11 @@
 
 
 <script>
-    function C0002popupPickingVoceTemplate_conferma() {
+    function C0002popupPickingAggiornamentoCostoDipendente_conferma() {
         // preparo i parametri da esportare
-        let idvocetemplate = iwebValutaParametroAjax("C0002tabellaVoceTemplate_selectedValue_vocetemplate.id", null, "int?");
-        let codice = iwebValutaParametroAjax("C0002tabellaVoceTemplate_selectedValue_vocetemplate.codice");
-        let nome = iwebValutaParametroAjax("C0002tabellaVoceTemplate_selectedValue_vocetemplate.nome");
+        let idvocetemplate = iwebValutaParametroAjax("C0002tabellaAggiornamentoCostoDipendente_selectedValue_vocetemplate.id", null, "int?");
+        let codice = iwebValutaParametroAjax("C0002tabellaAggiornamentoCostoDipendente_selectedValue_vocetemplate.codice");
+        let nome = iwebValutaParametroAjax("C0002tabellaAggiornamentoCostoDipendente_selectedValue_vocetemplate.nome");
 
         // esporto i parametri che potrebbero servirmi più tardi
         iwebElaboraCampo("C0002EsportaIdvocetemplate", idvocetemplate);
@@ -325,6 +325,6 @@
         iwebElaboraCampo("C0002EsportaNome", nome);
 
         C0002PopupASCX_chiudi(idvocetemplate, codice, nome); // restituisco il risultato chiamando la funzione preparata
-        chiudiPopupType2B("C0002popupPickingVoceTemplate"); // Questo controllo è un popup. Lo chiudo.
+        chiudiPopupType2B("C0002popupPickingAggiornamentoCostoDipendente"); // Questo controllo è un popup. Lo chiudo.
     }
 </script>

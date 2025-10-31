@@ -36,7 +36,6 @@
                     </th>
                     <th>Indirizzo</th>
                     <th>Data inizio/fine</th>
-                    <th>Indirizzo</th>
                     <th>Descrizione</th>
                     <th>Stato</th>
                     <th>Report</th>
@@ -156,7 +155,7 @@
                     <div class="iwebPAGENUMBER"><input type="text" value="1" onchange="iwebTABELLA_FooterVaiPaginaSpec()" /></div>
                     <div class="iwebCliccabile" onclick="iwebTABELLA_FooterVaiPaginaSucc()"><span class="glyphicon glyphicon-chevron-right"></span></div><div>di</div>
                     <div class="iwebTOTPAGINE">1</div><div>|</div><div>Vedi</div>
-                    <div class="iwebPAGESIZE"><select id="Select1" onchange="iwebTABELLA_FooterCambiaPageSize()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="10000">Tutti</option></select></div><div>righe</div><div>|</div>
+                    <div class="iwebPAGESIZE"><select id="Select1ASTHJJ" onchange="iwebTABELLA_FooterCambiaPageSize()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="10000">Tutti</option></select></div><div>righe</div><div>|</div>
                     <div class="iwebTOTRECORD">Trovate 0 righe</div>
                 </div></td></tr>
             </tfoot>
@@ -251,7 +250,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Data inizio</td>
+                            <td>Data fine</td>
                             <td>
                                 <input type="text" maxlength="10" placeholder="gg/mm/aaaa"
                                     class="iwebCAMPO_cantiere.cantdatafine iwebTIPOCAMPO_date"

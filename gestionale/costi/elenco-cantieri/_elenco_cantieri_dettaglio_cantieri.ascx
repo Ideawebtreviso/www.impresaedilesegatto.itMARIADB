@@ -56,7 +56,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Data inizio</td>
+                                <td>Data fine</td>
                                 <td>
                                     <input type="text" maxlength="10" placeholder="gg/mm/aaaa"
                                         class="iwebCAMPO_cantiere.cantdatafine iwebTIPOCAMPO_date"

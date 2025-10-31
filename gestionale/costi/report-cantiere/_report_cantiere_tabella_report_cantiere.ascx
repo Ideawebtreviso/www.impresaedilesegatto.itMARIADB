@@ -254,7 +254,7 @@
                     <span id="Span3" class="iwebTOTALE iwebUSAFILTRI iwebQuantita"></span>
                     <span class="iwebSQLSELECT iwebNascosto">
 	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
-                             SELECT SUM(costo.quantita) as 'TOTALE'
+                             SELECT SUM(costo.qtaoremastrino) as 'TOTALE'
                              FROM costo
                                 INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere)
                                 LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita)
@@ -279,7 +279,9 @@
                     <span id="Span4" class="iwebTOTALE iwebUSAFILTRI iwebQuantita"></span>
                     <span class="iwebSQLSELECT iwebNascosto">
 	                    <span class="iwebSQL"><%= IwebCrypter.iwebcsCriptaSQL(@"
-                            SELECT SUM(costo.quantita * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000)) as 'TOTALE'
+                            SELECT SUM(
+                                    (costo.qtaoremastrino * (costo.prezzo * (100-costo.sconto1) * (100-costo.sconto2) / 10000))
+                                ) as 'TOTALE' 
                             FROM costo
                                 INNER JOIN cantiere ON (cantiere.id = costo.idcantiere AND cantiere.id = @idcantiere)
                                 LEFT JOIN costo as costofatturariferita ON (costo.id = costofatturariferita.idcostobollariferita)
@@ -306,7 +308,7 @@
                 <div class="iwebPAGENUMBER"><input type="text" value="1" onchange="iwebTABELLA_FooterVaiPaginaSpec()" /></div>
                 <div class="iwebCliccabile" onclick="iwebTABELLA_FooterVaiPaginaSucc()"><span class="glyphicon glyphicon-chevron-right"></span></div><div>di</div>
                 <div class="iwebTOTPAGINE">1</div><div>|</div><div>Vedi</div>
-                <div class="iwebPAGESIZE"><select id="Select1" onchange="iwebTABELLA_FooterCambiaPageSize()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="10000">Tutti</option></select></div><div>righe</div><div>|</div>
+                <div class="iwebPAGESIZE"><select id="Select1DASSF023J" onchange="iwebTABELLA_FooterCambiaPageSize()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="10000">Tutti</option></select></div><div>righe</div><div>|</div>
                 <div class="iwebTOTRECORD">Trovate 0 righe</div>
             </div></td></tr>
         </tfoot>
